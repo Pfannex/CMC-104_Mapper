@@ -21,6 +21,14 @@ import helper as h
 import time
 
 ###############################################################################
+#   CALLBACKS
+###############################################################################
+def timer1_callback():
+    h.log("here we go every 60 seconds")
+def timer2_callback():
+    h.log("here we go every 300 seconds")
+    
+###############################################################################
 #   FUNCTIONS
 ###############################################################################
 
@@ -28,15 +36,18 @@ import time
 cmc.start()
 c104.start()
 h.start()
-    
+
+t1 = h.idleTimer(60, timer1_callback)
+t2 = h.idleTimer(300, timer2_callback)
+
 
 ###############################################################################
 #   MAIN LOOP
 ###############################################################################
 
 while True:
-    cmc.update()
-    c104.update()
-    h.update()
-    time.sleep(1)
+    #cmc.update()
+    #c104.update()
+    #h.update()
+    time.sleep(10)
     
