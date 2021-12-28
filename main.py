@@ -18,28 +18,30 @@
 import CMEngine as cmc
 import Server104 as c104
 import helper as h
-import time
+
 
 ###############################################################################
 #   CALLBACKS
 ###############################################################################
 def timer1_callback():
     h.log("here we go every 60 seconds")
+
+
 def timer2_callback():
     h.log("here we go every 300 seconds")
-    
+
+
 ###############################################################################
 #   FUNCTIONS
 ###############################################################################
 
-#--- Start up -----------------------------------------------------------------
+# --- Start up -----------------------------------------------------------------
 cmc.start()
 c104.start()
 h.start()
 
-t1 = h.idleTimer(60, timer1_callback)
-t2 = h.idleTimer(300, timer2_callback)
-
+t1 = h.IdleTimer(60, timer1_callback)
+t2 = h.IdleTimer(300, timer2_callback)
 
 ###############################################################################
 #   MAIN LOOP
