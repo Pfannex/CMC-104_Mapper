@@ -1,5 +1,0 @@
-fileignoreconfig:
-- filename: docu/TR-IEC104.pdf
-  checksum: 0954e38b4eca654e7ea7a1057b6b7b1c30d2650f01491ed804c248399cd31e84
-- filename: docu/TF6500_TC3_IEC60870-5-10x_DE.pdf
-  checksum: e53d3f8e781336ce1fc9ed1157149974c71e2ec3b24f031a1c8e515df8766b31

@@ -18,6 +18,7 @@
 import CMEngine as cmc
 import Server104 as c104
 import helper as h
+import time
 
 
 ###############################################################################
@@ -29,6 +30,7 @@ def timer1_callback():
 
 def timer2_callback():
     h.log("here we go every 300 seconds")
+
 
 
 ###############################################################################
@@ -49,8 +51,8 @@ t2 = h.IdleTimer(300, timer2_callback)
 
 while True:
     #cmc.handle()
-    c104.handle()
-    print ("do")
+    #c104.handle()
+    #print ("do")
     #h.handle()
-    #time.sleep(10)
+    time.sleep(10)
     

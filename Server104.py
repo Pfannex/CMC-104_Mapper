@@ -23,31 +23,48 @@ import helper as h
 ###############################################################################
 #   FUNCTIONS
 ###############################################################################
+#public
+# --- Start up -----------------------------------------------------------------
+def start():
+    h.log(__name__ + " start")
+    s = Server104(receive_Callback)
+
+# --- update  ------------------------------------------------------------------
+def handle():
+    h.log(__name__ + " handle")
+
+# --- receive Callback  --------------------------------------------------------
+def receive_Callback():
+    print("do nothing")
 
 
+#private
 class Server104(threading.Thread):
     def __init__(self, callback):
+        super().__init__()
         self.bind_ip = ''
         self.bind_port = 2404
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((self.bind_ip, self.bind_port))
+        h.log("Server config done")
+        self.server.listen(5)  # max backlog of connections
+        h.log('IEC 60870-5-104 Server listening on {}:{}'.format(self.bind_ip, self.bind_port))
+        self.start()
 
     # --- Start up -----------------------------------------------------------------
-    def start(self):
-        h.log(__name__ + " start")
-        open()
+    #def start(self):
+        #h.log(__name__ + " start")
+        #open()
 
     # --- update  ------------------------------------------------------------------
-    def handle(self):
+    def run(self):
         h.log(__name__ + "handle")
         client_sock, address = self.server.accept()
         print('Accepted connection from {}:{}'.format(address[0], address[1]))
         handle_client_connection(client_sock)
 
     # --- open  --------------------------------------------------------------------
-    def open(self):
-        self.server.listen(5)  # max backlog of connections
-        h.log('IEC 60870-5-104 Server listening on {}:{}'.format(self.bind_ip, self.bind_port))
+    #def open(self):
 
 
 # --- handle client  -----------------------------------------------------------
