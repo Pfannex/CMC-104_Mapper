@@ -46,8 +46,9 @@ t2 = h.idleTimer(300, timer2_callback)
 ###############################################################################
 
 while True:
-    #cmc.update()
-    #c104.update()
-    #h.update()
-    time.sleep(10)
+    #cmc.handle()
+    c104.handle()
+    print ("do")
+    #h.handle()
+    #time.sleep(10)
     
