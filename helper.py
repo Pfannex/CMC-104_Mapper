@@ -3,17 +3,17 @@
 ###############################################################################
 import time
 import logging
-from threading import Thread
+#from threading import Thread
 import threading
 
 ###############################################################################
 #   DECLARATION
 ###############################################################################
-class idleTimer(Thread):
+class idleTimer(threading.Thread):
     def __init__(self, time, callback):
         self.time = time
         self.callback = callback
-        Thread.__init__(self)
+        threading.Thread.__init__(self)
         self.running = True
         self.start()
     def run(self):
@@ -31,7 +31,6 @@ class idleTimer(Thread):
 def start():
     log (__name__+ " start")
     
-
 #--- update  ------------------------------------------------------------------
 def handle():
     log (__name__ + " handle")
@@ -41,9 +40,4 @@ def log(msg):
     format = "%(asctime)s - %(levelname)s - %(message)s"
     logging.basicConfig(format=format, level=logging.INFO)
     logging.info (msg)
-
-#--- timer  -------------------------------------------------------------------
-#def initTimer(time):
-    #t1 = idleTimer(2)
-    #t1.start()
 

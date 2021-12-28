@@ -13,19 +13,40 @@
 ###############################################################################
 #   IMPORT
 ###############################################################################
-import socket
-import struct
 import helper as h
+import time
+import socket
+import threading
+import struct
 
 ###############################################################################
-#   FUNCTIONS
+#   DECLARATION
 ###############################################################################
-
 #--- global -------------------------------------------------------------------
 bind_ip = ''
 bind_port = 2404
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((bind_ip, bind_port))
+
+#--- class 104er server -------------------------------------------------------
+class server104(threading.Thread):
+    def __init__(self, time, callback):
+        self.time = time
+        self.callback = callback
+        threading.Thread.__init__(self)
+        self.running = True
+        self.start()
+    def run(self):
+        while self.running:
+            self.callback()
+            time.sleep(self.time)
+    def stop(self):
+        self.running = False
+
+###############################################################################
+#   FUNCTIONS
+###############################################################################
+
 
 #--- Start up -----------------------------------------------------------------
 def start():

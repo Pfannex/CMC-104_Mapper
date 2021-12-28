@@ -33,9 +33,9 @@ def timer2_callback():
 ###############################################################################
 
 #--- Start up -----------------------------------------------------------------
-cmc.start()
-c104.start()
 h.start()
+c104.start()
+#cmc.start()
 
 t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
@@ -48,7 +48,7 @@ t2 = h.idleTimer(300, timer2_callback)
 while True:
     #cmc.handle()
     c104.handle()
-    print ("do")
+    #print ("do")
     #h.handle()
-    #time.sleep(10)
+    time.sleep(10)
     
