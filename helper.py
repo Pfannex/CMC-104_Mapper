@@ -2,9 +2,8 @@
 #   TOOLS
 ###############################################################################
 import time
-import logging
-#from threading import Thread
 import threading
+import logging
 
 ###############################################################################
 #   DECLARATION
@@ -40,4 +39,7 @@ def log(msg):
     format = "%(asctime)s - %(levelname)s - %(message)s"
     logging.basicConfig(format=format, level=logging.INFO)
     logging.info (msg)
-
+def log_error(msg):
+    format = "%(asctime)s - %(levelname)s - %(message)s"
+    logging.basicConfig(format=format, level=logging.ERROR)
+    logging.error (msg)
