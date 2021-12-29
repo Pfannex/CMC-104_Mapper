@@ -16,7 +16,6 @@
 #   IMPORT
 ###############################################################################
 import CMEngine as cmc
-import Server104 as c104
 import IEC60870_5_104
 import helper as h
 import time
@@ -38,7 +37,6 @@ def IEC60870_5_104_Server_callback(info):
 
 #--- Start up -----------------------------------------------------------------
 h.start()
-#c104.start()
 Server104 = IEC60870_5_104.Server(IEC60870_5_104_Server_callback, 2404)
 #cmc.start()
 
@@ -52,8 +50,5 @@ t2 = h.idleTimer(300, timer2_callback)
 
 while True:
     #cmc.handle()
-    #c104.handle()
-    #print ("do")
-    #h.handle()
     time.sleep(10)
     
