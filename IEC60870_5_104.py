@@ -1,13 +1,33 @@
+###############################################################################
+#   IEC 60870-5-104 server
+#
+#   APDU = Application Protocol Data Unit            
+#          [FRAME]
+#   APCI = Application Protocol Control Information  
+#          [Format (I,S,U), Tx/Rx-Counter]       
+#   ASDU = Application Service Data Unit
+#          [Typ, COT, Addressing, Info-Objects]
+#
+###############################################################################
+
+###############################################################################
+#   IMPORT
+###############################################################################
+from typing import Text
 import helper as h
 import time
 import socket
 import threading
-    
+ 
+###############################################################################
+#   IEC60870-5-104 Server
+###############################################################################
+
 class Server(threading.Thread):
-    def __init__(self, callback, port):
+    def __init__(self, callback, ip, port):
         self.callback = callback
         #TCP-Server
-        self.IP = "127.0.0.1"
+        self.IP = ip
         self.port = port
         self.RxCounter = 0
         self.TxCounter = 0
@@ -31,7 +51,7 @@ class Server(threading.Thread):
     def resume(self):
         self.running = True
         
-    #--- handle client  -----------------------------------------------------------
+    #--- handle client Rx-Data ------------------------------------------------
     def handle_client_connection(self, client_socket):
         try: 
             while True: 
@@ -85,6 +105,8 @@ class Server(threading.Thread):
 
     #--- I-Frame handle  ------------------------------------------------------
     def handle_iFrame(self, frame, client):
+        splitFrame(frame)
+        
         if frame[1] == 0x0e:   #I-Frame
             self.RxCounter += 1
                 
@@ -124,5 +146,42 @@ class Server(threading.Thread):
                     
             else:
                 print ("<- I (unknown)")
+                
+###############################################################################
+#   IEC60870-5-104 I-Frame Type
+###############################################################################
+   # RxCounter Zugriff??
+class _APDU():
+    class APCI():
+        start       = 0
+        length      = 0
+        class CF():
+            Tx      = 0
+            Rx      = 0
+    class ASDU():
+        TI          = 0
+        TI_str      = ""
+        NofObjects  = 0
+        Test        = 0
+        PN          = 0
+        COT         = 0
+        ORG         = 0
+        ASDU_LSB    = 0
+        ASDU_MSB    = 0
+        ASDU_int    = 0
+        IOA_1       = 0
+        IOA_2       = 0
+        IOA_3       = 0
+        IOA_int     = 0
+        
+###############################################################################
+#   IEC60870-5-104 I-Frame splitter
+###############################################################################
+def splitFrame(frame):
+    APDU = _APDU()
+    APDU.APCI.CF.Tx = frame[0]
+    APDU.ASDU.COT = frame[1]
+    print (APDU.APCI.CF.Tx)
+    print (APDU.ASDU.COT)
                 
 

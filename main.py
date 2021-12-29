@@ -28,21 +28,24 @@ def timer1_callback():
 def timer2_callback():
     h.log("here we go every 300 seconds")
 
-def IEC60870_5_104_Server_callback(info):
+def on_IEC60870_5_104_I_Frame_received_callback(info):
     h.log(info)
     
 ###############################################################################
 #   FUNCTIONS
 ###############################################################################
 
-#--- Start up -----------------------------------------------------------------
+
+###############################################################################
+#   MAIN START
+###############################################################################
 h.start()
-Server104 = IEC60870_5_104.Server(IEC60870_5_104_Server_callback, 2404)
+Server104 = IEC60870_5_104.Server(on_IEC60870_5_104_I_Frame_received_callback, 
+                                  "127.0.0.1", 2404)
 #cmc.start()
 
 t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
-
 
 ###############################################################################
 #   MAIN LOOP
