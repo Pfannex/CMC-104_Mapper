@@ -7,6 +7,7 @@
 ###############################################################################
 from typing import Text
 import helper as h
+import IEC60870_5_104_Typs as T104
 import time
 import socket
 import threading
@@ -144,81 +145,10 @@ class Server(threading.Thread):
                 print ("<- I (unknown)")
                 
 ###############################################################################
-#   IEC60870-5-104 I-Frame Type
-###############################################################################
-   # RxCounter Zugriff??
-class _APDU():
-    class APCI():
-        start  = 0
-        length = 0
-        class CF():
-            _1 = 0
-            _2 = 0
-            _3 = 0
-            _4 = 0
-            Tx  = 0
-            Rx  = 0
-    class ASDU():
-        TI     = 0
-        TI_ref = ""
-        TI_des = ""
-        NofObjects = 0
-        Test = 0
-        PN   = 0
-        COT  = 0
-        ORG  = 0
-        class CASDU():
-            DEZ    = 0
-            CASDU1 = 0
-            CASDU2 = 0
-        class IOA():
-            DEZ  = 0
-            OKT1 = 0
-            OKT2 = 0
-            OKT3 = 0
-            
-#--- dictionary I-Frame type identicikation  -----------------------------------------------------------
-dictTI = {1: {"ref":"M_SP_NA_1", "des":"Single point information"},
-          3: "M_DP_NA_1",
-          5: "pawpaw",
-          7: "pawpaw",
-          9: "pawpaw",
-          11: "pawpaw",
-          13: "pawpaw",
-          15: "pawpaw",
-          20: "pawpaw",
-          21: "pawpaw",
-          30: "pawpaw",
-          31: "pawpaw",
-          32: "pawpaw",
-          33: "pawpaw",
-          34: "pawpaw",
-          35: "pawpaw",
-          36: "pawpaw",
-          37: "pawpaw",
-          38: "pawpaw",
-          39: "pawpaw",
-
-          45: "pawpaw",          
-          46: "pawpaw",          
-          47: "pawpaw",          
-          48: "pawpaw",          
-          49: "pawpaw",          
-          50: "pawpaw",          
-          51: "pawpaw",          
-          58: "pawpaw",          
-          59: "pawpaw",          
-          60: "pawpaw",          
-          61: "pawpaw",          
-          62: "pawpaw",          
-          63: "pawpaw",          
-          64: "pawpaw"                  
-          }        
-###############################################################################
 #   IEC60870-5-104 I-Frame splitter
 ###############################################################################
 def splitFrame(frame):
-    APDU = _APDU()
+    APDU = T104._APDU()
     APDU.APCI.start =       frame[0]
     APDU.APCI.length =      frame[1] 
     APDU.APCI.CF._1 =       frame[2]    
@@ -227,14 +157,16 @@ def splitFrame(frame):
     APDU.APCI.CF._4 =       frame[5]    
     APDU.APCI.CF.Tx =       (frame[2] | frame[3]<<8)>>1      
     APDU.APCI.CF.Rx =       (frame[4] | frame[5]<<8)>>1      
-    APDU.ASDU.TI =          frame[6]    
+    APDU.ASDU.TI.Typ =      frame[6]    
+    APDU.ASDU.TI.ref =      T104.dictTI[APDU.ASDU.TI.Typ]["ref"]   
+    APDU.ASDU.TI.des =      T104.dictTI[APDU.ASDU.TI.Typ]["des"]   
     return APDU
                 
 #--- print I-Frame  -----------------------------------------------------------
 def print_iFrame(APDU):
-    print ("------------------------------------------------")
+    print ("=<APDU>==================================================")
     print ("  # - 8765 4321 - 0x   -  DEZ - Information")
-    print ("------------------------------------------------")
+    print ("---<APCI>------------------------------------------------")
     print ("  1 - " + formatPrintLine(APDU.APCI.start) + " - start")
     print ("  2 - " + formatPrintLine(APDU.APCI.length) + " - APDU lenght")
     print ("  3 - .... ...0 - 0x00 -    0 - Format = I")
@@ -244,7 +176,11 @@ def print_iFrame(APDU):
     print ("  6 - " + formatPrintLine(APDU.APCI.CF._4) + " - CF4")
     print ("    - .... .... - 0x.. - {0:4} - Tx count".format(APDU.APCI.CF.Tx))
     print ("    - .... .... - 0x.. - {0:4} - Rx count".format(APDU.APCI.CF.Rx))
-    print ("------------------------------------------------")
+    print ("---<ASDU>------------------------------------------------")
+    print ("  7 - " + formatPrintLine(APDU.ASDU.TI.Typ) + " - Type Identifier")
+    print ("    - " + APDU.ASDU.TI.ref + " - " + APDU.ASDU.TI.des)
+    print ("      ---------------------------------------------------")
+    print ("=========================================================")
 
 #--- format printLine  --------------------------------------------------------
 def formatPrintLine(value):
