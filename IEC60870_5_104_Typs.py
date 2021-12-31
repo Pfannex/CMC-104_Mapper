@@ -17,20 +17,25 @@ class _APDU():
             Typ = 0
             ref = ""
             des = ""
+        SQ = 0
         NofObjects = 0
         Test = 0
         PN   = 0
-        COT  = 0
+        class COT():
+              DEZ   = 0
+              long  = ""
+              short = ""
         ORG  = 0
         class CASDU():
-            DEZ    = 0
-            CASDU1 = 0
-            CASDU2 = 0
-        class IOA():
-            DEZ  = 0
-            OKT1 = 0
-            OKT2 = 0
-            OKT3 = 0
+            DEZ = 0
+            _1  = 0
+            _2  = 0
+        class InfoObj():
+            class IOA():
+                DEZ = 0
+                _1  = 0
+                _2  = 0
+                _3  = 0
             
 ###############################################################################
 #   dictionary I-Frame type identicikation

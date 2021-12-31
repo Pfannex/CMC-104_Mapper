@@ -51,21 +51,35 @@ class Server(threading.Thread):
                     request = client_socket.recv(1024)
                 except Exception as inst:
                     client_socket.close()
+                    self.RxCounter = 0
+                    self.TxCounter = 0
                     h.log_error(inst)
+                    print ("1")
                     break
-                if request[0] == 0x68:
-                    #S-Frame
-                    if (request[2] & 1 != 0) & (request[2]>>1 & 1 == 0):    #01 S-Frame
-                        self.handle_sFrame(request)
-                    #U-Frame
-                    if (request[2] & 1 != 0) & (request[2]>>1 & 1 != 0):    #11 U-Frame
-                        self.handle_uFrame(request, client_socket)
-                    #I-Frame        
-                    if request[2] & 1 == 0:                                 #_0 I-Frame
-                        self.handle_iFrame(request, client_socket)
+                try:
+                    if request[0] == 0x68:
+                        #S-Frame
+                        if (request[2] & 1 != 0) & (request[2]>>1 & 1 == 0):    #01 S-Frame
+                            self.handle_sFrame(request)
+                        #U-Frame
+                        if (request[2] & 1 != 0) & (request[2]>>1 & 1 != 0):    #11 U-Frame
+                            self.handle_uFrame(request, client_socket)
+                        #I-Frame        
+                        if request[2] & 1 == 0:                                 #_0 I-Frame
+                            self.handle_iFrame(request, client_socket)
+                except Exception as inst:
+                    client_socket.close()
+                    self.RxCounter = 0
+                    self.TxCounter = 0
+                    h.log_error(inst)
+                    print ("2")
+                    break
+                    
         finally: 
             h.log_error("client disconnected")
             client_socket.close()
+            self.RxCounter = 0
+            self.TxCounter = 0
 
     #--- U-Frame handle  ------------------------------------------------------
     def handle_uFrame(self, frame, client):
@@ -98,13 +112,30 @@ class Server(threading.Thread):
     #--- I-Frame handle  ------------------------------------------------------
     def handle_iFrame(self, frame, client):
         APDU = splitFrame(frame)
+        print ("print")
         print_iFrame(APDU)
-        
+        print ("print done")
+
+        print ("other I-Frame")
+        data = bytearray(frame)
+        data[2] = (self.TxCounter & 0b0000000001111111) << 1
+        data[3] = (self.TxCounter & 0b0111111110000000) >> 7
+        data[4] = (self.RxCounter & 0b0000000001111111) << 1
+        data[5] = (self.RxCounter & 0b0111111110000000) >> 7
+        data[8] = 0x07
+                
+        client.send(data)
+        print ("-> I () ("+str(self.TxCounter)+"/"+str(self.RxCounter)+")")
+        self.TxCounter += 1
+
+
+"""        
         if frame[1] == 0x0e:   #I-Frame
+            print ("is I-Frame")
             self.RxCounter += 1
                 
             if frame[6] == 0x64:   #C_IC_NA_1 (100)
-                print ("<- I (C_IC_NA_1 Act [100])")
+                #print ("<- I (C_IC_NA_1 Act [100])")
                 data = bytearray(frame)
                 data[2] = (self.TxCounter & 0b0000000001111111) << 1
                 data[3] = (self.TxCounter & 0b0111111110000000) >> 7
@@ -118,6 +149,20 @@ class Server(threading.Thread):
                 print ("-> I (C_IC_NA_1 ActCon) ("+str(self.TxCounter)+"/"+str(self.RxCounter)+")")
                 self.TxCounter += 1
                 #print ("update Counter - Rx: " + str(RxCounter) + " | Tx: " + str(TxCounter))
+
+            else:
+                print ("other I-Frame")
+                data = bytearray(frame)
+                data[2] = (self.TxCounter & 0b0000000001111111) << 1
+                data[3] = (self.TxCounter & 0b0111111110000000) >> 7
+                data[4] = (self.RxCounter & 0b0000000001111111) << 1
+                data[5] = (self.RxCounter & 0b0111111110000000) >> 7
+                data[8] = 0x07
+                
+                client.send(data)
+                print ("-> I () ("+str(self.TxCounter)+"/"+str(self.RxCounter)+")")
+                self.TxCounter += 1
+                
                 
             elif frame[6] == 0x2e:   #C_DC_NA_1 (46)
                 print ("<- I (C_DC_NA_1 Act [46])")
@@ -140,33 +185,52 @@ class Server(threading.Thread):
                 print ("-> I (C_DC_NA_1 ActCon) ("+str(self.TxCounter)+"/"+str(self.RxCounter)+")")
                 self.TxCounter += 1
                 #print ("update Counter - Rx: " + str(RxCounter) + " | Tx: " + str(TxCounter))
-                    
-            else:
-                print ("<- I (unknown)")
+"""         
                 
 ###############################################################################
 #   IEC60870-5-104 I-Frame splitter
 ###############################################################################
 def splitFrame(frame):
     APDU = T104._APDU()
-    APDU.APCI.start =       frame[0]
-    APDU.APCI.length =      frame[1] 
-    APDU.APCI.CF._1 =       frame[2]    
-    APDU.APCI.CF._2 =       frame[3]    
-    APDU.APCI.CF._3 =       frame[4]    
-    APDU.APCI.CF._4 =       frame[5]    
-    APDU.APCI.CF.Tx =       (frame[2] | frame[3]<<8)>>1      
-    APDU.APCI.CF.Rx =       (frame[4] | frame[5]<<8)>>1      
-    APDU.ASDU.TI.Typ =      frame[6]    
-    APDU.ASDU.TI.ref =      T104.dictTI[APDU.ASDU.TI.Typ]["ref"]   
-    APDU.ASDU.TI.des =      T104.dictTI[APDU.ASDU.TI.Typ]["des"]   
+    #APCI
+    APDU.APCI.start =           frame[0]
+    APDU.APCI.length =          frame[1] 
+    APDU.APCI.CF._1 =           frame[2]    
+    APDU.APCI.CF._2 =           frame[3]    
+    APDU.APCI.CF._3 =           frame[4]    
+    APDU.APCI.CF._4 =           frame[5]    
+    APDU.APCI.CF.Tx =           (frame[3]<<8 | frame[2])>>1      
+    APDU.APCI.CF.Rx =           (frame[5]<<8 | frame[4])>>1 
+    #ASDU     
+    APDU.ASDU.TI.Typ =          frame[6]    
+    APDU.ASDU.TI.ref =          T104.dictTI[APDU.ASDU.TI.Typ]["ref"]   
+    APDU.ASDU.TI.des =          T104.dictTI[APDU.ASDU.TI.Typ]["des"] 
+    APDU.ASDU.SQ =              frame[7]>>7
+    APDU.ASDU.NofObjects =      frame[7] & 0b01111111
+    APDU.ASDU.Test =            frame[8]>>7
+    APDU.ASDU.PN =              (frame[8] & 0b01000000)>>6
+    APDU.ASDU.COT.DEZ =         frame[8] & 0b00111111
+    APDU.ASDU.COT.long =        T104.dictCOT[APDU.ASDU.COT.DEZ]["long"]
+    APDU.ASDU.COT.short =       T104.dictCOT[APDU.ASDU.COT.DEZ]["short"]
+    APDU.ASDU.ORG =             frame[9]
+    APDU.ASDU.CASDU._1 =        frame[10]
+    APDU.ASDU.CASDU._2 =        frame[11]
+    APDU.ASDU.CASDU.DEZ =       frame[11]<<8 | frame[10]
+    #InfoObject
+    APDU.ASDU.InfoObj.IOA._1 =  frame[12] 
+    APDU.ASDU.InfoObj.IOA._2 =  frame[13] 
+    APDU.ASDU.InfoObj.IOA._3 =  frame[14] 
+    APDU.ASDU.InfoObj.IOA.DEZ = frame[14]<<16 | frame[13]<<8 | frame[12] 
+    
     return APDU
                 
 #--- print I-Frame  -----------------------------------------------------------
 def print_iFrame(APDU):
+    print ("")
     print ("=<APDU>==================================================")
+    print ("  -<APCI>------------------------------------------------")
     print ("  # - 8765 4321 - 0x   -  DEZ - Information")
-    print ("---<APCI>------------------------------------------------")
+    print ("  .......................................................")
     print ("  1 - " + formatPrintLine(APDU.APCI.start) + " - start")
     print ("  2 - " + formatPrintLine(APDU.APCI.length) + " - APDU lenght")
     print ("  3 - .... ...0 - 0x00 -    0 - Format = I")
@@ -174,15 +238,35 @@ def print_iFrame(APDU):
     print ("  4 - " + formatPrintLine(APDU.APCI.CF._2) + " - CF2")
     print ("  5 - " + formatPrintLine(APDU.APCI.CF._3) + " - CF3")
     print ("  6 - " + formatPrintLine(APDU.APCI.CF._4) + " - CF4")
-    print ("    - .... .... - 0x.. - {0:4} - Tx count".format(APDU.APCI.CF.Tx))
-    print ("    - .... .... - 0x.. - {0:4} - Rx count".format(APDU.APCI.CF.Rx))
-    print ("---<ASDU>------------------------------------------------")
+    print ("                         {0:4} - Tx count".format(APDU.APCI.CF.Tx))
+    print ("                         {0:4} - Rx count".format(APDU.APCI.CF.Rx))
+    print ("  -<ASDU>------------------------------------------------")
+    print ("  # - 8765 4321 - 0x   -  DEZ - Information")
+    print ("  .......................................................")
     print ("  7 - " + formatPrintLine(APDU.ASDU.TI.Typ) + " - Type Identifier")
-    print ("    - " + APDU.ASDU.TI.ref + " - " + APDU.ASDU.TI.des)
+    print ("      " + APDU.ASDU.TI.ref + " - " + APDU.ASDU.TI.des)
     print ("      ---------------------------------------------------")
+    print ("  8 - {0}... .... - 0x{0:02X} - {0:4} - SQ (Structure Qualifier)".format(APDU.ASDU.SQ))
+    print ("  8 - .{0:03b} {1:04b} - 0x{2:02X} - {2:4} - Number of objects".format(APDU.ASDU.NofObjects>>4, APDU.ASDU.NofObjects&0b00001111, APDU.ASDU.NofObjects))
+    print ("  9 - {0}... .... - 0x{0:02X} - {0:4} - T (Test)".format(APDU.ASDU.Test))
+    print ("  9 - .{0}.. .... - 0x{0:02X} - {0:4} - P/N (positive/negative)".format(APDU.ASDU.PN))
+    print ("  9 - ..{0:02b} {1:04b} - 0x{2:02X} - {2:4} - Cause of transmission (COT)".format(APDU.ASDU.COT.DEZ>>4, APDU.ASDU.COT.DEZ&0b00001111, APDU.ASDU.COT.DEZ))
+    print ("      " + APDU.ASDU.COT.long + " - " + APDU.ASDU.COT.short)
+    print (" 10 - " + formatPrintLine(APDU.ASDU.ORG) + " - Originator Address (ORG)")
+    print ("      ---------------------------------------------------")
+    print (" 11 - " + formatPrintLine(APDU.ASDU.CASDU._1) + " - CASDU1 (LSB) Address Field (Common Address of ASDU)")
+    print (" 12 - " + formatPrintLine(APDU.ASDU.CASDU._2) + " - CASDU2 (MSB) Address Field (Common Address of ASDU)")
+    print ("                        {0:5} - CASDU Address Field (Common Address of ASDU)".format(APDU.ASDU.CASDU.DEZ))
+    print ("    -<InfoObject>--------------------------------__------")
+    print (" 13 - " + formatPrintLine(APDU.ASDU.InfoObj.IOA._1) + " - Information Object Address (IOA) (LSB)")
+    print (" 14 - " + formatPrintLine(APDU.ASDU.InfoObj.IOA._2) + " - Information Object Address (IOA) (...)")
+    print (" 15 - " + formatPrintLine(APDU.ASDU.InfoObj.IOA._3) + " - Information Object Address (IOA) (MSB)")
+    print ("                     {0:8} - Information Object Address (IOA)".format(APDU.ASDU.InfoObj.IOA.DEZ))
+
     print ("=========================================================")
+    print ("")
 
 #--- format printLine  --------------------------------------------------------
 def formatPrintLine(value):
-    line = "{0:04b} {1:04b} - 0x{2:02X} - {3:4}".format(value>>4, value&0b00001111, value, value)
+    line = "{0:04b} {1:04b} - 0x{2:02X} - {2:4}".format(value>>4, value&0b00001111, value)
     return line
