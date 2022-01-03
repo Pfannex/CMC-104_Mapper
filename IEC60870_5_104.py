@@ -137,6 +137,15 @@ class Server(threading.Thread):
             self.GA_callback(APDU)
         else:
             self.iFrame_callback(APDU)  #other I-Frame
+
+    #--- send I-Frame  --------------------------------------------------------
+    def send_iFrame(self, TI, value):
+        list = [0x68, 0x0e, 0x02, 0x00, 0x02, 0x00,
+                TI, 0x01, 0x03, 0x00, 0x0a, 0x0b, 0x01, 0x02, 0x03, value]
+        data = bytearray(list)
+        self.client_socket.send(data)
+        print ("-> I () ("+str(self.TxCounter)+"/"+str(self.RxCounter)+")")
+        self.TxCounter += 1
                 
 ###############################################################################
 #   IEC60870-5-104 I-Frame splitter
@@ -175,35 +184,31 @@ def splitFrame(frame):
     
     try:
         IOE = T104.InfoObjectElement[APDU.ASDU.TI.Typ]
-        IOE["Type"] = APDU.ASDU.TI.Typ
-        APDU.ASDU.InfoObj.InfoElement = fill_InfoObjectElement(IOE, frame)
+        APDU.ASDU.InfoObj.InfoElement = fill_InfoObjectElement(APDU.ASDU.TI.Typ, IOE, frame)
     except Exception as inst:
         h.log_error(inst)
 
     return APDU
 
 #--- fill Info Object Element  ------------------------------------------------
-def fill_InfoObjectElement(InfoObjectElement, frame):
+def fill_InfoObjectElement(type, InfoObjectElement, frame):
     IOE = InfoObjectElement
-    f = frame
-    type = IOE["Type"]
-    
     if type == 1:
         pass
     elif type == 2:
         pass
     elif type == 45:
-        IOE["e1"]["B1"]["SE"] = frame[15]>>7
-        IOE["e1"]["B1"]["QU"] = (frame[15] & 0b01111100)>>2
-        IOE["e1"]["B1"]["SCS"]= (frame[15] & 0b00000001)
+        IOE["e1"]["SE"] = frame[15]>>7
+        IOE["e1"]["QU"] = (frame[15] & 0b01111100)>>2
+        IOE["e1"]["SCS"]= (frame[15] & 0b00000001)
     elif type == 46:
-        IOE["e1"]["B1"]["SE"] = frame[15]>>7
-        IOE["e1"]["B1"]["QU"] = (frame[15] & 0b01111100)>>2
-        IOE["e1"]["B1"]["DCS"]= (frame[15] & 0b00000011)
+        IOE["e1"]["SE"] = frame[15]>>7
+        IOE["e1"]["QU"] = (frame[15] & 0b01111100)>>2
+        IOE["e1"]["DCS"]= (frame[15] & 0b00000011)
     elif type == 58:
-        IOE["e1"]["B1"]["SE"] = frame[15]>>7
-        IOE["e1"]["B1"]["QU"] = (frame[15] & 0b01111100)>>2
-        IOE["e1"]["B1"]["SCS"]= (frame[15] & 0b00000001)
+        IOE["e1"]["SE"] = frame[15]>>7
+        IOE["e1"]["QU"] = (frame[15] & 0b01111100)>>2
+        IOE["e1"]["SCS"]= (frame[15] & 0b00000001)
         ms = frame[17]<<8 | frame[16]
         IOE["e2"]["S"]        = int(ms/1000)
         IOE["e2"]["MS"]       = ms - int(ms/1000)*1000
@@ -218,7 +223,7 @@ def fill_InfoObjectElement(InfoObjectElement, frame):
         
         
     elif type == 100:
-        IOE["e1"]["B1"]["QOIe"] = frame[15]
+        IOE["e1"]["QOIe"] = frame[15]
     
     return IOE
                       

@@ -21,33 +21,37 @@ import IEC60870_5_104_Typs as T104
 import helper as h
 import time
 
+x = 0
 ###############################################################################
 #   CALLBACKS
 ###############################################################################
 def timer1_callback():
     h.log("here we go every 60 seconds")
+    
 def timer2_callback():
     h.log("here we go every 300 seconds")
 
 def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     h.log("<- I Type={} - ".format(APDU.ASDU.TI.Typ) + APDU.ASDU.TI.ref)
     h.log("     Qualifier of interrogation command = 0x{0:02X} [{0:}]".
-                    format(APDU.ASDU.InfoObj.InfoElement["e1"]["B1"]["QOIe"]))
+                    format(APDU.ASDU.InfoObj.InfoElement["e1"]["QOIe"]))
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     h.log("{} - ".format(APDU.ASDU.TI.Typ) + APDU.ASDU.TI.ref)
     if APDU.ASDU.TI.Typ == 45:
-        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["B1"]["SE"]))
-        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["B1"]["QU"]))
-        h.log("SCS = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["B1"]["SCS"]))
+        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["SE"]))
+        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["QU"]))
+        h.log("SCS = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["SCS"]))
+        Server104.send_iFrame(1, APDU.ASDU.InfoObj.InfoElement["e1"]["SCS"])
+
     if APDU.ASDU.TI.Typ == 46:
-        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["B1"]["SE"]))
-        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["B1"]["QU"]))
-        h.log("DCS = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["B1"]["DCS"]))
+        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["SE"]))
+        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["QU"]))
+        h.log("DCS = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["DCS"]))
     if APDU.ASDU.TI.Typ == 58:
-        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["B1"]["SE"]))
-        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["B1"]["QU"]))
-        h.log("SCS = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["B1"]["SCS"]))
+        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["SE"]))
+        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["QU"]))
+        h.log("SCS = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["SCS"]))
         h.log("Time {0:02}.{1:02}.20{2:02}-{3:02}:{4:02}:{5:02}.{6:03} /IV={7}/SU={8}/DoW={9}".format(
                 APDU.ASDU.InfoObj.InfoElement["e2"]["D"],
                 APDU.ASDU.InfoObj.InfoElement["e2"]["M"],

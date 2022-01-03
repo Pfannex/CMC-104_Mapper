@@ -146,32 +146,18 @@ _xD (type D: normalized without quality)
 #   dictionary Info Objects
 ###############################################################################
 #PROCESS Information in Monitoring Direction ----------------------------------
-SIQ = {
-	"length":1,
-    "B1": {"IV":0, "NT":0, "SB":0, "BL":0, "SPI":0}
-	}
-DIQ = {
-	"length":1,
-    "B1": {"IV":0, "NT":0, "SB":0, "BL":0, "DPI":0}
-	}
+SIQ = {"IV":0, "NT":0, "SB":0, "BL":0, "SPI":0}
+DIQ = {"IV":0, "NT":0, "SB":0, "BL":0, "DPI":0}
 
 #Protection -------------------------------------------------------------------
 
 #Commands ---------------------------------------------------------------------
-SCO = {
-	"length":1,
-    "B1": {"SE":0, "QU":0, "SCS":0}
-	}
-DCO = {
-	"length":1,
-    "B1": {"SE":0, "QU":0, "DCS":0}
-	}
+SCO = {"SE":0, "QU":0, "SCS":0}
+DCO = {"SE":0, "QU":0, "DCS":0}
 
 #Time -------------------------------------------------------------------------
-CP56T2a = {
-	"length":7,
-    "MS":0, "IV":0, "MIN":0, "SU":0, "H":0, "DOW":0, "D":0, "M":0, "Y":0, "S":0
-	}
+CP56T2a = {"MS":0, "IV":0, "MIN":0, "SU":0, "H":0, 
+           "DOW":0, "D":0, "M":0, "Y":0, "S":0}
   #1 xxxx xxxx [MS LSB] milli seconds
   #2 xxxx xxxx [MS MSB] milli seconds
   #3 x... .... [IV]     1=invalid
@@ -186,10 +172,7 @@ CP56T2a = {
 
 
 #Qualifiers -------------------------------------------------------------------
-QOI = {
-	"length":1,
-    "B1": {"QOIe":0}
-	}
+QOI = {"QOIe":0}
 
 #File Transfer ----------------------------------------------------------------
 
@@ -205,44 +188,23 @@ InfoObjectElement = {
 #Information in Monitoring Direction:
 
 #[1] - M_SP_NA_1 -Single point information
-1 : {
-	"length": SIQ["length"],
-    "e1": SIQ
-    },        
+1 : {"e1": SIQ},        
 #[2] - M_SP_TA_1 - Single point information with time tag
-2 : {
-	"length": SIQ["length"] + CP56T2a["length"],
-    "e1": SIQ,
-    "e2": CP56T2a
-    },  
+2 : {"e1": SIQ, "e2": CP56T2a},  
 
 #information in control direction:
 # #without time tag
 
 # [45] - C_SC_NA_1 - Single command          
-45 : {
-	"length": SCO["length"],
-    "e1": SCO
-    },        
+45 : {"e1": SCO},        
 # [46] _ C_DC_NA_1 - Double command         
-46 : {
-	"length": DCO["length"],
-    "e1": DCO
-    },  
+46 : {"e1": DCO},  
 #with long time tag (7 octets)        
 # [58] - C_SC_TA_1 - Single command with time tag CP56Time2a      
-58 : {
-	"length": SCO["length"] + CP56T2a["length"],
-    "e1": SCO,
-    "e2": CP56T2a
-    },  
+58 : {"e1": SCO, "e2": CP56T2a},  
     
 # [59] - C_DC_TA_1 - Double command with time tag CP56Time2a          
-59 : {
-	"length": DCO["length"] + CP56T2a["length"],
-    "e1": DCO,
-    "e2": CP56T2a
-    },  
+59 : {"e1": DCO, "e2": CP56T2a},  
  
 #SYSTEM  ------------------------------------------------------------
 #information in monitor direction :
@@ -250,10 +212,7 @@ InfoObjectElement = {
       
 #information in control direction :
 #[100] - C_IC_NA_1 - (General-) Interrogation command               
-100: {
-	"length": QOI["length"],
-    "e1": QOI
-    }        
+100: {"e1": QOI}        
 
 }
 
