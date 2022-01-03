@@ -22,28 +22,28 @@ class _APDU():
         Test = 0
         PN   = 0
         class COT():
-              DEZ   = 0
-              long  = ""
-              short = ""
-        ORG  = 0
+            DEZ   = 0
+            long  = ""
+            short = ""
+            ORG  = 0
         class CASDU():
             DEZ = 0
             _1  = 0
             _2  = 0
         class InfoObj():
+            InfoElement = {}
             class IOA():
-                DEZ = 0
-                _1  = 0
-                _2  = 0
-                _3  = 0
+              DEZ = 0
+              _1  = 0
+              _2  = 0
+              _3  = 0              
             
 ###############################################################################
-#   dictionary I-Frame type identicikation
+#   dictionary I-Frame type identification
 ###############################################################################
 dictTI = {
 #PROCESS ------------------------------------------------------------ 
   #Information in Monitoring Direction:
-    #without time tag
     1: {"ref":"M_SP_NA_1", "des":"Single point information"},
     2: {"ref":"M_SP_TA_1", "des":"Single point information with time tag"},
     3: {"ref":"M_DP_NA_1", "des":"Double point information"},
@@ -142,6 +142,194 @@ _xB (type B: scaled, with quality),
 _xC (type C: short floating point, with quality), 
 _xD (type D: normalized without quality)      
 """
+###############################################################################
+#   dictionary Info Objects
+###############################################################################
+#PROCESS Information in Monitoring Direction ----------------------------------
+SIQ = {
+	"length":1,
+    "B1": {"IV":0, "NT":0, "SB":0, "BL":0, "SPI":0}
+	}
+DIQ = {
+	"length":1,
+    "B1": {"IV":0, "NT":0, "SB":0, "BL":0, "DPI":0}
+	}
+
+#Protection -------------------------------------------------------------------
+
+#Commands ---------------------------------------------------------------------
+SCO = {
+	"length":1,
+    "B1": {"SE":0, "QU":0, "SCS":0}
+	}
+DCO = {
+	"length":1,
+    "B1": {"SE":0, "QU":0, "DCS":0}
+	}
+
+#Time -------------------------------------------------------------------------
+CP56T2a = {
+	"length":7,
+    "MS":0, "IV":0, "MIN":0, "SU":0, "H":0, "DOW":0, "D":0, "M":0, "Y":0, "S":0
+	}
+  #1 xxxx xxxx [MS LSB] milli seconds
+  #2 xxxx xxxx [MS MSB] milli seconds
+  #3 x... .... [IV]     1=invalid
+  #3 ..xx xxxx [MIN]    minute
+  #4 x... .... [SU]     1= summer time
+  #4 ...x xxxx [H]      hour
+  #5 xxx. .... [DOW]    day of week
+  #5 ...x xxxx [D]      day of moth
+  #6 .... xxxx [M]      month
+  #7 .xxx xxxx [Y]      year
+  #  NIL       [S]      seconds form MS
+
+
+#Qualifiers -------------------------------------------------------------------
+QOI = {
+	"length":1,
+    "B1": {"QOIe":0}
+	}
+
+#File Transfer ----------------------------------------------------------------
+
+#Miscellaneous ----------------------------------------------------------------
+
+
+#   Information Elemets group for Type Information Object
+###############################################################################
+
+InfoObjectElement = {
+"Type":0,
+#PROCESS ------------------------------------------------------------ 
+#Information in Monitoring Direction:
+
+#[1] - M_SP_NA_1 -Single point information
+1 : {
+	"length": SIQ["length"],
+    "e1": SIQ
+    },        
+#[2] - M_SP_TA_1 - Single point information with time tag
+2 : {
+	"length": SIQ["length"] + CP56T2a["length"],
+    "e1": SIQ,
+    "e2": CP56T2a
+    },  
+
+#information in control direction:
+# #without time tag
+
+# [45] - C_SC_NA_1 - Single command          
+45 : {
+	"length": SCO["length"],
+    "e1": SCO
+    },        
+# [46] _ C_DC_NA_1 - Double command         
+46 : {
+	"length": DCO["length"],
+    "e1": DCO
+    },  
+#with long time tag (7 octets)        
+# [58] - C_SC_TA_1 - Single command with time tag CP56Time2a      
+58 : {
+	"length": SCO["length"] + CP56T2a["length"],
+    "e1": SCO,
+    "e2": CP56T2a
+    },  
+    
+# [59] - C_DC_TA_1 - Double command with time tag CP56Time2a          
+59 : {
+	"length": DCO["length"] + CP56T2a["length"],
+    "e1": DCO,
+    "e2": CP56T2a
+    },  
+ 
+#SYSTEM  ------------------------------------------------------------
+#information in monitor direction :
+    #70: {"ref":"M_EI_NA_1", "des":"End of initialization"}, 
+      
+#information in control direction :
+#[100] - C_IC_NA_1 - (General-) Interrogation command               
+100: {
+	"length": QOI["length"],
+    "e1": QOI
+    }        
+
+}
+
+"""
+    3: {"ref":"M_DP_NA_1", "des":"Double point information"},
+    4: {"ref":"M_DP_TA_1", "des":"Double point information with time tag"},
+    5: {"ref":"M_ST_NA_1", "des":"Step position information"},
+    6: {"ref":"M_ST_TA_1", "des":"Step position information with time tag"},
+    7: {"ref":"M_BO_NA_1", "des":"Bit string of 32 bit"},
+    8: {"ref":"M_BO_TA_1", "des":"Bit string of 32 bit with time tag"},
+    9: {"ref":"M_ME_NA_1", "des":"Measured value, normalized value"},
+    10: {"ref":"M_ME_TA_1", "des":"Measured value, normalized value with time tag"},
+    11: {"ref":"M_ME_NB_1", "des":"Measured value, scaled value"},
+    12: {"ref":"M_ME_TB_1", "des":"Measured value, scaled value with time tag"},
+    13: {"ref":"M_ME_NC_1", "des":"Measured value, short floating point value"},
+    14: {"ref":"M_ME_TC_1", "des":"Measured value, short floating point value with time tag"},
+    15: {"ref":"M_IT_NA_1", "des":"Integrated totals"},
+    16: {"ref":"M_IT_TA_1", "des":"Integrated totals with time tag"},
+    17: {"ref":"M_EP_TA_1", "des":"Event of protection equipment with time tag"},
+    18: {"ref":"M_EP_TB_1", "des":"Packed start events of protection equipment with time tag"},
+    19: {"ref":"M_EP_TC_1", "des":"Packed output circuit information of protection equipment with time tag"},
+    20: {"ref":"M_PS_NA_1", "des":"Packed single-point information with status change detection"},
+    21: {"ref":"M_ME_ND_1", "des":"Measured value, normalized value without quality descriptor"},
+    #with long time tag (7 octets)
+    30: {"ref":"M_SP_TB_1", "des":"Single point information with time tag CP56Time2a"},
+    31: {"ref":"M_DP_TB_1", "des":"Double point information with time tag CP56Time2a"},
+    32: {"ref":"M_ST_TB_1", "des":"Step position information with time tag CP56Time2a"},
+    33: {"ref":"M_BO_TB_1", "des":"Bit string of 32 bit with time tag CP56Time2a"},
+    34: {"ref":"M_ME_TD_1", "des":"Measured value, normalized value with time tag CP56Time2a"},
+    35: {"ref":"M_ME_TE_1", "des":"Measured value, scaled value with time tag CP56Time2a"},
+    36: {"ref":"M_ME_TF_1", "des":"Measured value, short floating point value with time tag CP56Time2a"},
+    37: {"ref":"M_IT_TB_1", "des":"Integrated totals with time tag CP56Time2a"},
+    38: {"ref":"M_EP_TD_1", "des":"Event of protection equipment with time tag CP56Time2a"},
+    39: {"ref":"M_EP_TE_1", "des":"Packed start events of protection equipment with time tag CP56time2a"},
+    40: {"ref":"M_EP_TF_1", "des":"Packed output circuit information of protection equipment with time tag CP56Time2a"},
+
+    47: {"ref":"C_RC_NA_1", "des":"Regulating step command"},          
+    48: {"ref":"C_SE_NA_1", "des":"Setpoint command, normalized value"},          
+    49: {"ref":"C_SE_NB_1", "des":"Setpoint command, scaled value"},          
+    50: {"ref":"C_SE_NC_1", "des":"Setpoint command, short floating point value"},          
+    51: {"ref":"C_BO_NA_1", "des":"Bit string 32 bit"},  
+
+    60: {"ref":"C_RC_TA_1", "des":"Regulating step command with time tag CP56Time2a"},          
+    61: {"ref":"C_SE_TA_1", "des":"Setpoint command, normalized value with time tag CP56Time2a"},          
+    62: {"ref":"C_SE_TB_1", "des":"Setpoint command, scaled value with time tag CP56Time2a"},          
+    63: {"ref":"C_SE_TC_1", "des":"Setpoint command, short floating point value with time tag CP56Time2a"},          
+    64: {"ref":"C_BO_TA_1", "des":"Bit string 32 bit with time tag CP56Time2a"},
+       
+    101: {"ref":"C_CI_NA_1", "des":"Counter interrogation command"},               
+    102: {"ref":"C_RD_NA_1", "des":"Read command"},               
+    103: {"ref":"C_CS_NA_1", "des":"Clock synchronization command"},               
+    104: {"ref":"C_TS_NB_1", "des":"(IEC 101) Test command"},               
+    105: {"ref":"C_RP_NC_1", "des":"Reset process command"},               
+    106: {"ref":"C_CD_NA_1", "des":"(IEC 101) Delay acquisition command"},               
+    107: {"ref":"C_TS_TA_1", "des":"Test command with time tag CP56Time2a"}, 
+
+#PARAMETER  ---------------------------------------------------------
+  #in control direction :                  
+    110: {"ref":"P_ME_NA_1", "des":"Parameter of measured value, normalized value"},               
+    111: {"ref":"P_ME_NB_1", "des":"Parameter of measured value, scaled value"},               
+    112: {"ref":"P_ME_NC_1", "des":"Parameter of measured value, short floating point value"},               
+    113: {"ref":"P_AC_NA_1", "des":"Parameter activation"},  
+
+#FILE transfer ------------------------------------------------------
+                 
+    120: {"ref":"F_FR_NA_1", "des":"File ready"},               
+    121: {"ref":"F_SR_NA_1", "des":"Section ready"},               
+    122: {"ref":"F_SC_NA_1", "des":"Call directory, select file, call file, call section"},               
+    123: {"ref":"F_LS_NA_1", "des":"Last section, last segment"},               
+    124: {"ref":"F_AF_NA_1", "des":"Ack file, Ack section"},               
+    125: {"ref":"F_SG_NA_1", "des":"Segment"},               
+    126: {"ref":"F_DR_TA_1", "des":"Directory"},               
+    127: {"ref":"F_SC_NB_1", "des":"QueryLog – Request archive file"},               
+    }  
+"""
+      
 ###############################################################################
 #   dictionary Cause of Transmission (COT) values
 ###############################################################################
