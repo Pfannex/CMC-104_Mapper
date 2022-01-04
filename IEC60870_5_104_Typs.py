@@ -1,6 +1,80 @@
 ###############################################################################
 #   IEC60870-5-104 I-Frame
 ###############################################################################
+
+class _CF():
+    def __init__(self, frame):
+        self.frame =  frame
+        self._1 =  frame[2]
+        self._2 =  frame[3]
+        self._3 =  frame[4]
+        self._4 =  frame[5]
+        self.Tx  = (frame[3]<<8 | frame[2])>>1
+        self.Rx  = (frame[5]<<8 | frame[4])>>1
+
+class _APCI():
+    def __init__(self, frame):
+        self.frame =  frame
+        self.start =  frame[0]
+        self.length = frame[1]
+        self.CF =    _CF(frame)
+      
+class _TI():
+    def __init__(self, frame):
+        self.frame = frame
+        self.Typ =   frame[6]
+        self.ref =   dictTI[self.Typ]["ref"]
+        self.des =   dictTI[self.Typ]["des"]
+
+
+class _COT():
+    def __init__(self, frame):
+        self.frame = frame
+        self.DEZ   = frame[8] & 0b00111111
+        self.long  = dictCOT[self.DEZ]["long"]
+        self.short = dictCOT[self.DEZ]["short"]
+
+class _CASDU():
+    def __init__(self, frame):
+        self.frame = frame
+        self.DEZ =   frame[11]<<8 | frame[10]
+        self._1  =   frame[10]
+        self._2  =   frame[11]
+
+class _IOA():
+    def __init__(self, frame):
+        self.frame = frame
+        self.DEZ =   frame[14]<<16 | frame[13]<<8 | frame[12]
+        self._1 =    frame[12]
+        self._2 =    frame[13]
+        self._3 =    frame[14]              
+
+class _InfoObj():
+    def __init__(self, frame):
+        self.frame = frame
+        self.IOA =   _IOA(frame)
+        self.InfoObjektElements = {}
+
+class _ASDU():
+    def __init__(self, frame):
+        self.frame =      frame
+        self.TI =         _TI(frame)
+        self.SQ =         frame[7]>>7
+        self.NofObjects = frame[7] & 0b01111111
+        self.Test =       frame[8]>>7
+        self.PN =         (frame[8] & 0b01000000)>>6
+        self.COT =         _COT(frame)
+        self.ORG =        frame[9]
+        self.CASDU =      _CASDU(frame)
+        self.InfoObject = _InfoObj(frame)
+
+class _xAPDU():
+        def __init__(self, frame):
+            self.frame = frame
+            self.APCI =  _APCI(frame)
+            self.ASDU =  _ASDU(frame)
+
+#***********************************************************
 class _APDU():
     class APCI():
         start  = 0
@@ -30,12 +104,12 @@ class _APDU():
             DEZ = 0
             _1  = 0
             _2  = 0
-        class InfoObj():
+        class InfoObject():
             class IOA():
-              DEZ = 0
-              _1  = 0
-              _2  = 0
-              _3  = 0              
+                DEZ = 0
+                _1  = 0
+                _2  = 0
+                _3  = 0              
             InfoObjektElements = {}
             
 ###############################################################################
@@ -146,9 +220,9 @@ _xD (type D: normalized without quality)
 #   test
 ###############################################################################
 
-class _SIQ():
-    def __init__(self, data):
-        self.data = data
+#class _SIQ():
+#    def __init__(self, frame):
+#        self.data = data
               
 
 
