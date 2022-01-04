@@ -1,37 +1,39 @@
-APDU = Application Protocol Data Unit            
-       [FRAME]
-APCI = Application Protocol Control Information  
+#### APDU = Application Protocol Data Unit            
+       [FRAME]  
+#### APCI = Application Protocol Control Information  
        [Format (I,S,U), Tx/Rx-Counter]       
-ASDU = Application Service Data Unit
+#### ASDU = Application Service Data Unit  
        [Typ, COT, Addressing, Info-Objects]
 
 -------------------------------------------------------------------------------------------
-Type Identifier (TI) suppored by SITIPE AT
+### Type Identifier (TI) suppored by SITIPE AT
 
-Process Information in Monitoring Direction:
-TI  Type                                                            TIME
--------------------------------------------------------------------------------------------
-1   Single-Point Information                                        NONE
-3   Double-Point Information
-5   Step position Information
-7   Bitstring of 32 Bit
-9   Measured Value, normalized
-11  Measured Value, scaled
-13  Measured Value, short floating point
-15  Integrated Totals
-20  Packed single-point Information with status change detection
-21  Measured Value, normalized without Quality descriptor 
-30  Single-Point Information                                        Yes, CP56Time2a
-31  Double-Point Information 
-32  Step position Information 
-33  Bitstring of 32 Bit 
-34  Measured Value, normalized 
-35  Measured Value, scaled 
-36  Measured Value, short floating point 
-37  Integrated Totals 
-38  Event of protection equipment                                   Yes, CP56Time2a 
-39  Packed single-point Information with status change detection    Yes, CP56Time2a 
-40  Measured Value, normalized without Quality descriptor           Yes, CP56Time2a
+## Process Information in Monitoring Direction:
+
+
+| TI | Type | TIME |  
+| --- | --- | --- |  
+|1|Single-Point Information|NONE|    
+|3|Double-Point Information| |  
+|5|Step position Information| |  
+|7|Bitstring of 32 Bit||  
+|9|Measured Value, normalized||
+|11|Measured Value, scaled||
+|13|Measured Value, short floating point||
+|15|Integrated Totals
+|20|Packed single-point Information with status change detection
+|21|Measured Value, normalized without Quality descriptor 
+|30|Single-Point Information|Yes, CP56Time2a|
+|31|Double-Point Information 
+|32|Step position Information 
+|33|Bitstring of 32 Bit 
+|34|Measured Value, normalized 
+|35|Measured Value, scaled 
+|36|Measured Value, short floating point 
+|37|Integrated Totals 
+|38|Event of protection equipment|Yes, CP56Time2a |
+|39|Packed single-point Information with status change detection|Yes, CP56Time2a 
+|40|Measured Value, normalized without Quality descriptor|Yes, CP56Time2a
 
 Process Information in Control Direction:
 TI  Type                                                            TIME
