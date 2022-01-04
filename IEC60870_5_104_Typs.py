@@ -107,31 +107,31 @@ SIQ = {"IV":0, "NT":0, "SB":0, "BL":0, "SPI":0}
 #[1] Double-point information with quality descriptor [1]
 DIQ = {"IV":0, "NT":0, "SB":0, "BL":0, "DPI":0}
 #[4] Binary state information
-BSI = {}
+BSI = {"B1":0, "B2":0, "B3":0, "B4":0}
 #[4] Status and change detection
-SCD = {}
+SCD = {"B1":0, "B2":0, "B3":0, "B4":0}
 #[1] Quality descriptor
-QDS = {}
+QDS = {"IV":0, "NT":0, "SB":0, "BL":0, "OV":0}
 #[1] Value with transient state indication
-VTI = {}
+VTI = {"TranState":0, "value":0}
 #[2] Normalized value
-NVA = {}
+NVA = {"norm Value":0}
 #[2] Scaled value
-SVA = {}
+SVA = {"scal Value":0}
 #[4] Short floating point number
-IEEE_STD_754 = {}
+IEEE_STD_754 = {"short float"}
 #[5] Binary counter reading
-BCR = {}
+BCR = {"BC1":0, "BC2":0, "BC3":0, "BC4":0}
 
 #Protection -------------------------------------------------------------------
 #[1] Single event of protection equipment
-SEP = {}
+SEP = {"IV":0, "NT":0, "SB":0, "BL":0, "EI":0,"ES":0}
 #[1] Start events of protection equipment
-SPE = {}
+SPE = {"SRD":0, "SIE":0, "SL3":0, "SL2":0, "SL1":0,"GS":0}
 #[1] Output circuit information of protection equipment
-OCI = {}
+OCI = {"CL3":0, "CL2":0, "CL1":0,"GC":0}
 #[1] Quality descriptor for events of protection equipment
-QDP = {}
+QDP = {"IV":0, "NT":0, "SB":0, "BL":0, "EI":0}
 
 #Commands ---------------------------------------------------------------------
 #[1] Single command
@@ -139,7 +139,7 @@ SCO = {"SE":0, "QU":0, "SCS":0}
 #[1] Double command
 DCO = {"SE":0, "QU":0, "DCS":0}
 #[1] Regulating step command
-RCO = {}
+RCO = {"SE":0, "QU":0, "RCS":0}
 
 #Time -------------------------------------------------------------------------
 #[7] Seven octet binary time
@@ -158,15 +158,23 @@ CP56T2a = {"MS":0, "IV":0, "MIN":0, "SU":0, "H":0,
   #  NIL       [S]      seconds from MS
 
 #[3] Three octet binary time
-CP24Time2a = {}
+CP24Time2a = {"MS":0, "IV":0, "MIN":0}
+  #1 xxxx xxxx [MS LSB] milli seconds
+  #2 xxxx xxxx [MS MSB] milli seconds
+  #3 x... .... [IV]     1=invalid
+  #3 ..xx xxxx [MIN]    minute
+  #  NIL       [S]      seconds from MS
+
 #[2] Two octet binary time
-CP16Time2a = {}
+CP16Time2a = {"MS":0}
+  #1 xxxx xxxx [MS LSB] milli seconds
+  #2 xxxx xxxx [MS MSB] milli seconds
 
 #Qualifiers -------------------------------------------------------------------
 #[1] Qualifier of interrogation
 QOI = {"QOIe":0}
 #[1] Qualifier of counter interrogation command
-QCC = {}
+QCC = {"FRZ":0, "ROT":0}
 #[1] Qualifier of parameter of measured values
 QPM = {}
 #[1] Qualifier of parameter activation
