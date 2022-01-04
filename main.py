@@ -38,6 +38,7 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     h.log("{} - ".format(APDU.ASDU.TI.Typ) + APDU.ASDU.TI.ref)
+
     if APDU.ASDU.TI.Typ == 45:
         h.log("S/E = {}".format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["SE"]))
         h.log("QU =  {}".format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["QU"]))

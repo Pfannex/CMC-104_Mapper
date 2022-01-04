@@ -117,9 +117,9 @@ class Server(threading.Thread):
 
     #--- I-Frame handle  ------------------------------------------------------
     def handle_iFrame(self, frame, client):
-        APDU = splitFrame(frame)
-        xAPDU = T104._xAPDU(frame)
-        print_iFrame(xAPDU)
+        #APDU = splitFrame(frame)
+        APDU = T104.APDU(frame)
+        print_iFrame(APDU)
         
         #confirm activation frame
         if APDU.ASDU.COT.short == "act":
@@ -150,8 +150,8 @@ class Server(threading.Thread):
         data[4] = (self.RxCounter & 0b0000000001111111) << 1
         data[5] = (self.RxCounter & 0b0111111110000000) >> 7
         
-        APDU = splitFrame(data)
-        print_iFrame(APDU)
+        #APDU = splitFrame(data)
+        #print_iFrame(APDU)
         
         self.client_socket.send(data)
         print ("-> I ({}/{})".format(self.TxCounter, self.RxCounter))
