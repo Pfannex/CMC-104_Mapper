@@ -2,7 +2,7 @@
 #   104-CMC-Mapper  
 #   
 #   The mapper contains a IEC 60870-5-104 server to receive commands from  
-#   any104-client. Also implementet is a full access to Omicron CMC devices  
+#   any 104-client. Also implementet is a full access to Omicron CMC devices  
 #   via the CMEngine.
 #   The main functionnality of the maper is to control the Omicron 
 #   CMC-devices by a 104-client.
@@ -34,35 +34,35 @@ def timer2_callback():
 def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     h.log("<- I Type={} - ".format(APDU.ASDU.TI.Typ) + APDU.ASDU.TI.ref)
     h.log("     Qualifier of interrogation command = 0x{0:02X} [{0:}]".
-                    format(APDU.ASDU.InfoObj.InfoElement["e1"]["QOIe"]))
+                    format(APDU.ASDU.InfoObj.InfoObjektElements["e1"]["QOIe"]))
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     h.log("{} - ".format(APDU.ASDU.TI.Typ) + APDU.ASDU.TI.ref)
     if APDU.ASDU.TI.Typ == 45:
-        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["SE"]))
-        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["QU"]))
-        h.log("SCS = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["SCS"]))
-        Server104.send_iFrame(1, APDU.ASDU.InfoObj.InfoElement["e1"]["SCS"])
+        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoObjektElements["e1"]["SE"]))
+        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoObjektElements["e1"]["QU"]))
+        h.log("SCS = {}".format(APDU.ASDU.InfoObj.InfoObjektElements["e1"]["SCS"]))
+        Server104.send_iFrame(1, APDU.ASDU.InfoObj.InfoObjektElements["e1"]["SCS"])
 
     if APDU.ASDU.TI.Typ == 46:
-        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["SE"]))
-        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["QU"]))
-        h.log("DCS = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["DCS"]))
+        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoObjektElements["e1"]["SE"]))
+        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoObjektElements["e1"]["QU"]))
+        h.log("DCS = {}".format(APDU.ASDU.InfoObj.InfoObjektElements["e1"]["DCS"]))
     if APDU.ASDU.TI.Typ == 58:
-        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["SE"]))
-        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["QU"]))
-        h.log("SCS = {}".format(APDU.ASDU.InfoObj.InfoElement["e1"]["SCS"]))
+        h.log("S/E = {}".format(APDU.ASDU.InfoObj.InfoObjektElements["e1"]["SE"]))
+        h.log("QU =  {}".format(APDU.ASDU.InfoObj.InfoObjektElements["e1"]["QU"]))
+        h.log("SCS = {}".format(APDU.ASDU.InfoObj.InfoObjektElements["e1"]["SCS"]))
         h.log("Time {0:02}.{1:02}.20{2:02}-{3:02}:{4:02}:{5:02}.{6:03} /IV={7}/SU={8}/DoW={9}".format(
-                APDU.ASDU.InfoObj.InfoElement["e2"]["D"],
-                APDU.ASDU.InfoObj.InfoElement["e2"]["M"],
-                APDU.ASDU.InfoObj.InfoElement["e2"]["Y"],
-                APDU.ASDU.InfoObj.InfoElement["e2"]["H"],
-                APDU.ASDU.InfoObj.InfoElement["e2"]["MIN"],
-                APDU.ASDU.InfoObj.InfoElement["e2"]["S"],
-                APDU.ASDU.InfoObj.InfoElement["e2"]["MS"],
-                APDU.ASDU.InfoObj.InfoElement["e2"]["IV"],
-                APDU.ASDU.InfoObj.InfoElement["e2"]["SU"],
-                APDU.ASDU.InfoObj.InfoElement["e2"]["DOW"]))
+                APDU.ASDU.InfoObj.InfoObjektElements["e2"]["D"],
+                APDU.ASDU.InfoObj.InfoObjektElements["e2"]["M"],
+                APDU.ASDU.InfoObj.InfoObjektElements["e2"]["Y"],
+                APDU.ASDU.InfoObj.InfoObjektElements["e2"]["H"],
+                APDU.ASDU.InfoObj.InfoObjektElements["e2"]["MIN"],
+                APDU.ASDU.InfoObj.InfoObjektElements["e2"]["S"],
+                APDU.ASDU.InfoObj.InfoObjektElements["e2"]["MS"],
+                APDU.ASDU.InfoObj.InfoObjektElements["e2"]["IV"],
+                APDU.ASDU.InfoObj.InfoObjektElements["e2"]["SU"],
+                APDU.ASDU.InfoObj.InfoObjektElements["e2"]["DOW"]))
     
       
 ###############################################################################

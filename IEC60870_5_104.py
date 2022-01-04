@@ -71,13 +71,13 @@ class Server(threading.Thread):
                 else:
                     if request[0] == 0x68:
                         #S-Frame
-                        if (request[2] & 1 != 0) & (request[2]>>1 & 1 == 0):    #01 S-Frame
+                        if request[2] & 0b00000011 == 0b01:    #01 S-Frame
                             self.handle_sFrame(request)
                         #U-Frame
-                        if (request[2] & 1 != 0) & (request[2]>>1 & 1 != 0):    #11 U-Frame
+                        if request[2] & 0b00000011 == 0b11:    #11 U-Frame
                             self.handle_uFrame(request, client_socket)
                         #I-Frame        
-                        if request[2] & 1 == 0:                                 #_0 I-Frame
+                        if request[2] & 0b00000001 == 0b0:     #.0 I-Frame                                 #_0 I-Frame
                             self.RxCounter += 1
                             self.handle_iFrame(request, client_socket)
                     
@@ -129,7 +129,7 @@ class Server(threading.Thread):
             data[5] = (self.RxCounter & 0b0111111110000000) >> 7
             data[8] = APDU.ASDU.Test<<8 | APDU.ASDU.PN<<7 | 7 
             client.send(data)
-            print ("-> I () ("+str(self.TxCounter)+"/"+str(self.RxCounter)+")")
+            print ("-> I ({}/{})".format(self.TxCounter, self.RxCounter))
             self.TxCounter += 1
         
         #callback to main
@@ -140,11 +140,20 @@ class Server(threading.Thread):
 
     #--- send I-Frame  --------------------------------------------------------
     def send_iFrame(self, TI, value):
-        list = [0x68, 0x0e, 0x02, 0x00, 0x02, 0x00,
-                TI, 0x01, 0x03, 0x00, 0x0a, 0x0b, 0x01, 0x02, 0x03, value]
+        list = [0x68, 0x0E, 0x02, 0x00, 0x02, 0x00,
+                TI, 0x01, 0x03, 0x00, 0x0a, 0x0b, 
+                0x32, 0x33, 0x3C, value]       
         data = bytearray(list)
+        data[2] = (self.TxCounter & 0b0000000001111111) << 1
+        data[3] = (self.TxCounter & 0b0111111110000000) >> 7
+        data[4] = (self.RxCounter & 0b0000000001111111) << 1
+        data[5] = (self.RxCounter & 0b0111111110000000) >> 7
+        
+        APDU = splitFrame(data)
+        print_iFrame(APDU)
+        
         self.client_socket.send(data)
-        print ("-> I () ("+str(self.TxCounter)+"/"+str(self.RxCounter)+")")
+        print ("-> I ({}/{})".format(self.TxCounter, self.RxCounter))
         self.TxCounter += 1
                 
 ###############################################################################
@@ -183,16 +192,17 @@ def splitFrame(frame):
     APDU.ASDU.InfoObj.IOA.DEZ = frame[14]<<16 | frame[13]<<8 | frame[12] 
     
     try:
-        IOE = T104.InfoObjectElement[APDU.ASDU.TI.Typ]
-        APDU.ASDU.InfoObj.InfoElement = fill_InfoObjectElement(APDU.ASDU.TI.Typ, IOE, frame)
+        IOE = T104.InfoObjectElements[APDU.ASDU.TI.Typ]
+        APDU.ASDU.InfoObj.InfoObjektElements \
+            = fill_InfoObjectElements(APDU.ASDU.TI.Typ, IOE, frame)
     except Exception as inst:
         h.log_error(inst)
 
     return APDU
 
 #--- fill Info Object Element  ------------------------------------------------
-def fill_InfoObjectElement(type, InfoObjectElement, frame):
-    IOE = InfoObjectElement
+def fill_InfoObjectElements(type, InfoObjectElements, frame):
+    IOE = InfoObjectElements
     if type == 1:
         pass
     elif type == 2:
@@ -210,16 +220,16 @@ def fill_InfoObjectElement(type, InfoObjectElement, frame):
         IOE["e1"]["QU"] = (frame[15] & 0b01111100)>>2
         IOE["e1"]["SCS"]= (frame[15] & 0b00000001)
         ms = frame[17]<<8 | frame[16]
-        IOE["e2"]["S"]        = int(ms/1000)
-        IOE["e2"]["MS"]       = ms - int(ms/1000)*1000
-        IOE["e2"]["IV"]       = frame[18]>>7
-        IOE["e2"]["MIN"]      = frame[18] & 0b00111111
-        IOE["e2"]["SU"]       = frame[19]>>7
-        IOE["e2"]["H"]        = frame[19] & 0b00111111
-        IOE["e2"]["DOW"]      = frame[20]>>5
-        IOE["e2"]["D"]        = frame[20] & 0b00011111
-        IOE["e2"]["M"]        = frame[21] & 0b00001111
-        IOE["e2"]["Y"]        = frame[22] & 0b01111111
+        IOE["e2"]["S"]  = int(ms/1000)
+        IOE["e2"]["MS"] = ms - int(ms/1000)*1000
+        IOE["e2"]["IV"] = frame[18]>>7
+        IOE["e2"]["MIN"]= frame[18] & 0b00111111
+        IOE["e2"]["SU"] = frame[19]>>7
+        IOE["e2"]["H"]  = frame[19] & 0b00111111
+        IOE["e2"]["DOW"]= frame[20]>>5
+        IOE["e2"]["D"]  = frame[20] & 0b00011111
+        IOE["e2"]["M"]  = frame[21] & 0b00001111
+        IOE["e2"]["Y"]  = frame[22] & 0b01111111
         
         
     elif type == 100:
@@ -273,7 +283,7 @@ def print_iFrame(APDU):
     addr = addr.replace(",",".")
     print ("                   "+ addr + " - Information Object Address (IOA)")
     print ("    -<InfoObjectElements>--------------------------------------------------------------")
-    print ("      {}".format(APDU.ASDU.InfoObj.InfoElement))
+    print ("      {}".format(APDU.ASDU.InfoObj.InfoObjektElements))
     print ("=======================================================================================")
     print ("")
 

@@ -25,18 +25,18 @@ class _APDU():
             DEZ   = 0
             long  = ""
             short = ""
-            ORG  = 0
+        ORG  = 0
         class CASDU():
             DEZ = 0
             _1  = 0
             _2  = 0
         class InfoObj():
-            InfoElement = {}
             class IOA():
               DEZ = 0
               _1  = 0
               _2  = 0
               _3  = 0              
+            InfoObjektElements = {}
             
 ###############################################################################
 #   dictionary I-Frame type identification
@@ -162,7 +162,7 @@ CP56T2a = {"MS":0, "IV":0, "MIN":0, "SU":0, "H":0,
   #2 xxxx xxxx [MS MSB] milli seconds
   #3 x... .... [IV]     1=invalid
   #3 ..xx xxxx [MIN]    minute
-  #4 x... .... [SU]     1= summer time
+  #4 x... .... [SU]     1=summer time
   #4 ...x xxxx [H]      hour
   #5 xxx. .... [DOW]    day of week
   #5 ...x xxxx [D]      day of moth
@@ -182,8 +182,7 @@ QOI = {"QOIe":0}
 #   Information Elemets group for Type Information Object
 ###############################################################################
 
-InfoObjectElement = {
-"Type":0,
+InfoObjectElements = {
 #PROCESS ------------------------------------------------------------ 
 #Information in Monitoring Direction:
 
