@@ -5,7 +5,8 @@
 #### ASDU = Application Service Data Unit  
        [Typ, COT, Addressing, Info-Objects]
 
--------------------------------------------------------------------------------------------
+***
+
 ### Type Identifier (TI) suppored by SITIPE AT
 
 ## Process Information in Monitoring Direction:
