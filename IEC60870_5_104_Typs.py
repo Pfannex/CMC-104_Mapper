@@ -50,6 +50,9 @@ class InfoObject():
         
     def fill_InfoObjectElements(self, type, InfoObjectElements, frame):
         IOE = InfoObjectElements
+        print ("------------------")
+        print (IOE)
+        print ("------------------")
         if type == 1:
             pass
         elif type == 2:
@@ -144,7 +147,7 @@ RCO = {"SE":0, "QU":0, "RCS":0}
 
 #Time -------------------------------------------------------------------------
 #[7] Seven octet binary time
-CP56T2a = {"MS":0, "IV":0, "MIN":0, "SU":0, "H":0, 
+CP56Time2a = {"MS":0, "IV":0, "MIN":0, "SU":0, "H":0, 
            "DOW":0, "D":0, "M":0, "Y":0, "S":0}
   #1 xxxx xxxx [MS LSB] milli seconds
   #2 xxxx xxxx [MS MSB] milli seconds
@@ -228,47 +231,68 @@ InfoObjectElements = {
 #[1] - M_SP_NA_1 - Single point information
 1 : {"e1": SIQ},        
 #[2] - M_SP_TA_1 - Single point information with time tag
-2 : {"e1": SIQ, "e2": CP56T2a},  
-#-[3] - M_DP_NA_1 - Double point information
+2 : {"e1": SIQ, "e2": CP24Time2a},  
+#[3] - M_DP_NA_1 - Double point information
 3 : {"e1": DIQ},  
 #[4] - M_DP_TA_1 - Double point information with time tag
+4 : {"e1": DIQ, "e2": CP24Time2a},  
 #[5] - M_ST_NA_1 - Step position information
 5 : {"e1": VTI, "e2": QDS},  
-#[6] - M_ST_TA_1 - tep position information with time tag
+#[6] - M_ST_TA_1 - Step position information with time tag
+6 : {"e1": VTI, "e2": QDS, "e3": CP24Time2a},  
 #[7] - M_BO_NA_1 - Bit string of 32 bit
 7 : {"e1": BSI, "e2": QDS},  
 #[8] - M_BO_TA_1 - Bit string of 32 bit with time tag
+8 : {"e1": BSI, "e2": QDS, "e3": CP24Time2a},  
 #[9] - M_ME_NA_1 - Measured value, normalized value
 9 : {"e1": NVA, "e2": QDS},  
 #[10] - M_ME_TA_1 - Measured value, normalized value with time tag
+10 : {"e1": NVA, "e2": QDS, "e3": CP24Time2a},  
 #[11] - M_ME_NB_1 - Measured value, scaled value
 11 : {"e1": SVA, "e2": QDS},  
 #[12] - M_ME_TB_1 - Measured value, scaled value with time tag
+12 : {"e1": SVA, "e2": QDS, "e3": CP24Time2a},  
 #[13] - M_ME_NC_1 - Measured value, short floating point value
 13 : {"e1": R32, "e2": QDS},  
 #[14] - M_ME_TC_1 - Measured value, short floating point value with time tag
+14 : {"e1": R32, "e2": QDS, "e3": CP24Time2a},  
 #[15] - M_IT_NA_1 - Integrated totals
 15 : {"e1": BCR, "e2": QDS1},  
 #[16] - M_IT_TA_1 - Integrated totals with time tag
+16 : {"e1": BCR, "e2": QDS1, "e3": CP24Time2a},  
 #[17] - M_EP_TA_1 - Event of protection equipment with time tag
+17 : {"e1": SEP, "e2": CP16Time2a, "e3": CP24Time2a},  
 #[18] - M_EP_TB_1 - Packed start events of protection equipment with time tag
+18 : {"e1": SEP, "e1": QDP, "e3": CP16Time2a, "e4": CP24Time2a},  
 #[19] - M_EP_TC_1 - Packed output circuit information of protection equipment with time tag
+19 : {"e1": OCI, "e1": QDP, "e3": CP16Time2a, "e4": CP24Time2a},  
 #[20] - M_PS_NA_1 - Packed single-point information with status change detection
 20 : {"e1": SCD, "e2": QDS},  
 #[21] - M_ME_ND_1 - Measured value, normalized value without quality descriptor
 21 : {"e1": NVA},  
 #with long time tag (7 octets)
-#-[30] - M_SP_TB_1 - Single point information with time tag CP56Time2a
-#-[31] - M_DP_TB_1 - Double point information with time tag CP56Time2a
-#-[32] - M_ST_TB_1 - Step position information with time tag CP56Time2a
-#-[33] - M_BO_TB_1 - Bit string of 32 bit with time tag CP56Time2a
-#-[34] - M_ME_TD_1 - Measured value, normalized value with time tag CP56Time2a
-#-[35] - M_ME_TE_1 - Measured value, scaled value with time tag CP56Time2a
-#-[36] - M_ME_TF_1 - Measured value, short floating point value with time tag CP56Time2a
-#-[37] - M_IT_TB_1 - Integrated totals with time tag CP56Time2a
-#-[38] - M_EP_TD_1 - Event of protection equipment with time tag CP56Time2a
-#-[39] - M_EP_TE_1 - Packed start events of protection equipment with time tag CP56time2a
-#-[40] - M_EP_TF_1 - "Packed output circuit information of protection equipment with time tag CP56Time2a
+#[30] - M_SP_TB_1 - Single point information with time tag CP56Time2a
+30 : {"e1": SIQ, "e2": CP56Time2a},  
+#[31] - M_DP_TB_1 - Double point information with time tag CP56Time2a
+31 : {"e1": DIQ, "e2": CP56Time2a},  
+#[32] - M_ST_TB_1 - Step position information with time tag CP56Time2a
+32 : {"e1": VTI, "e2": QDS, "e3": CP56Time2a},  
+#[33] - M_BO_TB_1 - Bit string of 32 bit with time tag CP56Time2a
+33 : {"e1": BSI, "e2": QDS, "e3": CP56Time2a},  
+#[34] - M_ME_TD_1 - Measured value, normalized value with time tag CP56Time2a
+34 : {"e1": NVA, "e2": QDS, "e3": CP56Time2a},  
+#[35] - M_ME_TE_1 - Measured value, scaled value with time tag CP56Time2a
+35 : {"e1": SVA, "e2": QDS, "e3": CP56Time2a},  
+#[36] - M_ME_TF_1 - Measured value, short floating point value with time tag CP56Time2a
+36 : {"e1": R32, "e2": QDS, "e3": CP56Time2a},  
+#[37] - M_IT_TB_1 - Integrated totals with time tag CP56Time2a
+37 : {"e1": BCR, "e2": QDS1, "e3": CP56Time2a},  
+#[38] - M_EP_TD_1 - Event of protection equipment with time tag CP56Time2a
+38 : {"e1": SEP, "e2": CP16Time2a, "e3": CP56Time2a},  
+#[39] - M_EP_TE_1 - Packed start events of protection equipment with time tag CP56time2a
+39 : {"e1": SEP, "e2": QDP, "e3": CP16Time2a, "e4": CP56Time2a},  
+#[40] - M_EP_TF_1 - "Packed output circuit information of protection equipment with time tag CP56Time2a
+40 : {"e1": OCI, "e2": QDP, "e3": CP16Time2a, "e4": CP56Time2a},  
 
 #information in control direction:
 # #without time tag
@@ -277,44 +301,61 @@ InfoObjectElements = {
 #[46] - C_DC_NA_1 - Double command         
 46 : {"e1": DCO},  
 #-[47] - C_RC_NA_1 - Regulating step command          
+47 : {"e1": RCO},  
 #-[48] - C_SE_NA_1 - Setpoint command, normalized value         
+48 : {"e1": NVA, "e2": QOS},  
 #-[49] - C_SE_NB_1 - Setpoint command, scaled value        
+49 : {"e1": SVA, "e2": QOS},  
 #-[50] - C_SE_NC_1 - Setpoint command, short floating point value     
+50 : {"e1": R32, "e2": QOS},  
 #-[51] - C_BO_NA_1 - Bit string 32 bit  
+51 : {"e1": BSI},  
 
 #with long time tag (7 octets)        
 #[58] - C_SC_TA_1 - Single command with time tag CP56Time2a      
-58 : {"e1": SCO, "e2": CP56T2a},  
-    
+58 : {"e1": SCO, "e2": CP56Time2a},  
 #[59] - C_DC_TA_1 - Double command with time tag CP56Time2a          
-59 : {"e1": DCO, "e2": CP56T2a},  
+59 : {"e1": DCO, "e2": CP56Time2a},  
 #-[60] - C_RC_TA_1 - Regulating step command with time tag CP56Time2a          
+60 : {"e1": RCO, "e2": CP56Time2a},  
 #-[61] - C_SE_TA_1 - Setpoint command, normalized value with time tag CP56Time2a          
+48 : {"e1": NVA, "e2": QOS, "e3": CP56Time2a},  
 #-[62] - C_SE_TB_1 - Setpoint command, scaled value with time tag CP56Time2a          
+62 : {"e1": SVA, "e2": QOS, "e3": CP56Time2a},  
 #-[63] - C_SE_TC_1 - Setpoint command, short floating point value with time tag CP56Time2a          
+63 : {"e1": R32, "e2": QOS, "e3": CP56Time2a},  
 #-[64] - C_BO_TA_1 - Bit string 32 bit with time tag CP56Time2a
+64 : {"e1": BSI, "e2": CP56Time2a},  
  
 #SYSTEM  ------------------------------------------------------------
 #information in monitor direction :
-#70: {"ref":"M_EI_NA_1", "des":"End of initialization"}, 
+#[70] - M_EI_NA_1 - End of initialization 
+70 : {"e1": COI},  
       
 #information in control direction :
 #[100] - C_IC_NA_1 - (General-) Interrogation command               
-100: {"e1": QOI}        
+100: {"e1": QOI},
 #[101] - C_CI_NA_1" - Counter interrogation command               
+101: {"e1": QCC},
 #[102] - C_RD_NA_1 - Read command               
 #[103] - C_CS_NA_1 - Clock synchronization command               
+103: {"e1": CP56Time2a},        
 #[104] - C_TS_NB_1 - (IEC 101) Test command               
 #[105] - C_RP_NC_1 - Reset process command               
+105: {"e1": QRP},
 #[106] - C_CD_NA_1 - (IEC 101) Delay acquisition command               
 #[107] - C_TS_TA_1 - Test command with time tag CP56Time2a 
 
 #PARAMETER  ---------------------------------------------------------
 #in control direction :                  
 #[110] - P_ME_NA_1 - Parameter of measured value, normalized value               
+110: {"e1": QPM},
 #[111] - P_ME_NB_1 - Parameter of measured value, scaled value               
+111 : {"e1": SVA, "e2": QPM},  
 #[112] - P_ME_NC_1 - Parameter of measured value, short floating point value               
+112 : {"e1": R32, "e2": QPM},  
 #[113] - P_AC_NA_1 - Parameter activation  
+113: {"e1": QPA}
 
 #FILE transfer ------------------------------------------------------             
 #[120] - F_FR_NA_1 - File ready               
