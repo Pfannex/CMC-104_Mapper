@@ -112,6 +112,7 @@ BSI = {"B1":0, "B2":0, "B3":0, "B4":0}
 SCD = {"B1":0, "B2":0, "B3":0, "B4":0}
 #[1] Quality descriptor
 QDS = {"IV":0, "NT":0, "SB":0, "BL":0, "OV":0}
+QDS1 = {"IV":0, "CA":0, "CY":0, "SEQ":0}
 #[1] Value with transient state indication
 VTI = {"TranState":0, "value":0}
 #[2] Normalized value
@@ -119,7 +120,7 @@ NVA = {"norm Value":0}
 #[2] Scaled value
 SVA = {"scal Value":0}
 #[4] Short floating point number
-IEEE_STD_754 = {"short float"}
+R32 = {"short float":0}
 #[5] Binary counter reading
 BCR = {"BC1":0, "BC2":0, "BC3":0, "BC4":0}
 
@@ -176,15 +177,15 @@ QOI = {"QOIe":0}
 #[1] Qualifier of counter interrogation command
 QCC = {"FRZ":0, "ROT":0}
 #[1] Qualifier of parameter of measured values
-QPM = {}
+QPM = {"LPC":0, "POP":0, "KPA":0}
 #[1] Qualifier of parameter activation
-QPA = {}
+QPA = {"QPA":0}
 #[1] Qualifier of reset process command
-QRP = {}
+QRP = {"QRP":0}
 #[1] Qualifier of command
-QOC = {}
+QOC = {"QOC":0}
 #[1] Qualifier of set-point command
-QOS = {}
+QOS = {"QOS":0}
 
 #File Transfer ----------------------------------------------------------------
 #[1] File ready qualifier
@@ -235,27 +236,27 @@ InfoObjectElements = {
 5 : {"e1": VTI, "e2": QDS},  
 #[6] - M_ST_TA_1 - tep position information with time tag
 #[7] - M_BO_NA_1 - Bit string of 32 bit
-7 : {"e1": DIQ},  
+7 : {"e1": BSI, "e2": QDS},  
 #[8] - M_BO_TA_1 - Bit string of 32 bit with time tag
 #[9] - M_ME_NA_1 - Measured value, normalized value
-9 : {"e1": DIQ},  
+9 : {"e1": NVA, "e2": QDS},  
 #[10] - M_ME_TA_1 - Measured value, normalized value with time tag
 #[11] - M_ME_NB_1 - Measured value, scaled value
-11 : {"e1": DIQ},  
+11 : {"e1": SVA, "e2": QDS},  
 #[12] - M_ME_TB_1 - Measured value, scaled value with time tag
 #[13] - M_ME_NC_1 - Measured value, short floating point value
-13 : {"e1": DIQ},  
+13 : {"e1": R32, "e2": QDS},  
 #[14] - M_ME_TC_1 - Measured value, short floating point value with time tag
 #[15] - M_IT_NA_1 - Integrated totals
-15 : {"e1": DIQ},  
+15 : {"e1": BCR, "e2": QDS1},  
 #[16] - M_IT_TA_1 - Integrated totals with time tag
 #[17] - M_EP_TA_1 - Event of protection equipment with time tag
 #[18] - M_EP_TB_1 - Packed start events of protection equipment with time tag
 #[19] - M_EP_TC_1 - Packed output circuit information of protection equipment with time tag
 #[20] - M_PS_NA_1 - Packed single-point information with status change detection
-20 : {"e1": DIQ},  
+20 : {"e1": SCD, "e2": QDS},  
 #[21] - M_ME_ND_1 - Measured value, normalized value without quality descriptor
-21 : {"e1": DIQ},  
+21 : {"e1": NVA},  
 #with long time tag (7 octets)
 #-[30] - M_SP_TB_1 - Single point information with time tag CP56Time2a
 #-[31] - M_DP_TB_1 - Double point information with time tag CP56Time2a
