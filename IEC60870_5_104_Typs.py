@@ -1,4 +1,9 @@
 ###############################################################################
+#   IMPORT
+###############################################################################
+import helper as h
+
+###############################################################################
 #   IEC60870-5-104 I-Frame
 ###############################################################################
 class CF():
@@ -45,8 +50,11 @@ class InfoObject():
     def __init__(self, frame):
         self.IOA = IOA(frame)
         type     = frame[6]
-        self.InfoObjektElements = InfoObjectElements[type]
-        self.fill_InfoObjectElements(type, self.InfoObjektElements, frame)
+        try:
+            self.InfoObjektElements = InfoObjectElements[type]
+            self.fill_InfoObjectElements(type, self.InfoObjektElements, frame)
+        except Exception as inst:
+            h.log_error(inst)
         
     def fill_InfoObjectElements(self, type, InfoObjectElements, frame):
         IOE = InfoObjectElements
@@ -516,6 +524,62 @@ dictCOT = {
    46: {"long":"ASDU address unknown", "short":"unknown_asdu_address"},
    47: {"long":"Information object address unknown", "short":"unknown_object_address"}
    }
+
+###############################################################################
+#   print I-Frame
+###############################################################################
+def print_iFrame(APDU):
+    print ("")
+    print ("=<APDU>================================================================================")
+    print ("  -<APCI>------------------------------------------------------------------------------")
+    print ("  # - 8765 4321 - 0x   -  DEZ - Information")
+    print ("  .....................................................................................")
+    print ("  1 - " + formatPrintLine(APDU.APCI.start) + " - start")
+    print ("  2 - " + formatPrintLine(APDU.APCI.length) + " - APDU lenght")
+    print ("  3 - .... ...0 - 0x00 -    0 - Format = I")
+    print ("  3 - " + formatPrintLine(APDU.APCI.CF._1) + " - CF1")
+    print ("  4 - " + formatPrintLine(APDU.APCI.CF._2) + " - CF2")
+    print ("  5 - " + formatPrintLine(APDU.APCI.CF._3) + " - CF3")
+    print ("  6 - " + formatPrintLine(APDU.APCI.CF._4) + " - CF4")
+    print ("                         {0:4} - Tx count".format(APDU.APCI.CF.Tx))
+    print ("                         {0:4} - Rx count".format(APDU.APCI.CF.Rx))
+    print ("  -<ASDU>------------------------------------------------------------------------------")
+    print ("  # - 8765 4321 - 0x   -  DEZ - Information")
+    print ("  .....................................................................................")
+    print ("  7 - " + formatPrintLine(APDU.ASDU.TI.Typ) + " - Type Identifier")
+    print ("                                " + APDU.ASDU.TI.ref)
+    print ("                                " + APDU.ASDU.TI.des)
+    print ("      ---------------------------------------------------------------------------------")
+    print ("  8 - {0}... .... - 0x{0:02X} - {0:4} - SQ (Structure Qualifier)".format(APDU.ASDU.SQ))
+    print ("  8 - .{0:03b} {1:04b} - 0x{2:02X} - {2:4} - Number of objects".format(APDU.ASDU.NofObjects>>4, APDU.ASDU.NofObjects&0b00001111, APDU.ASDU.NofObjects))
+    print ("  9 - {0}... .... - 0x{0:02X} - {0:4} - T (Test)".format(APDU.ASDU.Test))
+    print ("  9 - .{0}.. .... - 0x{0:02X} - {0:4} - P/N (positive/negative)".format(APDU.ASDU.PN))
+    print ("  9 - ..{0:02b} {1:04b} - 0x{2:02X} - {2:4} - Cause of transmission (COT)".format(APDU.ASDU.COT.DEZ>>4, APDU.ASDU.COT.DEZ&0b00001111, APDU.ASDU.COT.DEZ))
+    print ("                                " + APDU.ASDU.COT.long + " - " + APDU.ASDU.COT.short)
+    print (" 10 - " + formatPrintLine(APDU.ASDU.ORG) + " - Originator Address (ORG)")
+    print ("      ---------------------------------------------------------------------------------")
+    print (" 11 - " + formatPrintLine(APDU.ASDU.CASDU._1) + " - CASDU1 (LSB) Address Field (Common Address of ASDU)")
+    print (" 12 - " + formatPrintLine(APDU.ASDU.CASDU._2) + " - CASDU2 (MSB) Address Field (Common Address of ASDU)")
+    addr ="{:6,d}".format(APDU.ASDU.CASDU.DEZ)
+    addr = addr.replace(",",".")
+    print ("                       "+ addr +" - CASDU Address Field (Common Address of ASDU)")
+    print ("    -<InfoObject>----------------------------------------------------------------------")
+    print (" 13 - " + formatPrintLine(APDU.ASDU.InfoObject.IOA._1) + " - Information Object Address (IOA) (LSB)")
+    print (" 14 - " + formatPrintLine(APDU.ASDU.InfoObject.IOA._2) + " - Information Object Address (IOA) (...)")
+    print (" 15 - " + formatPrintLine(APDU.ASDU.InfoObject.IOA._3) + " - Information Object Address (IOA) (MSB)")
+    addr ="{:10,d}".format(APDU.ASDU.InfoObject.IOA.DEZ)
+    addr = addr.replace(",",".")
+    print ("                   "+ addr + " - Information Object Address (IOA)")
+    print ("    -<InfoObjectElements>--------------------------------------------------------------")
+    print ("      {}".format(APDU.ASDU.InfoObject.InfoObjektElements))
+    print ("=======================================================================================")
+    print ("")
+
+#--- format printLine  --------------------------------------------------------
+def formatPrintLine(value):
+    line = "{0:04b} {1:04b} - 0x{2:02X} - {2:4}".format(value>>4, value&0b00001111, value)
+    return line
+
 
 
 
