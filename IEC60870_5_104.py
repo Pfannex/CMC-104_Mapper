@@ -117,7 +117,8 @@ class Server(threading.Thread):
 
     #--- I-Frame handle  ------------------------------------------------------
     def handle_iFrame(self, frame, client):
-        APDU = splitFrame(frame)
+        #APDU = splitFrame(frame)
+        APDU = T104.APDU(frame)
         print_iFrame(APDU)
         
         #confirm activation frame
@@ -149,8 +150,8 @@ class Server(threading.Thread):
         data[4] = (self.RxCounter & 0b0000000001111111) << 1
         data[5] = (self.RxCounter & 0b0111111110000000) >> 7
         
-        APDU = splitFrame(data)
-        print_iFrame(APDU)
+        #APDU = splitFrame(data)
+        #print_iFrame(APDU)
         
         self.client_socket.send(data)
         print ("-> I ({}/{})".format(self.TxCounter, self.RxCounter))
@@ -186,14 +187,14 @@ def splitFrame(frame):
     APDU.ASDU.CASDU._2 =        frame[11]
     APDU.ASDU.CASDU.DEZ =       frame[11]<<8 | frame[10]
     #InfoObject
-    APDU.ASDU.InfoObj.IOA._1 =  frame[12] 
-    APDU.ASDU.InfoObj.IOA._2 =  frame[13] 
-    APDU.ASDU.InfoObj.IOA._3 =  frame[14] 
-    APDU.ASDU.InfoObj.IOA.DEZ = frame[14]<<16 | frame[13]<<8 | frame[12] 
+    APDU.ASDU.InfoObject.IOA._1 =  frame[12] 
+    APDU.ASDU.InfoObject.IOA._2 =  frame[13] 
+    APDU.ASDU.InfoObject.IOA._3 =  frame[14] 
+    APDU.ASDU.InfoObject.IOA.DEZ = frame[14]<<16 | frame[13]<<8 | frame[12] 
     
     try:
         IOE = T104.InfoObjectElements[APDU.ASDU.TI.Typ]
-        APDU.ASDU.InfoObj.InfoObjektElements \
+        APDU.ASDU.InfoObject.InfoObjektElements \
             = fill_InfoObjectElements(APDU.ASDU.TI.Typ, IOE, frame)
     except Exception as inst:
         h.log_error(inst)
@@ -276,14 +277,14 @@ def print_iFrame(APDU):
     addr = addr.replace(",",".")
     print ("                       "+ addr +" - CASDU Address Field (Common Address of ASDU)")
     print ("    -<InfoObject>----------------------------------------------------------------------")
-    print (" 13 - " + formatPrintLine(APDU.ASDU.InfoObj.IOA._1) + " - Information Object Address (IOA) (LSB)")
-    print (" 14 - " + formatPrintLine(APDU.ASDU.InfoObj.IOA._2) + " - Information Object Address (IOA) (...)")
-    print (" 15 - " + formatPrintLine(APDU.ASDU.InfoObj.IOA._3) + " - Information Object Address (IOA) (MSB)")
-    addr ="{:10,d}".format(APDU.ASDU.InfoObj.IOA.DEZ)
+    print (" 13 - " + formatPrintLine(APDU.ASDU.InfoObject.IOA._1) + " - Information Object Address (IOA) (LSB)")
+    print (" 14 - " + formatPrintLine(APDU.ASDU.InfoObject.IOA._2) + " - Information Object Address (IOA) (...)")
+    print (" 15 - " + formatPrintLine(APDU.ASDU.InfoObject.IOA._3) + " - Information Object Address (IOA) (MSB)")
+    addr ="{:10,d}".format(APDU.ASDU.InfoObject.IOA.DEZ)
     addr = addr.replace(",",".")
     print ("                   "+ addr + " - Information Object Address (IOA)")
     print ("    -<InfoObjectElements>--------------------------------------------------------------")
-    print ("      {}".format(APDU.ASDU.InfoObj.InfoObjektElements))
+    print ("      {}".format(APDU.ASDU.InfoObject.InfoObjektElements))
     print ("=======================================================================================")
     print ("")
 
