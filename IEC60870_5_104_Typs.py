@@ -6,6 +6,31 @@ import helper as h
 ###############################################################################
 #   IEC60870-5-104 I-Frame
 ###############################################################################
+#<APDU>------------------------------------
+class APDU():
+    def __init__(self, frame):
+        self.APCI =  APCI(frame)
+        self.ASDU =  ASDU(frame)
+    def pO(self):
+        print ("")
+        print ("=<APDU>================================================================================")
+        self.APCI.pO()
+        self.ASDU.pO()
+        
+#----<APCI>------------------------------------
+class APCI():
+    def __init__(self, frame):
+        self.start =  frame[0]
+        self.length = frame[1]
+        self.CF =     CF(frame)
+    def pO(self):
+        print ("  -<APCI>------------------------------------------------------------------------------")
+        print ("  # - 8765 4321 - 0x   -  DEZ - Information")
+        print ("  .....................................................................................")
+        print ("  1 - " + h.fPL(self.start) + " - start")
+        print ("  2 - " + h.fPL(self.length) + " - APDU lenght")
+        print ("  3 - .... ...0 - 0x00 -    0 - Format = I")
+
 class CF():
     def __init__(self, frame):
         self._1 =  frame[2]
@@ -14,89 +39,15 @@ class CF():
         self._4 =  frame[5]
         self.Tx  = (frame[3]<<8 | frame[2])>>1
         self.Rx  = (frame[5]<<8 | frame[4])>>1
-
-class APCI():
-    def __init__(self, frame):
-        self.start =  frame[0]
-        self.length = frame[1]
-        self.CF =     CF(frame)
-      
-class TI():
-    def __init__(self, frame):
-        self.Typ =   frame[6]
-        self.ref =   dictTI[self.Typ]["ref"]
-        self.des =   dictTI[self.Typ]["des"]
-
-class COT():
-    def __init__(self, frame):
-        self.DEZ   = frame[8] & 0b00111111
-        self.long  = dictCOT[self.DEZ]["long"]
-        self.short = dictCOT[self.DEZ]["short"]
-
-class CASDU():
-    def __init__(self, frame):
-        self.DEZ =   frame[11]<<8 | frame[10]
-        self._1  =   frame[10]
-        self._2  =   frame[11]
-
-class IOA():
-    def __init__(self, frame):
-        self.DEZ =   frame[14]<<16 | frame[13]<<8 | frame[12]
-        self._1 =    frame[12]
-        self._2 =    frame[13]
-        self._3 =    frame[14]              
-
-class InfoObject():
-    def __init__(self, frame):
-        self.IOA = IOA(frame)
-        type     = frame[6]
-        try:
-            print ("check")
-            self.InfoObjektElements = InfoObjectElements[type]
-            #self.fill_InfoObjectElements(type, self.InfoObjektElements, frame)
-            self.InfoObjektElements.fill(frame)
-            print(self.InfoObjektElements.SCO.SCS)
-            #self.InfoObjektElements.printElement()
-        except Exception as inst:
-            h.log_error(inst)
-"""        
-    def fill_InfoObjectElements(self, type, InfoObjectElements, frame):
-        IOE = InfoObjectElements
-        print ("------------------")
-        print (IOE)
-        print ("------------------")
-        if type == 1:
-            pass
-        elif type == 2:
-            pass
-        elif type == 45:
-            IOE["e1"]["SE"] = frame[15]>>7
-            IOE["e1"]["QU"] = (frame[15] & 0b01111100)>>2
-            IOE["e1"]["SCS"]= (frame[15] & 0b00000001)
-        elif type == 46:
-            IOE["e1"]["SE"] = frame[15]>>7
-            IOE["e1"]["QU"] = (frame[15] & 0b01111100)>>2
-            IOE["e1"]["DCS"]= (frame[15] & 0b00000011)
-        elif type == 58:
-            IOE["e1"]["SE"] = frame[15]>>7
-            IOE["e1"]["QU"] = (frame[15] & 0b01111100)>>2
-            IOE["e1"]["SCS"]= (frame[15] & 0b00000001)
-            ms = frame[17]<<8 | frame[16]
-            IOE["e2"]["S"]  = int(ms/1000)
-            IOE["e2"]["MS"] = ms - int(ms/1000)*1000
-            IOE["e2"]["IV"] = frame[18]>>7
-            IOE["e2"]["MIN"]= frame[18] & 0b00111111
-            IOE["e2"]["SU"] = frame[19]>>7
-            IOE["e2"]["H"]  = frame[19] & 0b00111111
-            IOE["e2"]["DOW"]= frame[20]>>5
-            IOE["e2"]["D"]  = frame[20] & 0b00011111
-            IOE["e2"]["M"]  = frame[21] & 0b00001111
-            IOE["e2"]["Y"]  = frame[22] & 0b01111111
-
-        elif type == 100:
-            IOE["e1"]["QOIe"] = frame[15]
-"""
+    def pO(self):
+        print ("  3 - " + h.fPL(self.CF._1) + " - CF1")
+        print ("  4 - " + h.fPL(self.CF._2) + " - CF2")
+        print ("  5 - " + h.fPL(self.CF._3) + " - CF3")
+        print ("  6 - " + h.fPL(self.CF._4) + " - CF4")
+        print ("                         {0:4} - Tx count".format(self.Tx))
+        print ("                         {0:4} - Rx count".format(self.Rx))
     
+#----<ASDU>------------------------------------
 class ASDU():
     def __init__(self, frame):
         self.TI =         TI(frame)
@@ -107,28 +58,105 @@ class ASDU():
         self.COT =        COT(frame)
         self.ORG =        frame[9]
         self.CASDU =      CASDU(frame)
-        self.InfoObject = InfoObject(frame)
-
-class APDU():
+        self.infoObject = infoObject(frame)
+    def pO(self):
+        print ("  -<ASDU>------------------------------------------------------------------------------")
+        print ("  # - 8765 4321 - 0x   -  DEZ - Information")
+        print ("  .....................................................................................")
+        self.TI.pO()
+        print ("      ---------------------------------------------------------------------------------")
+        print ("  8 - {0}... .... - 0x{0:02X} - {0:4} - SQ (Structure Qualifier)".format(self.SQ))
+        print ("  8 - .{0:03b} {1:04b} - 0x{2:02X} - {2:4} - Number of objects".format(self.NofObjects>>4, self.NofObjects&0b00001111, self.NofObjects))
+        print ("  9 - {0}... .... - 0x{0:02X} - {0:4} - T (Test)".format(self.Test))
+        print ("  9 - .{0}.. .... - 0x{0:02X} - {0:4} - P/N (positive/negative)".format(self.PN))
+        self.COT.pO()
+        print (" 10 - " + h.fPL(self.ORG) + " - Originator Address (ORG)")
+        print ("      ---------------------------------------------------------------------------------")
+        self.CASDU.pO()
+        self.infoObject.pO()
+        print ("=======================================================================================")
+        print ("")
+         
+class TI():
     def __init__(self, frame):
-        self.APCI =  APCI(frame)
-        self.ASDU =  ASDU(frame)
+        self.Typ =   frame[6]
+        self.ref =   dictTI[self.Typ]["ref"]
+        self.des =   dictTI[self.Typ]["des"]
+    def pO(self):
+        print ("  7 - " + h.fPL(self.Typ) + " - Type Identifier")
+        print ("                                " + self.ref)
+        print ("                                " + self.des)
 
-##############################################################################
-#   Info Objects classes
-##############################################################################
+class COT():
+    def __init__(self, frame):
+        self.DEZ   = frame[8] & 0b00111111
+        self.long  = dictCOT[self.DEZ]["long"]
+        self.short = dictCOT[self.DEZ]["short"]
+    def pO(self):
+        print ("  9 - ..{0:02b} {1:04b} - 0x{2:02X} - {2:4} - Cause of transmission (COT)".format(self.DEZ>>4, self.DEZ&0b00001111, self.DEZ))
+        print ("                                " + self.long + " - " + self.short)
+
+class CASDU():
+    def __init__(self, frame):
+        self.DEZ =   frame[11]<<8 | frame[10]
+        self._1  =   frame[10]
+        self._2  =   frame[11]
+    def pO(self):
+        print (" 11 - " + h.fPL(self._1) + " - CASDU1 (LSB) Address Field (Common Address of ASDU)")
+        print (" 12 - " + h.fPL(self._2) + " - CASDU2 (MSB) Address Field (Common Address of ASDU)")
+        addr ="{:6,d}".format(self.DEZ)
+        addr = addr.replace(",",".")
+        print ("                       "+ addr +" - CASDU Address Field (Common Address of ASDU)")
+
+class infoObject():
+    def __init__(self, frame):
+        self.DEZ =   frame[14]<<16 | frame[13]<<8 | frame[12]
+        self._1 =    frame[12]
+        self._2 =    frame[13]
+        self._3 =    frame[14]  
+        self.infoObjectElements = infoObjectElements(frame)            
+    def pO(self):
+        print ("    -<InfoObject>----------------------------------------------------------------------")
+        print (" 13 - " + h.fPL(self._1) + " - Information Object Address (IOA) (LSB)")
+        print (" 14 - " + h.fPL(self._2) + " - Information Object Address (IOA) (...)")
+        print (" 15 - " + h.fPL(self._3) + " - Information Object Address (IOA) (MSB)")
+        addr ="{:10,d}".format(self.DEZ)
+        addr = addr.replace(",",".")
+        print ("                   "+ addr + " - Information Object Address (IOA)")
+        self.infoObjectElements.pO()
+
+class infoObjectElements():
+    def __init__(self, frame):
+        type     = frame[6]
+        try:
+            self.infoObjectElements = ioe[type]
+            self.infoObjectElements.fill(frame)
+        except BaseException as ex:
+            h.logEx(ex)
+    def pO(self):
+        print ("    -<InfoObjectElements>--------------------------------------------------------------")
+        try:
+            self.infoObjectElements.pO()
+        except BaseException as ex:
+            h.logEx(ex)
+
+###############################################################################
+#   IEC60870-5-104 infoObjectElements
+###############################################################################
 class SCO():
-    def __init__(self):
-        pass
+    def __init__(self, pos):
+        self.des = "Single Command"
+        self.pos = pos + 14
     def fill(self, frame):
-        self.SE = frame[15]>>7
-        self.QU = (frame[15] & 0b01111100)>>2
-        self.SCS= (frame[15] & 0b00000001)
-    def printElement(self):
-        print (self.SE)
-        print (self.QU)
-        print (self.SCS)
-           
+        self.SE  = frame[self.pos]>>7
+        self.QU  = (frame[self.pos] & 0b01111100)>>2
+        self.SCS = (frame[self.pos] & 0b00000001)
+    def pO(self):
+        print ("    ---<SCO - Single Command>----------------------------------------------------------")
+        print (" {0} - {1}... .... - 0x{1:02X} - {1:4} - SE (Select/execute state)".format(self.pos+1, self.SE))
+        print (" {0} - .{1:03b} {2:02b}.. - 0x{3:02X} - {3:4} - QU (Qualifier)".format(self.pos+1, (self.QU & 0b00001100)>>4, (self.QU & 0b00001100)>>2, self.QU))
+        print (" {0} - .... ...{1} - 0x{1:02X} - {1:4} - SCS (Single command state)".format(self.pos+1, self.SCS))
+    
 class DCO():
     def __init__(self):
         pass
@@ -136,10 +164,11 @@ class DCO():
         self.SE = frame[15]>>7
         self.QU = (frame[15] & 0b01111100)>>2
         self.DCS= (frame[15] & 0b00000011)
-    def printElement(self):
-        print (self.SE)
-        print (self.QU)
-        print (self.DCS)
+    def pO(self):
+        print ("    ---<DCO - Double Command>----------------------------------------------------------")
+        print (" 16 - {0}... .... - 0x{0:02X} - {0:4} - SE (Select/execute state)".format(self.SE))
+        print (" 16 - .{0:03b} {1:02b}.. - 0x{2:02X} - {2:4} - QU (Qualifier)".format((self.QU & 0b00001100)>>4, (self.QU & 0b00001100) >>2, self.QU))
+        print (" 16 - .... ..{0:02b} - 0x{0:02X} - {0:4} - DCS (Double command state)".format(self.DCS))
 
 class CP56Time2a():
     def __init__(self):
@@ -156,39 +185,61 @@ class CP56Time2a():
         self.D  = frame[20] & 0b00011111
         self.M  = frame[21] & 0b00001111
         self.Y  = frame[22] & 0b01111111
-    def printElement(self):
+    def pO(self):
         print (self.ms)
 
+class QOI():
+    def __init__(self):
+        pass
+    def fill(self, frame):
+        self.QOI = frame[15]
+    def pO(self):
+        print (" 16 - " + h.fPL(self.QOI) + " - Qualifier of interrogation command")
+
+###############################################################################
+#   IEC60870-5-104 infoObjects
+###############################################################################
 class ti45():  
     def __init__(self):
-        self.SCO = SCO()
+        self.SCO = SCO(1)
     def fill(self, frame):
         self.SCO.fill(frame)
-    def printElement(self):
-        self.SCO.printElement
+    def pO(self):
+        self.SCO.pO()
     
 class ti46():  
     def __init__(self):
         self.DCO = DCO()
     def fill(self, frame):
         self.DCO.fill(frame)
-    def printElement(self):
-        self.DCO.printElement
+    def pO(self):
+        self.DCO.pO()
 
 class ti58():  
     def __init__(self):
-        self.SCO = SCO()
+        self.SCO = SCO(1)
         self.CP56Time2a = CP56Time2a()
     def fill(self, frame):
         self.SCO.fill(frame)
         self.CP56Time2a.fill(frame)
-    def printElement(self):
-        self.SCO.printElement
-        self.CP56Time2a.printElement
+    def pO(self):
+        self.SCO.pO()
+        self.CP56Time2a.pO()
         
-InfoObjectElements = {
-    45: ti45(), 46: ti46(), 58: ti58()
-}    
+class ti100():  
+    def __init__(self):
+        self.QOI = QOI()
+    def fill(self, frame):
+        self.QOI.fill(frame)
+    def pO(self):
+        self.QOI.pO()
+        
+# dictionary of TI-Classes
+ioe = {
+    45: ti45(), 46: ti46(), 58: ti58(), 100: ti100()
+}  
+
+ 
 """
 ##############################################################################
 #   Info Objects
@@ -605,67 +656,4 @@ dictCOT = {
    46: {"long":"ASDU address unknown", "short":"unknown_asdu_address"},
    47: {"long":"Information object address unknown", "short":"unknown_object_address"}
    }
-
-###############################################################################
-#   print I-Frame
-###############################################################################
-def print_iFrame(APDU):
-    print ("")
-    print ("=<APDU>================================================================================")
-    print ("  -<APCI>------------------------------------------------------------------------------")
-    print ("  # - 8765 4321 - 0x   -  DEZ - Information")
-    print ("  .....................................................................................")
-    print ("  1 - " + formatPrintLine(APDU.APCI.start) + " - start")
-    print ("  2 - " + formatPrintLine(APDU.APCI.length) + " - APDU lenght")
-    print ("  3 - .... ...0 - 0x00 -    0 - Format = I")
-    print ("  3 - " + formatPrintLine(APDU.APCI.CF._1) + " - CF1")
-    print ("  4 - " + formatPrintLine(APDU.APCI.CF._2) + " - CF2")
-    print ("  5 - " + formatPrintLine(APDU.APCI.CF._3) + " - CF3")
-    print ("  6 - " + formatPrintLine(APDU.APCI.CF._4) + " - CF4")
-    print ("                         {0:4} - Tx count".format(APDU.APCI.CF.Tx))
-    print ("                         {0:4} - Rx count".format(APDU.APCI.CF.Rx))
-    print ("  -<ASDU>------------------------------------------------------------------------------")
-    print ("  # - 8765 4321 - 0x   -  DEZ - Information")
-    print ("  .....................................................................................")
-    print ("  7 - " + formatPrintLine(APDU.ASDU.TI.Typ) + " - Type Identifier")
-    print ("                                " + APDU.ASDU.TI.ref)
-    print ("                                " + APDU.ASDU.TI.des)
-    print ("      ---------------------------------------------------------------------------------")
-    print ("  8 - {0}... .... - 0x{0:02X} - {0:4} - SQ (Structure Qualifier)".format(APDU.ASDU.SQ))
-    print ("  8 - .{0:03b} {1:04b} - 0x{2:02X} - {2:4} - Number of objects".format(APDU.ASDU.NofObjects>>4, APDU.ASDU.NofObjects&0b00001111, APDU.ASDU.NofObjects))
-    print ("  9 - {0}... .... - 0x{0:02X} - {0:4} - T (Test)".format(APDU.ASDU.Test))
-    print ("  9 - .{0}.. .... - 0x{0:02X} - {0:4} - P/N (positive/negative)".format(APDU.ASDU.PN))
-    print ("  9 - ..{0:02b} {1:04b} - 0x{2:02X} - {2:4} - Cause of transmission (COT)".format(APDU.ASDU.COT.DEZ>>4, APDU.ASDU.COT.DEZ&0b00001111, APDU.ASDU.COT.DEZ))
-    print ("                                " + APDU.ASDU.COT.long + " - " + APDU.ASDU.COT.short)
-    print (" 10 - " + formatPrintLine(APDU.ASDU.ORG) + " - Originator Address (ORG)")
-    print ("      ---------------------------------------------------------------------------------")
-    print (" 11 - " + formatPrintLine(APDU.ASDU.CASDU._1) + " - CASDU1 (LSB) Address Field (Common Address of ASDU)")
-    print (" 12 - " + formatPrintLine(APDU.ASDU.CASDU._2) + " - CASDU2 (MSB) Address Field (Common Address of ASDU)")
-    addr ="{:6,d}".format(APDU.ASDU.CASDU.DEZ)
-    addr = addr.replace(",",".")
-    print ("                       "+ addr +" - CASDU Address Field (Common Address of ASDU)")
-    print ("    -<InfoObject>----------------------------------------------------------------------")
-    print (" 13 - " + formatPrintLine(APDU.ASDU.InfoObject.IOA._1) + " - Information Object Address (IOA) (LSB)")
-    print (" 14 - " + formatPrintLine(APDU.ASDU.InfoObject.IOA._2) + " - Information Object Address (IOA) (...)")
-    print (" 15 - " + formatPrintLine(APDU.ASDU.InfoObject.IOA._3) + " - Information Object Address (IOA) (MSB)")
-    addr ="{:10,d}".format(APDU.ASDU.InfoObject.IOA.DEZ)
-    addr = addr.replace(",",".")
-    print ("                   "+ addr + " - Information Object Address (IOA)")
-    print ("    -<InfoObjectElements>--------------------------------------------------------------")
-    print ("      {}".format(APDU.ASDU.InfoObject.InfoObjektElements))
-    print ("=======================================================================================")
-    print ("")
-
-#--- format printLine  --------------------------------------------------------
-def formatPrintLine(value):
-    line = "{0:04b} {1:04b} - 0x{2:02X} - {2:4}".format(value>>4, value&0b00001111, value)
-    return line
-
-
-
-
-
-
-
-
 

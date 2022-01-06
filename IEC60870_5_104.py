@@ -118,7 +118,7 @@ class Server(threading.Thread):
     #--- I-Frame handle  ------------------------------------------------------
     def handle_iFrame(self, frame, client):
         APDU = T104.APDU(frame)
-        #T104.print_iFrame(APDU)
+        APDU.pO()
         
         #confirm activation frame
         if APDU.ASDU.COT.short == "act":
@@ -156,3 +156,4 @@ class Server(threading.Thread):
         print ("-> I ({}/{})".format(self.TxCounter, self.RxCounter))
         self.TxCounter += 1
                                       
+
