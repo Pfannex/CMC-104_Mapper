@@ -46,41 +46,20 @@ class IOA():
         self._2 =    frame[13]
         self._3 =    frame[14]              
 
-"""
-# Python3 code here creating class
-class geeks: 
-    def __init__(self, name, roll): 
-        self.name = name 
-        self.roll = roll
-   
-# creating list       
-list = [] 
-  
-# appending instances to list 
-list.append( geeks('Akash', 2) )
-list.append( geeks('Deependra', 40) )
-list.append( geeks('Reaper', 44) )
-  
-for obj in list:
-    print( obj.name, obj.roll, sep =' ' )
-  
-# We can also access instances attributes
-# as list[0].name, list[0].roll and so on.
-
-
-"""
-
-
 class InfoObject():
     def __init__(self, frame):
         self.IOA = IOA(frame)
         type     = frame[6]
         try:
+            print ("check")
             self.InfoObjektElements = InfoObjectElements[type]
-            self.fill_InfoObjectElements(type, self.InfoObjektElements, frame)
+            #self.fill_InfoObjectElements(type, self.InfoObjektElements, frame)
+            self.InfoObjektElements.fill(frame)
+            print(self.InfoObjektElements.SCO.SCS)
+            #self.InfoObjektElements.printElement()
         except Exception as inst:
             h.log_error(inst)
-        
+"""        
     def fill_InfoObjectElements(self, type, InfoObjectElements, frame):
         IOE = InfoObjectElements
         print ("------------------")
@@ -116,6 +95,7 @@ class InfoObject():
 
         elif type == 100:
             IOE["e1"]["QOIe"] = frame[15]
+"""
     
 class ASDU():
     def __init__(self, frame):
@@ -134,6 +114,82 @@ class APDU():
         self.APCI =  APCI(frame)
         self.ASDU =  ASDU(frame)
 
+##############################################################################
+#   Info Objects classes
+##############################################################################
+class SCO():
+    def __init__(self):
+        pass
+    def fill(self, frame):
+        self.SE = frame[15]>>7
+        self.QU = (frame[15] & 0b01111100)>>2
+        self.SCS= (frame[15] & 0b00000001)
+    def printElement(self):
+        print (self.SE)
+        print (self.QU)
+        print (self.SCS)
+           
+class DCO():
+    def __init__(self):
+        pass
+    def fill(self, frame):
+        self.SE = frame[15]>>7
+        self.QU = (frame[15] & 0b01111100)>>2
+        self.DCS= (frame[15] & 0b00000011)
+    def printElement(self):
+        print (self.SE)
+        print (self.QU)
+        print (self.DCS)
+
+class CP56Time2a():
+    def __init__(self):
+        pass
+    def fill(self, frame):
+        self.ms = frame[17]<<8 | frame[16]
+        self.S  = int(self.ms/1000)
+        self.MS = self.ms - int(self.ms/1000)*1000
+        self.IV = frame[18]>>7
+        self.MIN= frame[18] & 0b00111111
+        self.SU = frame[19]>>7
+        self.H  = frame[19] & 0b00111111
+        self.DOW= frame[20]>>5
+        self.D  = frame[20] & 0b00011111
+        self.M  = frame[21] & 0b00001111
+        self.Y  = frame[22] & 0b01111111
+    def printElement(self):
+        print (self.ms)
+
+class ti45():  
+    def __init__(self):
+        self.SCO = SCO()
+    def fill(self, frame):
+        self.SCO.fill(frame)
+    def printElement(self):
+        self.SCO.printElement
+    
+class ti46():  
+    def __init__(self):
+        self.DCO = DCO()
+    def fill(self, frame):
+        self.DCO.fill(frame)
+    def printElement(self):
+        self.DCO.printElement
+
+class ti58():  
+    def __init__(self):
+        self.SCO = SCO()
+        self.CP56Time2a = CP56Time2a()
+    def fill(self, frame):
+        self.SCO.fill(frame)
+        self.CP56Time2a.fill(frame)
+    def printElement(self):
+        self.SCO.printElement
+        self.CP56Time2a.printElement
+        
+InfoObjectElements = {
+    45: ti45(), 46: ti46(), 58: ti58()
+}    
+"""
 ##############################################################################
 #   Info Objects
 ###############################################################################
@@ -400,7 +456,7 @@ InfoObjectElements = {
 #[126] - F_DR_TA_1 - Directory               
 #[127] - F_SC_NB_1 - QueryLog – Request archive file               
 }
-            
+"""            
 ###############################################################################
 #   dictionary I-Frame type identification
 ###############################################################################
