@@ -140,6 +140,85 @@ class infoObjectElements():
         except BaseException as ex:
             h.logEx(ex)
 
+##############################################################################
+#  IEC60870-5-104 infoObjectElements (single data information) 
+###############################################################################
+SE  = {"name":"Select/execute state", "usedBytes":1, "bitPos": {"first":8, "last":8},
+       "state": {0: "execute", 1: "select"}}
+QU  = {"name":"Qualifier of Command", "usedBytes":1, "bitPos": {"first":7, "last":3},
+       "state": {0: "QU_UNSPECIFIED", 1: "QU_SHORTPULSE", 2: "QU_LONGPULSE", 3: "QU_PERSISTENT"}}
+SCS = {"name":"Single command state", "usedBytes":1, "bitPos": {"first":1, "last":1},
+       "state": {0: "SCS_OFF", 1: "SCS_ON"}}
+DCS = {"name":"Double command state", "usedBytes":1, "bitPos": {"first":2, "last":1},
+       "state": {0: "DCS_INDETERMINATE", 1: "DCS_OFF", 2: "DCS_ON", 3: "DCS_INDETERMINATE"}}
+RCS = {"name":"Step Command state", "usedBytes":1, "bitPos": {"first":2, "last":1},
+       "state": {0: "RCS_NOTALLOWED", 1: "RCS_DECREMENT", 2: "RCS_INCREMENT", 3: "RCS_NOTALLOWED"}}
+
+BSI = {"name":"Binary state information", "usedBytes":4, "bitPos": {"first":8, "last":8},
+       "state": {}}
+
+###############################################################################
+#   IEC60870-5-104 infoObjectElements (single data information)
+###############################################################################
+class sdi():
+    def __init__(self, sdiDict, data):
+      name = sdiDict["name"]
+      usedBytes = sdiDict["usedBytes"]
+      print (name)
+      print (usedBytes)
+      print (data[0])
+      
+      self.pStr = "Name: " + name
+  
+    def pO(self):
+        print(self.pStr)
+
+
+"""
+    def __init__(self, sdiDict, frame):
+        self.name = name
+        self.pos = pos[0] + 14
+        self.byteN = pos[0] + 15 
+        self.frame = frame
+        self.frameByte = frame[self.pos]
+        self.msb = (self.frameByte & 0b11110000) >>8 
+        self.lsb = (self.frameByte & 0b00001111)
+        self.first = pos[2]
+        self.last = pos[1]
+        self.len = self.last - self.first + 1
+        self.lenMSB = 4 - (8-self.last)
+        self.lenLSB = self.len - self.lenMSB 
+        self.bitStr = "0"*(8-self.last) + "1"*(self.len) + "0"*(self.first -1)
+        self.bitMask = int(self.bitStr, 2)
+        self.value = (self.frameByte & self.bitMask)>>self.first -1
+        
+        self.pStr = "{:3} - ".format(self.byteN)
+        self.pStr += "."*(8-self.last)
+        msbValue = "{0:0{1}b}".format(self.msb,self.lenMSB) if self.lenMSB != 0 else ""
+        self.pStr += msbValue + " "
+        lsbValue = "{0:0{1}b}".format(self.lsb, self.lenLSB) if self.lenLSB != 0 else ""
+        self.pStr += lsbValue
+        self.pStr += "."*(4-self.lenLSB)
+                
+        print ("len {}".format(self.len))
+        print ("lenMSB {}".format(self.lenMSB))
+        print ("lenLSB {}".format(self.lenLSB))
+        
+        print(self.bitStr)
+        print("{:08b}".format(self.bitMask))
+        print(self.frameByte)
+        print(self.value)
+        
+        #self.pStr += "{:}"*(8-self.last)
+        
+        
+        #self.QU  = (frame[self.pos] & 0b01111100)>>2
+    def pO(self):
+        print(self.pStr)
+        #print (" {0} - .{1:03b} {2:02b}.. - 0x{3:02X} - {3:4} - QU (Qualifier)".format(self.pos+1, (self.QU & 0b00001100)>>4, (self.QU & 0b00001100)>>2, self.QU))
+"""
+
+
 ###############################################################################
 #   IEC60870-5-104 infoObjectElements
 ###############################################################################
@@ -151,11 +230,25 @@ class SCO():
         self.SE  = frame[self.pos]>>7
         self.QU  = (frame[self.pos] & 0b01111100)>>2
         self.SCS = (frame[self.pos] & 0b00000001)
+        
+        self._QU = sdi(SE, [frame[15]])
+        #self.xQU = sdi("QU (Qualifier)", [1, 8, 5], frame)
+        #self.aQU = sdi("QU (Qualifier)", [1, 4, 1], frame)
+        #self.bQU = sdi("QU (Qualifier)", [1, 5, 4], frame)
+        #self.cQU = sdi("QU (Qualifier)", [1, 6, 2], frame)
+        #self.dQU = sdi("QU (Qualifier)", [1, 7, 1], frame)
     def pO(self):
         print ("    ---<SCO - Single Command>----------------------------------------------------------")
         print (" {0} - {1}... .... - 0x{1:02X} - {1:4} - SE (Select/execute state)".format(self.pos+1, self.SE))
         print (" {0} - .{1:03b} {2:02b}.. - 0x{3:02X} - {3:4} - QU (Qualifier)".format(self.pos+1, (self.QU & 0b00001100)>>4, (self.QU & 0b00001100)>>2, self.QU))
         print (" {0} - .... ...{1} - 0x{1:02X} - {1:4} - SCS (Single command state)".format(self.pos+1, self.SCS))
+        print("")
+        #self._QU.pO()
+        #self.xQU.pO()
+        #self.aQU.pO()  
+        #self.bQU.pO()  
+        #self.cQU.pO()  
+        #self.dQU.pO()  
     
 class DCO():
     def __init__(self):
@@ -235,6 +328,7 @@ class ti100():
         self.QOI.pO()
         
 # dictionary of TI-Classes
+#change to class
 ioe = {
     45: ti45(), 46: ti46(), 58: ti58(), 100: ti100()
 }  
