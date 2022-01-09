@@ -114,7 +114,7 @@ class infoObject():
         self._1 =    frame[12]
         self._2 =    frame[13]
         self._3 =    frame[14]  
-        self.infoObjectElements = infoObjectElements(frame)            
+        self.infoObjectElements = infoObjectElements(frame) 
     def pO(self):
         print ("    -<InfoObject>----------------------------------------------------------------------")
         print (" 13 - " + h.fPL(self._1) + " - Information Object Address (IOA) (LSB)")
@@ -123,55 +123,59 @@ class infoObject():
         addr ="{:10,d}".format(self.DEZ)
         addr = addr.replace(",",".")
         print ("                   "+ addr + " - Information Object Address (IOA)")
-        self.infoObjectElements.pO()
-
-class infoObjectElements():
-    def __init__(self, frame):
-        type = frame[6]
-        try:
-            self.infoObjectElements = ioe[type]
-            self.infoObjectElements.fill(frame)
-        except BaseException as ex:
-            h.logEx(ex)
-    def pO(self):
         print ("    -<InfoObjectElements>--------------------------------------------------------------")
-        try:
-            self.infoObjectElements.pO()
-        except BaseException as ex:
-            h.logEx(ex)
+        self.infoObjectElements.pO()
 
 ##############################################################################
 #  IEC60870-5-104 infoObjectElements (single data information) 
 ###############################################################################
-SE  = {"name":"Select/execute state", "usedBytes":1, "bitPos": {"first":8, "last":8},
+SE  = {"name": "SE", "longName":"Select/execute state", 
+       "usedBytes":1, "bitPos": {"first":8, "last":8},
        "state": {0: "execute", 1: "select"}}
-QU  = {"name":"Qualifier of Command", "usedBytes":1, "bitPos": {"first":7, "last":3},
+QU  = {"name": "QU", "longName":"Qualifier of Command", 
+       "usedBytes":1, "bitPos": {"first":7, "last":3},
        "state": {0: "QU_UNSPECIFIED", 1: "QU_SHORTPULSE", 2: "QU_LONGPULSE", 3: "QU_PERSISTENT"}}
-SCS = {"name":"Single command state", "usedBytes":1, "bitPos": {"first":1, "last":1},
+SCS = {"name": "SCS", "longName":"Single command state", 
+       "usedBytes":1, "bitPos": {"first":1, "last":1},
        "state": {0: "SCS_OFF", 1: "SCS_ON"}}
-DCS = {"name":"Double command state", "usedBytes":1, "bitPos": {"first":2, "last":1},
+DCS = {"name": "DCS", "longName":"Double command state", 
+       "usedBytes":1, "bitPos": {"first":2, "last":1},
        "state": {0: "DCS_INDETERMINATE", 1: "DCS_OFF", 2: "DCS_ON", 3: "DCS_INDETERMINATE"}}
-RCS = {"name":"Step Command state", "usedBytes":1, "bitPos": {"first":2, "last":1},
+RCS = {"name": "RCS", "longName":"Step Command state", 
+       "usedBytes":1, "bitPos": {"first":2, "last":1},
        "state": {0: "RCS_NOTALLOWED", 1: "RCS_DECREMENT", 2: "RCS_INCREMENT", 3: "RCS_NOTALLOWED"}}
 
-BSI = {"name":"Binary state information", "usedBytes":4, "bitPos": {"first":8, "last":8},
+BSI = {"name": "BSI", "longName":"Binary state information", 
+       "usedBytes":4, "bitPos": {"first":8, "last":8},
        "state": {}}
+
+QOIe = {"name": "QOI", "longName":"Qualifier of interrogation command", 
+        "usedBytes":1, "bitPos": {"first":8, "last":8},
+       "state": {0: "QOI_UNUSED", 20: "QOI_INROGEN", 21: "QOI_INRO1", 22: "QOI_INRO2"}}
 
 ###############################################################################
 #   IEC60870-5-104 infoObjectElements (single data information)
 ###############################################################################
 class sdi():
     def __init__(self, sdiDict, data):
-      name = sdiDict["name"]
+      print("sdi init 1")
+      self.name = sdiDict["name"]
+      self.longName = sdiDict["longName"]
       usedBytes = sdiDict["usedBytes"]
-      print (name)
+      print("sdi init 2")
+      print (self.name)
       print (usedBytes)
+      print("sdi init print data")
       print (data[0])
+      print("sdi init print data done")
       
-      self.pStr = "Name: " + name
-  
+      self.pStr = "Name: " + self.name
+      self.pStr += " - LongName: " + self.longName
+      print("sdi init done")
     def pO(self):
         print(self.pStr)
+        #print(self.name)
+        #print(self.pStr)
 
 
 """
@@ -282,12 +286,15 @@ class CP56Time2a():
         print (self.ms)
 
 class QOI():
-    def __init__(self):
-        pass
-    def fill(self, frame):
-        self.QOI = frame[15]
+    def __init__(self, frame):
+        print("QOI init")
+        self.QOIe = sdi(QOIe, [frame[15]])
+        print("QOI init done")
+        #self.QOI = frame[15]
     def pO(self):
-        print (" 16 - " + h.fPL(self.QOI) + " - Qualifier of interrogation command")
+        self.QOIe.pO()
+        #print("self.QOI print")
+        #print (" 16 - " + h.fPL(self.QOI) + " - Qualifier of interrogation command")
 
 ###############################################################################
 #   IEC60870-5-104 infoObjects
@@ -295,7 +302,9 @@ class QOI():
 class ti45():  
     def __init__(self):
         self.SCO = SCO(1)
+        print ("init TI 45")
     def fill(self, frame):
+        print ("fill TI 45")
         self.SCO.fill(frame)
     def pO(self):
         self.SCO.pO()
@@ -320,19 +329,39 @@ class ti58():
         self.CP56Time2a.pO()
         
 class ti100():  
-    def __init__(self):
-        self.QOI = QOI()
-    def fill(self, frame):
-        self.QOI.fill(frame)
+    def __init__(self, frame):
+        print("TI100 init")
+        self.QOI = QOI(frame)
+        print("TI100 init done")
     def pO(self):
         self.QOI.pO()
         
-# dictionary of TI-Classes
-#change to class
-ioe = {
-    45: ti45(), 46: ti46(), 58: ti58(), 100: ti100()
-}  
+#generic InfoObjectElements
+class infoObjectElements():
+    def __init__(self, frame):
+        type = frame[6]
+        print(type)
+        try:
+            print ("ioe init")
+            self.ioeOK = False
+            self.myIoe = dictIoe[type](frame)
+            self.ioeOK = True
 
+            print ("ioe myIoe OK")
+        except BaseException as ex:
+            h.logEx(ex, "infoObjectElements")
+            
+    def __repr__(self):
+        return self.myIoe
+    def pO(self):
+        if self.ioeOK:
+            self.myIoe.pO()
+        else:
+            print("   ERROR - Information Object not in list")
+
+# dictionary of TI-Classes        
+#dictIoe = {45: ti45, 46: ti46, 58: ti58, 100: ti100}    
+dictIoe = {100: ti100}    
  
 """
 ##############################################################################
