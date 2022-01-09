@@ -287,14 +287,9 @@ class CP56Time2a():
 
 class QOI():
     def __init__(self, frame):
-        print("QOI init")
         self.QOIe = sdi(QOIe, [frame[15]])
-        print("QOI init done")
-        #self.QOI = frame[15]
     def pO(self):
         self.QOIe.pO()
-        #print("self.QOI print")
-        #print (" 16 - " + h.fPL(self.QOI) + " - Qualifier of interrogation command")
 
 ###############################################################################
 #   IEC60870-5-104 infoObjects
@@ -302,9 +297,7 @@ class QOI():
 class ti45():  
     def __init__(self):
         self.SCO = SCO(1)
-        print ("init TI 45")
     def fill(self, frame):
-        print ("fill TI 45")
         self.SCO.fill(frame)
     def pO(self):
         self.SCO.pO()
@@ -330,11 +323,11 @@ class ti58():
         
 class ti100():  
     def __init__(self, frame):
-        print("TI100 init")
         self.QOI = QOI(frame)
-        print("TI100 init done")
     def pO(self):
         self.QOI.pO()
+
+
         
 #generic InfoObjectElements
 class infoObjectElements():
@@ -342,15 +335,11 @@ class infoObjectElements():
         type = frame[6]
         print(type)
         try:
-            print ("ioe init")
             self.ioeOK = False
             self.myIoe = dictIoe[type](frame)
             self.ioeOK = True
-
-            print ("ioe myIoe OK")
         except BaseException as ex:
             h.logEx(ex, "infoObjectElements")
-            
     def __repr__(self):
         return self.myIoe
     def pO(self):

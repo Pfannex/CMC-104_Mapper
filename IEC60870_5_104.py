@@ -58,7 +58,7 @@ class Server(threading.Thread):
                     client_socket.close()
                     self.RxCounter = 0
                     self.TxCounter = 0
-                    h.log_error(inst)
+                    h.log_error(inst, "handle_client_connection - receive")
                     break
                 
                 if not request:
