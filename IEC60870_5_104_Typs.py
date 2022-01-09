@@ -287,6 +287,7 @@ class CP56Time2a():
 
 class QOI():
     def __init__(self, frame):
+        print("QOI int , frame[0]={}".format(frame[0]))
         self.QOIe = sdi(QOIe, [frame[15]])
     def pO(self):
         self.QOIe.pO()
@@ -321,12 +322,31 @@ class ti58():
         self.SCO.pO()
         self.CP56Time2a.pO()
         
-class ti100():  
-    def __init__(self, frame):
-        self.QOI = QOI(frame)
-    def pO(self):
-        self.QOI.pO()
+#class ti100():  
+#    def __init__(self, frame):
+#        self.QOI = QOI(frame)
+#    def pO(self):
+#        self.QOI.pO()
 
+class Elements():  
+    def __init__(self, frame, listIoe):
+        self.listIoe = listIoe
+        for element in self.listIoe:
+            element.__init__(self, frame)
+        
+        #self.e1 = self.listIoe[0](frame)
+        #self.e2 = self.listIoe[1](frame)
+        print("len= {}".format(len(self.listIoe)))
+        #for element in self.listIoe:
+        #    print(self.listIoe[i])
+        #self.QOI = QOI(frame)
+    def pO(self):
+        for element in self.listIoe:
+            element.pO(self)
+            
+        #self.e2.pO()
+        #print (self.listIoe)
+        #self.QOI.pO()
 
         
 #generic InfoObjectElements
@@ -336,21 +356,23 @@ class infoObjectElements():
         print(type)
         try:
             self.ioeOK = False
-            self.myIoe = dictIoe[type](frame)
+            elemetsList = dictIoe[type]
             self.ioeOK = True
+            self.elements = Elements(frame, elemetsList)
+
         except BaseException as ex:
             h.logEx(ex, "infoObjectElements")
     def __repr__(self):
         return self.myIoe
     def pO(self):
         if self.ioeOK:
-            self.myIoe.pO()
+            self.elements.pO()
         else:
             print("   ERROR - Information Object not in list")
 
 # dictionary of TI-Classes        
 #dictIoe = {45: ti45, 46: ti46, 58: ti58, 100: ti100}    
-dictIoe = {100: ti100}    
+dictIoe = {100: [QOI, QOI]}    
  
 """
 ##############################################################################
