@@ -127,7 +127,7 @@ class infoObject():
 
 class infoObjectElements():
     def __init__(self, frame):
-        type     = frame[6]
+        type = frame[6]
         try:
             self.infoObjectElements = ioe[type]
             self.infoObjectElements.fill(frame)
