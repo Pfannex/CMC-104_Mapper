@@ -3,6 +3,33 @@
 ###############################################################################
 import helper as h
 
+##############################################################################
+#  IEC60870-5-104 infoObjectElements (single data information) 
+###############################################################################
+SE  = {"name": "SE", "longName":"Select/execute state", 
+       "usedBytes":1, "bitPos": {"first":8, "last":8},
+       "state": {0: "execute", 1: "select"}}
+QU  = {"name": "QU", "longName":"Qualifier of Command", 
+       "usedBytes":1, "bitPos": {"first":7, "last":3},
+       "state": {0: "QU_UNSPECIFIED", 1: "QU_SHORTPULSE", 2: "QU_LONGPULSE", 3: "QU_PERSISTENT"}}
+SCS = {"name": "SCS", "longName":"Single command state", 
+       "usedBytes":1, "bitPos": {"first":1, "last":1},
+       "state": {0: "SCS_OFF", 1: "SCS_ON"}}
+DCS = {"name": "DCS", "longName":"Double command state", 
+       "usedBytes":1, "bitPos": {"first":2, "last":1},
+       "state": {0: "DCS_INDETERMINATE", 1: "DCS_OFF", 2: "DCS_ON", 3: "DCS_INDETERMINATE"}}
+RCS = {"name": "RCS", "longName":"Step Command state", 
+       "usedBytes":1, "bitPos": {"first":2, "last":1},
+       "state": {0: "RCS_NOTALLOWED", 1: "RCS_DECREMENT", 2: "RCS_INCREMENT", 3: "RCS_NOTALLOWED"}}
+
+BSI = {"name": "BSI", "longName":"Binary state information", 
+       "usedBytes":4, "bitPos": {"first":8, "last":8},
+       "state": {}}
+
+QOIe = {"name": "QOI", "longName":"Qualifier of interrogation command", 
+        "usedBytes":1, "bitPos": {"first":8, "last":8},
+       "state": {0: "QOI_UNUSED", 20: "QOI_INROGEN", 21: "QOI_INRO1", 22: "QOI_INRO2"}}
+
 ###############################################################################
 #   IEC60870-5-104 I-Frame
 ###############################################################################
@@ -58,7 +85,7 @@ class ASDU():
         self.COT =        COT(frame)
         self.ORG =        frame[9]
         self.CASDU =      CASDU(frame)
-        self.infoObject = infoObject(frame)
+        self.InfoObject = InfoObject(frame)
     def pO(self):
         print ("  -<ASDU>------------------------------------------------------------------------------")
         print ("  # - 8765 4321 - 0x   -  DEZ - Information")
@@ -73,7 +100,7 @@ class ASDU():
         print (" 10 - " + h.fPL(self.ORG) + " - Originator Address (ORG)")
         print ("      ---------------------------------------------------------------------------------")
         self.CASDU.pO()
-        self.infoObject.pO()
+        self.InfoObject.pO()
         print ("=======================================================================================")
         print ("")
          
@@ -108,75 +135,132 @@ class CASDU():
         addr = addr.replace(",",".")
         print ("                       "+ addr +" - CASDU Address Field (Common Address of ASDU)")
 
-class infoObject():
+class InfoObject():
+    def __init__(self, frame):
+        self.InfoObjectAddress = InfoObjectAddress(frame)
+        self.InfoObjectElements = infoObjectElements(frame) 
+    def pO(self):
+        print ("    -<InfoObject>----------------------------------------------------------------------")
+        self.InfoObjectAddress.pO()
+        self.InfoObjectElements.pO()
+
+class InfoObjectAddress():
     def __init__(self, frame):
         self.DEZ =   frame[14]<<16 | frame[13]<<8 | frame[12]
         self._1 =    frame[12]
         self._2 =    frame[13]
         self._3 =    frame[14]  
-        self.infoObjectElements = infoObjectElements(frame) 
     def pO(self):
-        print ("    -<InfoObject>----------------------------------------------------------------------")
+        print ("    ---<InfoObjectAddress>-------------------------------------------------------------")
         print (" 13 - " + h.fPL(self._1) + " - Information Object Address (IOA) (LSB)")
         print (" 14 - " + h.fPL(self._2) + " - Information Object Address (IOA) (...)")
         print (" 15 - " + h.fPL(self._3) + " - Information Object Address (IOA) (MSB)")
         addr ="{:10,d}".format(self.DEZ)
         addr = addr.replace(",",".")
         print ("                   "+ addr + " - Information Object Address (IOA)")
-        print ("    -<InfoObjectElements>--------------------------------------------------------------")
-        self.infoObjectElements.pO()
-        #print(self.infoObjectElements.elements)
-        #print(self.infoObjectElements.elements.listIoe[1])
 
-##############################################################################
-#  IEC60870-5-104 infoObjectElements (single data information) 
-###############################################################################
-SE  = {"name": "SE", "longName":"Select/execute state", 
-       "usedBytes":1, "bitPos": {"first":8, "last":8},
-       "state": {0: "execute", 1: "select"}}
-QU  = {"name": "QU", "longName":"Qualifier of Command", 
-       "usedBytes":1, "bitPos": {"first":7, "last":3},
-       "state": {0: "QU_UNSPECIFIED", 1: "QU_SHORTPULSE", 2: "QU_LONGPULSE", 3: "QU_PERSISTENT"}}
-SCS = {"name": "SCS", "longName":"Single command state", 
-       "usedBytes":1, "bitPos": {"first":1, "last":1},
-       "state": {0: "SCS_OFF", 1: "SCS_ON"}}
-DCS = {"name": "DCS", "longName":"Double command state", 
-       "usedBytes":1, "bitPos": {"first":2, "last":1},
-       "state": {0: "DCS_INDETERMINATE", 1: "DCS_OFF", 2: "DCS_ON", 3: "DCS_INDETERMINATE"}}
-RCS = {"name": "RCS", "longName":"Step Command state", 
-       "usedBytes":1, "bitPos": {"first":2, "last":1},
-       "state": {0: "RCS_NOTALLOWED", 1: "RCS_DECREMENT", 2: "RCS_INCREMENT", 3: "RCS_NOTALLOWED"}}
+class infoObjectElements():
+    def __init__(self, frame):
+        type = frame[6]
+        self.elements = []
+        self.dataDetails = []
+        #print(type)
+        try:
+            self.loadListOK = False
+            elementsList = dictElementsList[type]                   #[SCO, CP56Time2a]
+            for i in range(len(elementsList)):                           
+                self.elements.append(elementsList[i][1])  #[SCO]
+                #print ("----")
+                #print (elementsList[i][1])
+                for j in range(len(elementsList[i][1])):
+                    self.dataDetails.append(ElementData(elementsList[i][1][j], frame))
+                    #print ("###")
+                    #print(elementsList[i][1][j])
+                #for detail in element[1]:
+                    #self.dataDetails.append(ElementData(detail, frame))  #[SE, QU, SCS]
+                    
+                    #print(detail)
+                    #print(element[0][0])
+                    #print(element[1][0]["longName"])
+                #element.__init__(frame)                       #fill Element with frame
+            #print(elementsList)
+            #print(len(elementsList))
+            #self.elements = Elements(frame, elementsList)     #fill Elements
+            self.loadListOK = True
+        except BaseException as ex:
+            h.logEx(ex, "infoObjectElements")
+    #def __repr__(self):
+        #return self
+    def pO(self):
+        if self.loadListOK:
+            print ("    ---<InfoObjectElements>------------------------------------------------------------")
+            for i in range(len(self.elements)):
+                print("    " + str(self.elements[i][0]["name"]))
+                for j in range(len(self.dataDetails)):
+                    print("    " + str(self.dataDetails[j].name))  #[SCO]
+            
+            
+            #pass
+            #self.elements.pO()
+        else:
+            print("    ERROR - Information Object not in list")
 
-BSI = {"name": "BSI", "longName":"Binary state information", 
-       "usedBytes":4, "bitPos": {"first":8, "last":8},
-       "state": {}}
-
-QOIe = {"name": "QOI", "longName":"Qualifier of interrogation command", 
-        "usedBytes":1, "bitPos": {"first":8, "last":8},
-       "state": {0: "QOI_UNUSED", 20: "QOI_INROGEN", 21: "QOI_INRO1", 22: "QOI_INRO2"}}
+class Element():
+    def __init__(self, element):
+        pass 
 
 ###############################################################################
 #   IEC60870-5-104 infoObjectElements (single data information)
 ###############################################################################
-class sdi():
+class ElementData():
     def __init__(self, sdiDict, data):
-      print("sdi init 1")
+      #print("sdi init 1")
       self.name = sdiDict["name"]
       self.longName = sdiDict["longName"]
       usedBytes = sdiDict["usedBytes"]
-      print("sdi init 2")
+      #print("sdi init 2")
       print (self.name)
-      print (usedBytes)
-      print("sdi init print data")
-      print (data[0])
-      print("sdi init print data done")
+      #print (usedBytes)
+      #print("sdi init print data")
+      #print (data[0])
+      #print("sdi init print data done")
       
       self.pStr = "       - " + self.name + " - " + self.longName
-      print("sdi init done")
+      #print("sdi init done")
     def pO(self):
         print(self.pStr)
         #print(self.name)
         #print(self.pStr)
+
+
+# dictionary of Information Object Elements        
+dictElementsList = {
+    45: [[["SCO", "Single command"],[SE, QU, SCS]]], 
+   100: [
+          [["QOI"],[QOIe]], 
+          [["SCO", "Single command"],[SE, QU, SCS]]
+        ]
+   }   
+
+###############################################################################
+#   IEC60870-5-104 infoObjects
+###############################################################################
+"""
+class Elements():  
+    def __init__(self, frame, elementList):
+        self.elementList = elementList      #[QOI, SCO, CP56Time2a]
+        for element in self.elementList:
+            element.__init__(self, frame)   #fill Element with frame
+    def pO(self):
+        for element in self.elementList:
+            element.pO(self)
+
+"""
+
+
+
+
+        
 
 
 """
@@ -308,70 +392,7 @@ class QOI():
         print("    - QOI - Qualifier of interrogation")
         self.QOIe.pO()
 
-###############################################################################
-#   IEC60870-5-104 infoObjects
-###############################################################################
-"""
-class ti45():  
-    def __init__(self):
-        self.SCO = SCO(1)
-    def fill(self, frame):
-        self.SCO.fill(frame)
-    def pO(self):
-        self.SCO.pO()
-    
-class ti46():  
-    def __init__(self):
-        self.DCO = DCO()
-    def fill(self, frame):
-        self.DCO.fill(frame)
-    def pO(self):
-        self.DCO.pO()
 
-class ti58():  
-    def __init__(self):
-        self.SCO = SCO(1)
-        self.CP56Time2a = CP56Time2a()
-    def fill(self, frame):
-        self.SCO.fill(frame)
-        self.CP56Time2a.fill(frame)
-    def pO(self):
-        self.SCO.pO()
-        self.CP56Time2a.pO()
-"""        
-
-class Elements():  
-    def __init__(self, frame, elementList):
-        self.elementList = elementList      #[SCO, CP56Time2a]
-        for element in self.elementList:
-            element.__init__(self, frame)   #fill Element with frame
-    def pO(self):
-        for element in self.elementList:
-            element.pO(self)
-        
-#generic InfoObjectElements
-class infoObjectElements():
-    def __init__(self, frame):
-        type = frame[6]
-        print(type)
-        try:
-            self.loadListOK = False
-            elemetsList = dictElementList[type]             #[SCO, CP56Time2a]
-            self.elements = Elements(frame, elemetsList)    #fill Elements
-            self.loadListOK = True
-        except BaseException as ex:
-            h.logEx(ex, "infoObjectElements")
-    def __repr__(self):
-        return self
-    def pO(self):
-        if self.loadListOK:
-            self.elements.pO()
-        else:
-            print("    ERROR - Information Object not in list")
-
-# dictionary of TI-Classes        
-#dictElementList = {45: ti45, 46: ti46, 58: ti58, 100: ti100}    
-dictElementList = {45: [SCO], 100: [QOI, QOI]}    
 
 ###############################################################################
 #   dictionary I-Frame type identification

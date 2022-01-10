@@ -33,13 +33,18 @@ def timer2_callback():
     h.log("here we go every 300 seconds")
 
 def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
-    pass
+    h.log("incomming TI=100")
+    #h.log("S/E = {}".format(APDU.ASDU.infoObject.infoObjectElements[0]))
+    #h.log(APDU.ASDU.infoObject.infoObjectElements.elements.elementList[0].QOIe["name"])
     #h.log("<- I Type={} - ".format(APDU.ASDU.TI.Typ) + APDU.ASDU.TI.ref)
     #h.log("     Qualifier of interrogation command = 0x{0:02X} [{0:}]".
     #                format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["QOIe"]))
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
-    pass
+    if APDU.ASDU.TI.Typ == 100:
+        h.log("incomming TI=100")
+        #h.log("S/E = {}".format(APDU.ASDU.infoObject.infoObjectElements[0]))
+        h.log(APDU.ASDU.infoObject.infoObjectElements[0])
 """
     h.log("{} - ".format(APDU.ASDU.TI.Typ) + APDU.ASDU.TI.ref)
 
