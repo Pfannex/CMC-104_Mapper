@@ -125,6 +125,8 @@ class infoObject():
         print ("                   "+ addr + " - Information Object Address (IOA)")
         print ("    -<InfoObjectElements>--------------------------------------------------------------")
         self.infoObjectElements.pO()
+        print(self.infoObjectElements.elements.listIoe[0])
+        print(self.infoObjectElements.elements.listIoe[1])
 
 ##############################################################################
 #  IEC60870-5-104 infoObjectElements (single data information) 
@@ -333,6 +335,7 @@ class Elements():
         self.listIoe = listIoe
         for element in self.listIoe:
             element.__init__(self, frame)
+            print(element.QOIe)
         
         #self.e1 = self.listIoe[0](frame)
         #self.e2 = self.listIoe[1](frame)
@@ -357,18 +360,17 @@ class infoObjectElements():
         try:
             self.ioeOK = False
             elemetsList = dictIoe[type]
-            self.ioeOK = True
             self.elements = Elements(frame, elemetsList)
-
+            self.ioeOK = True
         except BaseException as ex:
             h.logEx(ex, "infoObjectElements")
     def __repr__(self):
-        return self.myIoe
+        return self.elements
     def pO(self):
         if self.ioeOK:
             self.elements.pO()
         else:
-            print("   ERROR - Information Object not in list")
+            print("    ERROR - Information Object not in list")
 
 # dictionary of TI-Classes        
 #dictIoe = {45: ti45, 46: ti46, 58: ti58, 100: ti100}    
