@@ -125,8 +125,8 @@ class infoObject():
         print ("                   "+ addr + " - Information Object Address (IOA)")
         print ("    -<InfoObjectElements>--------------------------------------------------------------")
         self.infoObjectElements.pO()
-        print(self.infoObjectElements.elements.listIoe[0])
-        print(self.infoObjectElements.elements.listIoe[1])
+        #print(self.infoObjectElements.elements)
+        #print(self.infoObjectElements.elements.listIoe[1])
 
 ##############################################################################
 #  IEC60870-5-104 infoObjectElements (single data information) 
@@ -171,8 +171,7 @@ class sdi():
       print (data[0])
       print("sdi init print data done")
       
-      self.pStr = "Name: " + self.name
-      self.pStr += " - LongName: " + self.longName
+      self.pStr = "       - " + self.name + " - " + self.longName
       print("sdi init done")
     def pO(self):
         print(self.pStr)
@@ -228,6 +227,7 @@ class sdi():
 ###############################################################################
 #   IEC60870-5-104 infoObjectElements
 ###############################################################################
+"""
 class SCO():
     def __init__(self, pos):
         self.des = "Single Command"
@@ -255,7 +255,7 @@ class SCO():
         #self.bQU.pO()  
         #self.cQU.pO()  
         #self.dQU.pO()  
-    
+"""    
 class DCO():
     def __init__(self):
         pass
@@ -287,11 +287,49 @@ class CP56Time2a():
     def pO(self):
         print (self.ms)
 
+class SCO():
+    def __init__(self, frame):
+        self.SE = sdi(SE, [frame[15]])
+        self.QU = sdi(QU, [frame[15]])
+        self.SCS = sdi(SCS, [frame[15]])
+        #self.des = "Single Command"
+        #self.pos = pos + 14
+    #def fill(self, frame):
+        #self.SE  = frame[self.pos]>>7
+        #self.QU  = (frame[self.pos] & 0b01111100)>>2
+        #self.SCS = (frame[self.pos] & 0b00000001)
+        
+        #self._QU = sdi(SE, [frame[15]])
+        #self.xQU = sdi("QU (Qualifier)", [1, 8, 5], frame)
+        #self.aQU = sdi("QU (Qualifier)", [1, 4, 1], frame)
+        #self.bQU = sdi("QU (Qualifier)", [1, 5, 4], frame)
+        #self.cQU = sdi("QU (Qualifier)", [1, 6, 2], frame)
+        #self.dQU = sdi("QU (Qualifier)", [1, 7, 1], frame)
+    def pO(self):
+        print("    - SCO - Single Command")
+        self.SE.pO()
+        self.QU.pO()
+        self.SCS.pO()
+
+        #print ("    ---<SCO - Single Command>----------------------------------------------------------")
+        #print (" {0} - {1}... .... - 0x{1:02X} - {1:4} - SE (Select/execute state)".format(self.pos+1, self.SE))
+        #print (" {0} - .{1:03b} {2:02b}.. - 0x{3:02X} - {3:4} - QU (Qualifier)".format(self.pos+1, (self.QU & 0b00001100)>>4, (self.QU & 0b00001100)>>2, self.QU))
+        #print (" {0} - .... ...{1} - 0x{1:02X} - {1:4} - SCS (Single command state)".format(self.pos+1, self.SCS))
+        #print("")
+        #self._QU.pO()
+        #self.xQU.pO()
+        #self.aQU.pO()  
+        #self.bQU.pO()  
+        #self.cQU.pO()  
+        #self.dQU.pO()  
+
+
 class QOI():
     def __init__(self, frame):
-        print("QOI int , frame[0]={}".format(frame[0]))
+        #print("QOI int , frame[0]={}".format(frame[0]))
         self.QOIe = sdi(QOIe, [frame[15]])
     def pO(self):
+        print("    - QOI - Qualifier of interrogation")
         self.QOIe.pO()
 
 ###############################################################################
@@ -331,20 +369,20 @@ class ti58():
 #        self.QOI.pO()
 
 class Elements():  
-    def __init__(self, frame, listIoe):
-        self.listIoe = listIoe
-        for element in self.listIoe:
-            element.__init__(self, frame)
-            print(element.QOIe)
+    def __init__(self, frame, elementList):
+        self.elementList = elementList      #[SCO, CP56Time2a]
+        for element in self.elementList:
+            element.__init__(self, frame)   #fill Element with frame
+            #print(element.QOIe)
         
         #self.e1 = self.listIoe[0](frame)
         #self.e2 = self.listIoe[1](frame)
-        print("len= {}".format(len(self.listIoe)))
+        #print("len= {}".format(len(self.liselementList)))
         #for element in self.listIoe:
         #    print(self.listIoe[i])
         #self.QOI = QOI(frame)
     def pO(self):
-        for element in self.listIoe:
+        for element in self.elementList:
             element.pO(self)
             
         #self.e2.pO()
@@ -358,23 +396,23 @@ class infoObjectElements():
         type = frame[6]
         print(type)
         try:
-            self.ioeOK = False
-            elemetsList = dictIoe[type]
-            self.elements = Elements(frame, elemetsList)
-            self.ioeOK = True
+            self.loadListOK = False
+            elemetsList = dictElementList[type]             #[SCO, CP56Time2a]
+            self.elements = Elements(frame, elemetsList)    #fill Elements
+            self.loadListOK = True
         except BaseException as ex:
             h.logEx(ex, "infoObjectElements")
     def __repr__(self):
-        return self.elements
+        return self
     def pO(self):
-        if self.ioeOK:
+        if self.loadListOK:
             self.elements.pO()
         else:
             print("    ERROR - Information Object not in list")
 
 # dictionary of TI-Classes        
-#dictIoe = {45: ti45, 46: ti46, 58: ti58, 100: ti100}    
-dictIoe = {100: [QOI, QOI]}    
+#dictElementList = {45: ti45, 46: ti46, 58: ti58, 100: ti100}    
+dictElementList = {45: [SCO], 100: [QOI, QOI]}    
  
 """
 ##############################################################################

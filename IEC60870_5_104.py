@@ -9,7 +9,7 @@ from typing import Text
 import struct
 import json
 import pprint
-import yaml
+#import yaml
 import helper as h
 import IEC60870_5_104_Typs as T104
 import time
