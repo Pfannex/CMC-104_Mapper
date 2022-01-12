@@ -138,7 +138,7 @@ class CASDU():
 class InfoObject():
     def __init__(self, frame):
         self.InfoObjectAddress = InfoObjectAddress(frame)
-        self.InfoObjectElements = infoObjectElements(frame) 
+        self.InfoObjectElements = InfoObjectElements(frame) 
     def pO(self):
         print ("    -<InfoObject>----------------------------------------------------------------------")
         self.InfoObjectAddress.pO()
@@ -159,13 +159,14 @@ class InfoObjectAddress():
         addr = addr.replace(",",".")
         print ("                   "+ addr + " - Information Object Address (IOA)")
 
-class infoObjectElements():
+class InfoObjectElements():
     def __init__(self, frame):
         type = frame[6]
         self.elements = []                  #all InfoObjectElements
-        self.dataGroup = []                 #dataGroup = Byte Description & Bit Details
         self.dataByteDescription = []       #Byte Description
+        self.dataGroup = []                 #dataGroup of Byte
         self.dataDetails = []               #Bit Details
+        self.data = []
         self.pLine = []
         try:
             self.loadListOK = False
@@ -174,25 +175,42 @@ class infoObjectElements():
             for i in range(len(elements)):                      #elements[x]
                 self.elements.append(elements[i])
                 #print("--<elements>----------------")
-                #print(elements[i])
-                for j in range(len(elements[i])):               #dataGroup[x][x]
-                    self.dataGroup.append(elements[i][j])
+                #print(i)
+                #if j == 0:
+                self.dataByteDescription.append(elements[i][0])
+                #self.dataGroup.append(DataDetailInfo(elements[i][1], frame))
+                self.dataGroup.append(elements[i][1])
+                self.data.append(self.dataByteDescription[i][0])
+                
+                for j in range(len(self.dataGroup[i])):
+                    #self.data[i].append[DataDetailInfo(elements[i][1], frame)]
+
+                    print(self.dataGroup[i][j])
+                    print("-----")
+                
+                #for j in range(len(elements[i])):               #dataGroup[x][x]
+                    #pass
+                    #self.dataGroup.append(elements[i][j])
                     #print("----<dataGroup>----------------")
                     #print(elements[i][j])
-                    for k in range(len(elements[i][j])):        #dataDetails[x][x][x]
+                    #if j == 0:
+                        #print(elements[i][0])
+
+                    #for k in range(len(elements[i][j])):        #dataDetails[x][x][x]
                         #print ("i= {} | j= {} | k= {}".format(i,j,k))
                         #print (elements[i][0][0])
-                        if j == 0:
-                            print("    -----<" + elements[i][0][0])
+                        #if j == 0:
+                        #pass
+                            #print(elements[i][0])
                             #self.pLine.append("    -----<" + elements[i][0][0])
                             #print("------<INFO>--------------")
                             #print(elements[i][j][0])
-                            self.dataByteDescription.append(elements[i][0][k])
-                        if j == 1:
+                            #self.dataByteDescription.append(elements[i][0])
+                        #if j == 1:
                             #else:
                             #print("------<Detail>--------------")
                             #print(elements[i][1][k])
-                            self.dataDetails.append(DataBDI(elements[i][1][k], frame))
+                            #self.dataDetails.append(DataBDI(elements[i][1][k], frame))
                                            
                 #self.elements.append(elementsList[i][1])  #[SCO]
                 #print ("----")
@@ -220,7 +238,9 @@ class infoObjectElements():
         if self.loadListOK:
             print ("    ---<InfoObjectElements>------------------------------------------------------------")
             for i in range(len(self.dataByteDescription)):
-                print("       <" + self.dataByteDescription[i])
+                print("       <" + self.dataByteDescription[i][0] + " - " + 
+                                   self.dataByteDescription[i][1])
+            print(self.data)    
             
             #for line in self.pLine:
                 #print(line)
@@ -241,13 +261,13 @@ class Element():
         pass 
 
 ###############################################################################
-#   IEC60870-5-104 infoObjectElements (single data information)
+#   Data Detail Infomation
 ###############################################################################
-class DataBDI():
-    def __init__(self, dataBDI, frame):
+class DataDetailInfo():
+    def __init__(self, dataDetailInfo, frame):
       #print("sdi init 1")
-      self.name = dataBDI["name"]
-      self.longName = dataBDI["longName"]
+      self.name = dataDetailInfo["name"]
+      self.longName = dataDetailInfo["longName"]
       #usedBytes = dataBDI["usedBytes"]
       #print("sdi init 2")
       #print (self.name)
@@ -270,22 +290,26 @@ class DataBDI():
 # dictionary of Information Object Elements        
 dictElementsList = {
     45: [[["SCO", "Single command"],[SE, QU, SCS]]], 
-   100: [
-            [                        #  [0]         
-                ["QOI",              #  [0][0][0]
-                 "Qualifier of interrogation command"], #  [0][0][1]   
-                [QOIe]               #  [0][1][0]   
+   100: [                               #                           
+            [                           #  [0]          elements
+                [                       #  [0][0]       dataByteDescription    
+                    "QOI",              #  [0][0][0]      short description
+                    "Qualifier of .."], #  [0][0][1]      long description
+                [                       #  [0][1]       dataGroup
+                    QOIe]               #  [0][1][0]    dataDetails
             ], 
-            [                        #  [1]
-                ["SCO",              #  [1][0][0]
-                 "Single command"],  #  [1][0][1]
-                [SE,                 #  [1][1][0]
-                 QU,                 #  [1][1][1]
-                 SCS]                #  [1][1][2]
-            ]                        #   ^  ^  ^
-        ]                            #   |  |  (k) dataBDI (Bit Data Information) 
-   }                                 #   |  (j) dataGroup 
-                                     #   (i) elements 
+            [                           #  [1]          elements
+                [                       #  [1][0]       dataByteDescription
+                    "SCO",              #  [1][0][0]      short description
+                    "Single command"],  #  [1][0][1]      long description
+                [                       #  [1][1]       dataGroup      
+                    SE,                 #  [1][1][0]    dataDetails
+                    QU,                 #  [1][1][1]    dataDetails
+                    SCS]                #  [1][1][2]    dataDetails
+            ]                           #   ^  ^  ^
+        ]                               #   |  | (k) dataBDI (Bit Data Information) 
+   }                                    #   | (j) dataGroup 
+                                        #  (i) elements 
 
 ###############################################################################
 #   IEC60870-5-104 infoObjects

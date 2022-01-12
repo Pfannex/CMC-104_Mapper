@@ -34,6 +34,7 @@ def timer2_callback():
 
 def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     h.log("incomming TI=100")
+    #print(APDU.ASDU.InfoObject.InfoObjectElements.dataGroup)
     #h.log("S/E = {}".format(APDU.ASDU.infoObject.infoObjectElements[0]))
     #h.log(APDU.ASDU.infoObject.infoObjectElements.elements.elementList[0].QOIe["name"])
     #h.log("<- I Type={} - ".format(APDU.ASDU.TI.Typ) + APDU.ASDU.TI.ref)
