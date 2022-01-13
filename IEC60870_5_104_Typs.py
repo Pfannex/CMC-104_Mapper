@@ -139,6 +139,10 @@ class InfoObject():
     def __init__(self, frame):
         self.address = Address(frame)
         self.data = Data(frame) 
+        
+        
+        
+        
     def pO(self):
         print ("    -<InfoObject>----------------------------------------------------------------------")
         self.address.pO()
@@ -158,26 +162,7 @@ class Address():
         addr ="{:10,d}".format(self.DEZ)
         addr = addr.replace(",",".")
         print ("                   "+ addr + " - Information Object Address (IOA)")
-
-
-class Typ():
-    def __init__(self, data):
-        self.typ = data[0][0]
-        self.typLong = data[0][1]
-        detailList = data[1]
-        self.detail = []
-        
-        #print("........")
-        #print(detailList)
-        for i in range(len(detailList)):
-            #print(detailList[i]["name"])
-            self.detail.append(detailList[i]["name"])
-
-class DataDetail():
-    def __init__(self, data):
-        self.data0 = data[0]
-        self.data1 = data[1]
-    
+   
 class Data():
     def __init__(self, frame):
         type = frame[6]
@@ -201,6 +186,24 @@ class Data():
                     print("          - {}".format(self.data[i].detail[j]))
         else:
             print("    ERROR - Information Object not in list")
+
+class Typ():
+    def __init__(self, data):
+        self.typ = data[0][0]
+        self.typLong = data[0][1]
+        detailList = data[1]
+        self.detail = []
+        
+        #print("........")
+        #print(detailList)
+        for i in range(len(detailList)):
+            #print(detailList[i]["name"])
+            self.detail.append(detailList[i]["name"])
+
+class DataDetail():
+    def __init__(self, data):
+        self.data0 = data[0]
+        self.data1 = data[1]
 
 
 # dictionary of Information Object Elements        
