@@ -138,29 +138,15 @@ class CASDU():
 class InfoObject():
     def __init__(self, frame):
         self.address = Address(frame)
-        type = frame[6]
-        elements = []  #all InfoObjectElements
-        self.data = [] #data details
-        try:
-            self.loadListOK = False
-            elements = dictElementsList[type]                   
-            for i in range(len(elements)):                     
-                self.data.append(Typ(elements[i]))  
-            self.loadListOK = True
-        except BaseException as ex:
-            h.logEx(ex, "infoObject")
+        self.data = Data(frame) 
+        
+        
+        
         
     def pO(self):
         print ("    -<InfoObject>----------------------------------------------------------------------")
         self.address.pO()
-        if self.loadListOK:
-            print ("    ---<InfoObjectData>----------------------------------------------------------------")
-            for i in range(len(self.data)):
-                print("        {} - {}".format(self.data[i].typ, self.data[i].typLong))
-                for j in range(len(self.data[i].detail)):
-                    print("          - {}".format(self.data[i].detail[j]))
-        else:
-            print("    ERROR - Information Object not in list")
+        self.data.pO()
 
 class Address():
     def __init__(self, frame):
@@ -177,6 +163,30 @@ class Address():
         addr = addr.replace(",",".")
         print ("                   "+ addr + " - Information Object Address (IOA)")
    
+class Data():
+    def __init__(self, frame):
+        type = frame[6]
+        elements = []  #all InfoObjectElements
+        self.data = [] #data details
+        try:
+            self.loadListOK = False
+            elements = dictElementsList[type]                   
+            for i in range(len(elements)):                     
+                self.data.append(Typ(elements[i]))  
+            self.loadListOK = True
+        except BaseException as ex:
+            h.logEx(ex, "infoObjectElements")
+    
+    def pO(self):
+        if self.loadListOK:
+            print ("    ---<InfoObjectData>----------------------------------------------------------------")
+            for i in range(len(self.data)):
+                print("        {} - {}".format(self.data[i].typ, self.data[i].typLong))
+                for j in range(len(self.data[i].detail)):
+                    print("          - {}".format(self.data[i].detail[j]))
+        else:
+            print("    ERROR - Information Object not in list")
+
 class Typ():
     def __init__(self, data):
         self.typ = data[0][0]
