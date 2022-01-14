@@ -161,6 +161,7 @@ class InfoObject():
                     print("          - {}".format(self.data[i].detail[j]))
         else:
             print("    ERROR - Information Object not in list")
+
 class Typ():
     def __init__(self, data):
         self.typ = data[0][0]
@@ -168,10 +169,7 @@ class Typ():
         detailList = data[1]
         self.detail = []
         
-        #print("........")
-        #print(detailList)
         for i in range(len(detailList)):
-            #print(detailList[i]["name"])
             self.detail.append(detailList[i]["name"])
 
 class Address():
@@ -189,23 +187,30 @@ class Address():
         addr = addr.replace(",",".")
         print ("                   "+ addr + " - Information Object Address (IOA)")
    
-
-# dictionary of Information Object Elements        
+###############################################################################
+#   dictionary of Information Object Elements 
+###############################################################################   
 dictElementsList = {
     45: [[["SCO", "Single command"],[SE, QU, SCS]]], 
+    46: [[["DCO", "Double command"],[SE, QU, DCS]]],
+
+   100: [[["QOI", "Qualifier of Interrogation command"],[QOIe]]] 
+    }
+
+'''
    100: [                               #                           
             [                           #  [0]          elements
                 [                       #  [0][0]       dataByteDescription    
                     "QOI",              #  [0][0][0]      short description
                     "Qualifier of .."], #  [0][0][1]      long description
-                [                       #  [0][1]       dataGroup
+                [                       #  [0][1]       data
                     QOIe]               #  [0][1][0]    dataDetails
             ], 
             [                           #  [1]          elements
                 [                       #  [1][0]       dataByteDescription
                     "SCO",              #  [1][0][0]      short description
                     "Single command"],  #  [1][0][1]      long description
-                [                       #  [1][1]       dataGroup      
+                [                       #  [1][1]       data      
                     SE,                 #  [1][1][0]    dataDetails
                     QU,                 #  [1][1][1]    dataDetails
                     SCS]                #  [1][1][2]    dataDetails
@@ -213,7 +218,7 @@ dictElementsList = {
         ]                               #   |  | (k) dataBDI (Bit Data Information) 
    }                                    #   | (j) dataGroup 
                                         #  (i) elements 
-
+'''
 
  
 

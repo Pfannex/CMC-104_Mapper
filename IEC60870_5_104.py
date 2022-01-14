@@ -129,7 +129,8 @@ class Server(threading.Thread):
             data[5] = (self.RxCounter & 0b0111111110000000) >> 7
             data[8] = APDU.ASDU.Test<<8 | APDU.ASDU.PN<<7 | 7 
             client.send(data)
-            print ("-> I ({}/{})".format(self.TxCounter, self.RxCounter))
+            h.log("-> I ({}/{}) - COT = {}".format(self.TxCounter, self.RxCounter,
+                                                    T104.dictCOT[7]["long"]))
             self.TxCounter += 1
         
         #callback to main
