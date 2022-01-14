@@ -18,7 +18,7 @@
 ###############################################################################
 import CMEngine as cmc
 import IEC60870_5_104
-import IEC60870_5_104_Typs as T104
+import IEC60870_5_104_APDU as TAPDU
 import helper as h
 import time
 

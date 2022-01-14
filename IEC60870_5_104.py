@@ -11,7 +11,9 @@ import json
 import pprint
 #import yaml
 import helper as h
-import IEC60870_5_104_Typs as T104
+import IEC60870_5_104_APDU as T104
+import IEC60870_5_104_dict as d
+
 import time
 import socket
 import threading
@@ -130,7 +132,7 @@ class Server(threading.Thread):
             data[8] = APDU.ASDU.Test<<8 | APDU.ASDU.PN<<7 | 7 
             client.send(data)
             h.log("-> I ({}/{}) - COT = {}".format(self.TxCounter, self.RxCounter,
-                                                    T104.dictCOT[7]["long"]))
+                                                    d.cot[7]["long"]))
             self.TxCounter += 1
         
         #callback to main
