@@ -138,15 +138,41 @@ class CASDU():
 class InfoObject():
     def __init__(self, frame):
         self.address = Address(frame)
-        self.data = Data(frame) 
-        
-        
-        
+        type = frame[6]
+        elements = []  #all InfoObjectElements
+        self.data = [] #data details
+        try:
+            self.loadListOK = False
+            elements = dictElementsList[type]                   
+            for i in range(len(elements)):                     
+                self.data.append(Typ(elements[i]))  
+            self.loadListOK = True
+        except BaseException as ex:
+            h.logEx(ex, "infoObject")
         
     def pO(self):
         print ("    -<InfoObject>----------------------------------------------------------------------")
         self.address.pO()
-        self.data.pO()
+        if self.loadListOK:
+            print ("    ---<InfoObjectData>----------------------------------------------------------------")
+            for i in range(len(self.data)):
+                print("        {} - {}".format(self.data[i].typ, self.data[i].typLong))
+                for j in range(len(self.data[i].detail)):
+                    print("          - {}".format(self.data[i].detail[j]))
+        else:
+            print("    ERROR - Information Object not in list")
+class Typ():
+    def __init__(self, data):
+        self.typ = data[0][0]
+        self.typLong = data[0][1]
+        detailList = data[1]
+        self.detail = []
+        
+        #print("........")
+        #print(detailList)
+        for i in range(len(detailList)):
+            #print(detailList[i]["name"])
+            self.detail.append(detailList[i]["name"])
 
 class Address():
     def __init__(self, frame):
@@ -163,178 +189,6 @@ class Address():
         addr = addr.replace(",",".")
         print ("                   "+ addr + " - Information Object Address (IOA)")
    
-class Data():
-    def __init__(self, frame):
-        type = frame[6]
-        elements = []  #all InfoObjectElements
-        self.data = [] #data details
-        try:
-            self.loadListOK = False
-            elements = dictElementsList[type]                   
-            for i in range(len(elements)):                     
-                self.data.append(Typ(elements[i]))  
-            self.loadListOK = True
-        except BaseException as ex:
-            h.logEx(ex, "infoObjectElements")
-    
-    def pO(self):
-        if self.loadListOK:
-            print ("    ---<InfoObjectData>----------------------------------------------------------------")
-            for i in range(len(self.data)):
-                print("        {} - {}".format(self.data[i].typ, self.data[i].typLong))
-                for j in range(len(self.data[i].detail)):
-                    print("          - {}".format(self.data[i].detail[j]))
-        else:
-            print("    ERROR - Information Object not in list")
-
-class Typ():
-    def __init__(self, data):
-        self.typ = data[0][0]
-        self.typLong = data[0][1]
-        detailList = data[1]
-        self.detail = []
-        
-        #print("........")
-        #print(detailList)
-        for i in range(len(detailList)):
-            #print(detailList[i]["name"])
-            self.detail.append(detailList[i]["name"])
-
-<<<<<<< Updated upstream
-class DataDetail():
-    def __init__(self, data):
-        self.data0 = data[0]
-        self.data1 = data[1]
-=======
-#APDU.ASDU.InfoObject.InfoObjektElements["e2"]["D"]
-class InfoObjectElements():
-    def __init__(self, frame):
-        type = frame[6]
-        self.elements = []                  #all InfoObjectElements
-        self.dataByteDescription = []       #Byte Description
-        self.dataGroup = []                 #dataGroup of Byte
-        self.dataDetails = []               #Bit Details
-        self.data = []
-        self.pLine = []
-        try:
-            self.loadListOK = False
-            elements = dictElementsList[type]                   #elements
-            print ("    ---<InfoObjectElements>------------------------------------------------------------")
-            for i in range(len(elements)):                      #elements[x]
-                self.elements.append(elements[i])
-                #print("--<elements>----------------")
-                #print(i)
-                #if j == 0:
-                self.dataByteDescription.append(elements[i][0])
-                #self.dataGroup.append(DataDetailInfo(elements[i][1], frame))
-                self.dataGroup.append(elements[i][1])
-                self.data.append(self.dataByteDescription[i][0])
-                
-                for j in range(len(self.dataGroup[i])):
-                    #self.data[i].append[DataDetailInfo(elements[i][1], frame)]
-
-                    print(self.dataGroup[i][j])
-                    print("-----")
-                
-                #for j in range(len(elements[i])):               #dataGroup[x][x]
-                    #pass
-                    #self.dataGroup.append(elements[i][j])
-                    #print("----<dataGroup>----------------")
-                    #print(elements[i][j])
-                    #if j == 0:
-                        #print(elements[i][0])
-
-                    #for k in range(len(elements[i][j])):        #dataDetails[x][x][x]
-                        #print ("i= {} | j= {} | k= {}".format(i,j,k))
-                        #print (elements[i][0][0])
-                        #if j == 0:
-                        #pass
-                            #print(elements[i][0])
-                            #self.pLine.append("    -----<" + elements[i][0][0])
-                            #print("------<INFO>--------------")
-                            #print(elements[i][j][0])
-                            #self.dataByteDescription.append(elements[i][0])
-                        #if j == 1:
-                            #else:
-                            #print("------<Detail>--------------")
-                            #print(elements[i][1][k])
-                            #self.dataDetails.append(DataBDI(elements[i][1][k], frame))
-                                           
-                #self.elements.append(elementsList[i][1])  #[SCO]
-                #print ("----")
-                #print (elementsList[i][1])
-                #for j in range(len(elementsList[i][1])):
-                    #self.dataDetails.append(DataElement(elementsList[i][1][j], frame))
-                    #print ("###")
-                    #print(elementsList[i][1][j])
-                #for detail in element[1]:
-                    #self.dataDetails.append(ElementData(detail, frame))  #[SE, QU, SCS]
-                    
-                    #print(detail)
-                    #print(element[0][0])
-                    #print(element[1][0]["longName"])
-                #element.__init__(frame)                       #fill Element with frame
-            #print(elementsList)
-            #print(len(elementsList))
-            #self.elements = Elements(frame, elementsList)     #fill Elements
-            self.loadListOK = True
-        except BaseException as ex:
-            h.logEx(ex, "infoObjectElements")
-    #def __repr__(self):
-        #return self
-    def pO(self):
-        if self.loadListOK:
-            print ("    ---<InfoObjectElements>------------------------------------------------------------")
-            for i in range(len(self.dataByteDescription)):
-                print("       <" + self.dataByteDescription[i][0] + " - " + 
-                                   self.dataByteDescription[i][1])
-            print(self.data)    
-            
-            #for line in self.pLine:
-                #print(line)
-                
-            #for i in range(len(self.elements)):
-                #print("    " + str(self.elements[i][0]["name"]))
-                #for j in range(len(self.dataDetails)):
-                    #print("    " + str(self.dataDetails[j].name))  #[SCO]
-            
-            
-            #pass
-            #self.elements.pO()
-        else:
-            print("    ERROR - Information Object not in list")
-
-class Element():
-    def __init__(self, element):
-        pass 
-
-###############################################################################
-#   Data Detail Infomation
-###############################################################################
-class DataDetailInfo():
-    def __init__(self, dataDetailInfo, frame):
-      #print("sdi init 1")
-      self.name = dataDetailInfo["name"]
-      self.longName = dataDetailInfo["longName"]
-      #usedBytes = dataBDI["usedBytes"]
-      #print("sdi init 2")
-      #print (self.name)
-      #print (usedBytes)
-      #print("sdi init print data")
-      #print (data[0])
-      #print("sdi init print data done")
-      
-      #self.pStr = "       - " + self.name + " - " + self.longName
-      #print("sdi init done")
-      #print(self.pStr)
-    def pO(self):
-        pass
-        #print("       - " + self.name + " - " + self.longName)
-        #print("       - " + self.name + " - " + self.longName)
-        #print(self.name)
-        #print(self.pStr)
->>>>>>> Stashed changes
-
 
 # dictionary of Information Object Elements        
 dictElementsList = {
