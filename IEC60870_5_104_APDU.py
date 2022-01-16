@@ -119,15 +119,13 @@ class InfoObject():
         try:
             self.loadListOK = False
             elements = d.infoObjects[type]  
+            
+            # TIME-ELEMENTS not working
+            
             byteCounter = 15
             for i in range(len(elements)): #e.g. 61: [nva, qos, cp56Time2a],
-                usedBytes = 0
-                for i in range(len(elements)):
-                    usedBytes += elements[i][0][2]["usedBytes"]
-                                
-                                
-                                
-                    infoBytes = []
+                usedBytes = elements[i][1][0]["usedBytes"]
+                infoBytes = []
                 for j in range(usedBytes):
                     infoBytes.append(frame[byteCounter])
                     byteCounter += 1
@@ -185,7 +183,7 @@ class Address():
 class Detail():
     def __init__(self, data, infoBytes):
         #frameByte = frame[15]
-        print("len(infoBytes): {}".format(len(infoBytes)))
+        #print("len(infoBytes): {}".format(len(infoBytes)))
         self.name = data["name"]
         #print (self.name)
         self.longName = data["longName"]
@@ -218,7 +216,6 @@ class Detail():
                 self.value = data
             else:
                 self.value = "NIL"
-        ########if 
         self.state = ""
         try:
             #print (data["state"][self.value])
