@@ -120,6 +120,11 @@ class Server(threading.Thread):
     #--- I-Frame handle  ------------------------------------------------------
     def handle_iFrame(self, frame, client):
         APDU = T104.APDU(frame)
+        h.log("<- I [{}-{}-{}] - {} - {}".format(APDU.ASDU.InfoObject.address._1,
+                                                   APDU.ASDU.InfoObject.address._2,
+                                                   APDU.ASDU.InfoObject.address._3,
+                                                   APDU.ASDU.TI.ref,
+                                                   APDU.ASDU.TI.des))
         APDU.pO()
         
         #confirm activation frame

@@ -33,15 +33,16 @@ def timer2_callback():
     h.log("here we go every 300 seconds")
 
 def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
-    h.log("incomming {} - {}".format(APDU.ASDU.TI.ref, APDU.ASDU.TI.des))
-    h.log(APDU.ASDU.InfoObject.data[0].typ)
-    h.log(APDU.ASDU.InfoObject.address._1)
+    pass
+    #h.log("incomming {} - {}".format(APDU.ASDU.TI.ref, APDU.ASDU.TI.des))
+    #h.log(APDU.ASDU.InfoObject.data[0].typ)
+    #h.log(APDU.ASDU.InfoObject.address._1)
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
-    h.log("incomming {} - {}".format(APDU.ASDU.TI.ref, APDU.ASDU.TI.des))
-    try:
-        h.log("InfoObject {}".format(APDU.ASDU.InfoObject.data[0].typ))
-    except:
+    #h.log("incomming {} - {}".format(APDU.ASDU.TI.ref, APDU.ASDU.TI.des))
+    #try:
+    #    h.log("InfoObject {}".format(APDU.ASDU.InfoObject.data[0].typ))
+    #except:
         pass
      
 ###############################################################################

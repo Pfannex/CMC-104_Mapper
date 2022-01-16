@@ -2,243 +2,232 @@
 #  IEC60870-5-104 infoObjectElements data detail information
 ###############################################################################
 #Time informations
-ms  = {"name": "MS", "longName":"Milli Second", 
-       "usedBytes":2, "bitPos": {"first":7, "last":7}}
+ms   = {"name": "MS", "longName":"Milli Second", 
+        "usedBytes":2, "bitPos": {"first":7, "last":0}}
 min  = {"name": "MIN", "longName":"Minute", 
-       "usedBytes":1, "bitPos": {"first":6, "last":7}}
-su  = {"name": "SU", "longName":"Summer Time", 
-       "usedBytes":1, "bitPos": {"first":7, "last":7},
-       "state": {0: "normal time", 1: "summer time"}}
-h  = {"name": "H", "longName":"Hour", 
-       "usedBytes":1, "bitPos": {"first":4, "last":0}}
+        "usedBytes":1, "bitPos": {"first":6, "last":7}}
+su   = {"name": "SU", "longName":"Summer Time", 
+        "usedBytes":1, "bitPos": {"first":7, "last":7},
+        "state": {0: "normal time", 1: "summer time"}}
+h    = {"name": "H", "longName":"Hour", 
+        "usedBytes":1, "bitPos": {"first":4, "last":0}}
 dow  = {"name": "DOW", "longName":"Day of Week", 
-       "usedBytes":1, "bitPos": {"first":7, "last":5}}
-d  = {"name": "D", "longName":"Day", 
-       "usedBytes":1, "bitPos": {"first":4, "last":0}}
-m  = {"name": "M", "longName":"Month", 
-       "usedBytes":1, "bitPos": {"first":3, "last":0}}
-y  = {"name": "Y", "longName":"Year", 
-       "usedBytes":1, "bitPos": {"first":8, "last":8}}
+        "usedBytes":1, "bitPos": {"first":7, "last":5}}
+d    = {"name": "D", "longName":"Day", 
+        "usedBytes":1, "bitPos": {"first":4, "last":0}}
+m    = {"name": "M", "longName":"Month", 
+        "usedBytes":1, "bitPos": {"first":3, "last":0}}
+y    = {"name": "Y", "longName":"Year", 
+        "usedBytes":1, "bitPos": {"first":6, "last":0}}
+s    = {"name": "s", "longName":"Second", 
+        "usedBytes":1, "bitPos": {"first":7, "last":0}}
 
 #Quality descriptor
-iv  = {"name": "IV", "longName":"Invalid quality flag", 
-       "usedBytes":1, "bitPos": {"first":7, "last":7},
-       "state": {0: "valid", 1: "invalid"}}
-nt  = {"name": "NT", "longName":"Topical quality flag", 
-       "usedBytes":1, "bitPos": {"first":6, "last":6},
-       "state": {0: "topical", 1: "not topical"}}
-sb  = {"name": "SB", "longName":"Substituted quality flag", 
-       "usedBytes":1, "bitPos": {"first":5, "last":5},
-       "state": {0: "not substituted", 1: "substituted"}}
-bl  = {"name": "BL", "longName":"Blocked quality flag", 
-       "usedBytes":1, "bitPos": {"first":4, "last":4},
-       "state": {0: "not blocked", 1: "blocked"}}
-ov  = {"name": "OV", "longName":"Overflow quality flag", 
-       "usedBytes":1, "bitPos": {"first":0, "last":0},
-       "state": {0: "no overflow", 1: "overflow"}}
-ca  = {"name": "CA", "longName":"Adjusted flag", 
-       "usedBytes":1, "bitPos": {"first":6, "last":6},
-       "state": {0: "Counter was not adjusted", 1: "Counter was adjusted"}}
-cy  = {"name": "CY", "longName":"Carry flag", 
-       "usedBytes":1, "bitPos": {"first":5, "last":5},
-       "state": {0: "no carry", 1: "carry"}}
-el  = {"name": "EL", "longName":"Elapsed flag", 
-       "usedBytes":1, "bitPos": {"first":3, "last":3},
-       "state": {0: "Elapsed time valid", 1: "Elapsed time not valid"}}
-es  = {"name": "ES", "longName":"Event state (single event of protection equipment)", 
-       "usedBytes":1, "bitPos": {"first":1, "last":0},
-       "state": {0: "ES_INDETERMINATE", 1: "ES_OFF",
-                 2: "ES_ON", 3: "ES_INDETERMINATE"}}
+iv   = {"name": "IV", "longName":"Invalid quality flag", 
+        "usedBytes":1, "bitPos": {"first":7, "last":7},
+        "state": {0: "valid", 1: "invalid"}}
+nt   = {"name": "NT", "longName":"Topical quality flag", 
+        "usedBytes":1, "bitPos": {"first":6, "last":6},
+        "state": {0: "topical", 1: "not topical"}}
+sb   = {"name": "SB", "longName":"Substituted quality flag", 
+        "usedBytes":1, "bitPos": {"first":5, "last":5},
+        "state": {0: "not substituted", 1: "substituted"}}
+bl   = {"name": "BL", "longName":"Blocked quality flag", 
+        "usedBytes":1, "bitPos": {"first":4, "last":4},
+        "state": {0: "not blocked", 1: "blocked"}}
+ov   = {"name": "OV", "longName":"Overflow quality flag", 
+        "usedBytes":1, "bitPos": {"first":0, "last":0},
+        "state": {0: "no overflow", 1: "overflow"}}
+ca   = {"name": "CA", "longName":"Adjusted flag", 
+        "usedBytes":1, "bitPos": {"first":6, "last":6},
+        "state": {0: "Counter was not adjusted", 1: "Counter was adjusted"}}
+cy   = {"name": "CY", "longName":"Carry flag", 
+        "usedBytes":1, "bitPos": {"first":5, "last":5},
+        "state": {0: "no carry", 1: "carry"}}
+el   = {"name": "EL", "longName":"Elapsed flag", 
+        "usedBytes":1, "bitPos": {"first":3, "last":3},
+        "state": {0: "Elapsed time valid", 1: "Elapsed time not valid"}}
+es   = {"name": "ES", "longName":"Event state (single event of protection equipment)", 
+        "usedBytes":1, "bitPos": {"first":1, "last":0},
+        "state": {0: "ES_INDETERMINATE", 1: "ES_OFF",
+                  2: "ES_ON", 3: "ES_INDETERMINATE"}}
 
 #Value Information
 spi  = {"name": "SPI", "longName":"Single-point information", 
-       "usedBytes":1, "bitPos": {"first":0, "last":0},
-       "state": {0: "SPI_OFF", 1: "SPI_ON"}}
+        "usedBytes":1, "bitPos": {"first":0, "last":0},
+        "state": {0: "SPI_OFF", 1: "SPI_ON"}}
 dpi  = {"name": "DPI", "longName":"Double-point information", 
-       "usedBytes":1, "bitPos": {"first":1, "last":0},
-       "state": {0: "DPI_INDETERMINATE", 1: "DPI_OFF",
-                 2: "DPI_ON", 3: "DPI_INDETERMINATE"}}
-vtiE  = {"name": "VTI", "longName":"Value with transient state indication", 
-       "usedBytes":1, "bitPos": {"first":6, "last":0}}
-ts  = {"name": "TS", "longName":"Transient state", 
-       "usedBytes":1, "bitPos": {"first":7, "last":7},
-       "state": {0: "equipment is not in transient state", 
-                 1: "equipment is in transient state"}}
-bsi = {"name": "BSI", "longName":"Binary state information", 
-       "usedBytes":4, "bitPos": {"first":7, "last":0}}
-nva  = {"name": "NVA", "longName":"Normalized value", 
-       "usedBytes":1, "bitPos": {"first":7, "last":0}}
-sva  = {"name": "SVA", "longName":"Scaled value", 
-       "usedBytes":1, "bitPos": {"first":7, "last":0}}
+        "usedBytes":1, "bitPos": {"first":1, "last":0},
+        "state": {0: "DPI_INDETERMINATE", 1: "DPI_OFF",
+                  2: "DPI_ON", 3: "DPI_INDETERMINATE"}}
+vtiD = {"name": "VTI", "longName":"Value with transient state indication", 
+        "usedBytes":1, "bitPos": {"first":6, "last":0}}
+ts   = {"name": "TS", "longName":"Transient state", 
+        "usedBytes":1, "bitPos": {"first":7, "last":7},
+        "state": {0: "equipment is not in transient state", 
+                  1: "equipment is in transient state"}}
+bsiD = {"name": "BSI", "longName":"Binary state information", 
+        "usedBytes":4, "bitPos": {"first":7, "last":0}}
+nvaD = {"name": "NVA", "longName":"Normalized value", 
+        "usedBytes":1, "bitPos": {"first":7, "last":0}}
+svaD = {"name": "SVA", "longName":"Scaled value", 
+        "usedBytes":1, "bitPos": {"first":7, "last":0}}
 r32  = {"name": "R32", "longName":"Short floating point value", 
-       "usedBytes":4, "bitPos": {"first":7, "last":0}}
+        "usedBytes":4, "bitPos": {"first":7, "last":0}}
 bcr  = {"name": "BCR", "longName":"Binary counter reading", 
-       "usedBytes":4, "bitPos": {"first":7, "last":0}}
+        "usedBytes":4, "bitPos": {"first":7, "last":0}}
 
 #Command Information
-se  = {"name": "SE", "longName":"Select/execute state", 
-       "usedBytes":1, "bitPos": {"first":8, "last":8},
-       "state": {0: "execute", 1: "select"}}
-qu  = {"name": "QU", "longName":"Qualifier of Command", 
-       "usedBytes":1, "bitPos": {"first":7, "last":3},
-       "state": {0: "QU_UNSPECIFIED", 1: "QU_SHORTPULSE", 2: "QU_LONGPULSE", 3: "QU_PERSISTENT"}}
-scs = {"name": "SCS", "longName":"Single command state", 
-       "usedBytes":1, "bitPos": {"first":1, "last":1},
-       "state": {0: "SCS_OFF", 1: "SCS_ON"}}
-dcs = {"name": "DCS", "longName":"Double command state", 
-       "usedBytes":1, "bitPos": {"first":2, "last":1},
-       "state": {0: "DCS_INDETERMINATE", 1: "DCS_OFF", 2: "DCS_ON", 3: "DCS_INDETERMINATE"}}
-rcs = {"name": "RCS", "longName":"Step Command state", 
-       "usedBytes":1, "bitPos": {"first":2, "last":1},
-       "state": {0: "RCS_NOTALLOWED", 1: "RCS_DECREMENT", 2: "RCS_INCREMENT", 3: "RCS_NOTALLOWED"}}
-ql  = {"name": "QL", "longName":"Qualifier of set-point command", 
-       "usedBytes":1, "bitPos": {"first":6, "last":0}}
-tp  = {"name": "tp", "longName":"Test Pattern", 
-       "usedBytes":2, "bitPos": {"first":7, "last":0}}
+se   = {"name": "SE", "longName":"Select/execute state", 
+        "usedBytes":1, "bitPos": {"first":8, "last":8},
+        "state": {0: "execute", 1: "select"}}
+qu   = {"name": "QU", "longName":"Qualifier of Command", 
+        "usedBytes":1, "bitPos": {"first":7, "last":3},
+        "state": {0: "QU_UNSPECIFIED", 1: "QU_SHORTPULSE", 2: "QU_LONGPULSE", 3: "QU_PERSISTENT"}}
+scs  = {"name": "SCS", "longName":"Single command state", 
+        "usedBytes":1, "bitPos": {"first":1, "last":1},
+        "state": {0: "SCS_OFF", 1: "SCS_ON"}}
+dcs  = {"name": "DCS", "longName":"Double command state", 
+        "usedBytes":1, "bitPos": {"first":2, "last":1},
+        "state": {0: "DCS_INDETERMINATE", 1: "DCS_OFF", 2: "DCS_ON", 3: "DCS_INDETERMINATE"}}
+rcs  = {"name": "RCS", "longName":"Step Command state", 
+        "usedBytes":1, "bitPos": {"first":2, "last":1},
+        "state": {0: "RCS_NOTALLOWED", 1: "RCS_DECREMENT", 2: "RCS_INCREMENT", 3: "RCS_NOTALLOWED"}}
+ql   = {"name": "QL", "longName":"Qualifier of set-point command", 
+        "usedBytes":1, "bitPos": {"first":6, "last":0}}
+tp   = {"name": "tp", "longName":"Test Pattern", 
+        "usedBytes":2, "bitPos": {"first":7, "last":0}}
 
 #System Information
 lpc  = {"name": "LPC", "longName":"Local parameter change flag", 
-       "usedBytes":1, "bitPos": {"first":7, "last":7},
-       "state": {0: "No change", 1: "Changed"}}
+        "usedBytes":1, "bitPos": {"first":7, "last":7},
+        "state": {0: "No change", 1: "Changed"}}
 coi  = {"name": "COI", "longName":"Cause of initialization", 
-       "usedBytes":1, "bitPos": {"first":6, "last":0},
-       "state": {0: "COI_LOCAL_POWER_ON", 1: "COI_LOCAL_MANUAL_RESET",
-                 2: "COI_REMOTE_RESET"}}
-qoiE = {"name": "QOI", "longName":"Qualifier of interrogation command", 
+        "usedBytes":1, "bitPos": {"first":6, "last":0},
+        "state": {0: "COI_LOCAL_POWER_ON", 1: "COI_LOCAL_MANUAL_RESET",
+                  2: "COI_REMOTE_RESET"}}
+qoiD = {"name": "QOI", "longName":"Qualifier of interrogation command", 
         "usedBytes":1, "bitPos": {"first":8, "last":8},
-       "state": {0: "QOI_UNUSED", 20: "QOI_INROGEN", 
+        "state": {0: "QOI_UNUSED", 20: "QOI_INROGEN", 
                  21: "QOI_INRO1", 22: "QOI_INRO2"}}
-frz  = {"name": "FRZ", "longName":"Freeze/reset qualifier of counter interrogation command", 
-       "usedBytes":1, "bitPos": {"first":7, "last":6},
-       "state": {0: "FRZ_READ", 1: "FRZ_FREEZE",
-                 2: "FRZ_FREEZE_AND_RESET", 3: "FRZ_RESET"}}
+frz   = {"name": "FRZ", "longName":"Freeze/reset qualifier of counter interrogation command", 
+        "usedBytes":1, "bitPos": {"first":7, "last":6},
+        "state": {0: "FRZ_READ", 1: "FRZ_FREEZE",
+                  2: "FRZ_FREEZE_AND_RESET", 3: "FRZ_RESET"}}
 rqt  = {"name": "RQT", "longName":"Request qualifier of counter interrogation command", 
-       "usedBytes":1, "bitPos": {"first":7, "last":6},
-       "state": {0: "RQT_NONE", 1: "RQT_REQCO1",
-                 2: "RQT_REQCO2", 3: "RQT_REQCO3",
-                 4: "RQT_REQCO4", 5: "RQT_REQCOGEN"}}
+        "usedBytes":1, "bitPos": {"first":7, "last":6},
+        "state": {0: "RQT_NONE", 1: "RQT_REQCO1",
+                  2: "RQT_REQCO2", 3: "RQT_REQCO3",
+                  4: "RQT_REQCO4", 5: "RQT_REQCOGEN"}}
 qrp  = {"name": "QRP", "longName":"Qualifier of reset process command", 
-       "usedBytes":1, "bitPos": {"first":7, "last":0},
-       "state": {0: "QRP_UNUSED", 1: "QRP_GENERAL",
-                 2: "QRP_TTEVENTS"}}
+        "usedBytes":1, "bitPos": {"first":7, "last":0},
+        "state": {0: "QRP_UNUSED", 1: "QRP_GENERAL",
+                  2: "QRP_TTEVENTS"}}
 
 #Protection Equipment Information
 srd  = {"name": "SRD", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":5, "last":5},
-       "state": {0: "SRD_OFF", 1: "SRD_ON"}}
+        "usedBytes":1, "bitPos": {"first":5, "last":5},
+        "state": {0: "SRD_OFF", 1: "SRD_ON"}}
 sie  = {"name": "SIE", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":4, "last":4},
-       "state": {0: "SIE_OFF", 1: "SIE_ON"}}
+        "usedBytes":1, "bitPos": {"first":4, "last":4},
+        "state": {0: "SIE_OFF", 1: "SIE_ON"}}
 sl3  = {"name": "SL3", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":3, "last":3},
-       "state": {0: "SL3_OFF", 1: "SL3_ON"}}
+        "usedBytes":1, "bitPos": {"first":3, "last":3},
+        "state": {0: "SL3_OFF", 1: "SL3_ON"}}
 sl2  = {"name": "SL2", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":2, "last":2},
-       "state": {0: "SL2_OFF", 1: "SL2_ON"}}
+        "usedBytes":1, "bitPos": {"first":2, "last":2},
+        "state": {0: "SL2_OFF", 1: "SL2_ON"}}
 sl1  = {"name": "SL1", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":1, "last":1},
-       "state": {0: "SL1_OFF", 1: "SL1_ON"}}
+        "usedBytes":1, "bitPos": {"first":1, "last":1},
+        "state": {0: "SL1_OFF", 1: "SL1_ON"}}
 gs  = {"name": "GS", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":0, "last":0},
-       "state": {0: "GS_OFF", 1: "GS_ON"}}
+        "usedBytes":1, "bitPos": {"first":0, "last":0},
+        "state": {0: "GS_OFF", 1: "GS_ON"}}
 cl3  = {"name": "CL3", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":3, "last":3},
-       "state": {0: "CL3_OFF", 1: "CL3_ON"}}
+        "usedBytes":1, "bitPos": {"first":3, "last":3},
+        "state": {0: "CL3_OFF", 1: "CL3_ON"}}
 cl2  = {"name": "CL2", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":2, "last":2},
-       "state": {0: "CL2_OFF", 1: "CL2_ON"}}
+        "usedBytes":1, "bitPos": {"first":2, "last":2},
+        "state": {0: "CL2_OFF", 1: "CL2_ON"}}
 cl1  = {"name": "CL1", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":1, "last":1},
-       "state": {0: "CL1_OFF", 1: "CL1_ON"}}
-gc  = {"name": "GC", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":0, "last":0},
-       "state": {0: "GC_OFF", 1: "GC_ON"}}
-scdE  = {"name": "SCD", "longName":"Status and status change detection", 
-       "usedBytes":4, "bitPos": {"first":7, "last":0}}
+        "usedBytes":1, "bitPos": {"first":1, "last":1},
+        "state": {0: "CL1_OFF", 1: "CL1_ON"}}
+gc   = {"name": "GC", "longName":"", 
+        "usedBytes":1, "bitPos": {"first":0, "last":0},
+        "state": {0: "GC_OFF", 1: "GC_ON"}}
+scdD = {"name": "SCD", "longName":"Status and status change detection", 
+        "usedBytes":4, "bitPos": {"first":7, "last":0}}
 
 #Parameter loading/activation
 lpc  = {"name": "LPC", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":7, "last":7}}
+        "usedBytes":1, "bitPos": {"first":7, "last":7}}
 pop  = {"name": "POP", "longName":"", 
-       "usedBytes":1, "bitPos": {"first":6, "last":6}}
+        "usedBytes":1, "bitPos": {"first":6, "last":6}}
 kpa  = {"name": "KPA", "longName":"Kind of parameter", 
-       "usedBytes":1, "bitPos": {"first":5, "last":0},
-       "state": {0: "KPA_UNUSED", 1: "KPA_THRESH",
-                 2: "KPA_FILTER", 3: "KPA_LOLIMIT",
-                 4: "KPA_HILIMIT"}}
-qpaE  = {"name": "QPA", "longName":"Qualifier of parameter activation", 
-       "usedBytes":1, "bitPos": {"first":7, "last":0},
-       "state": {0: "QPA_UNUSED", 1: "QPA_GENERAL",
-                 2: "QPA_OBJECT", 3: "QPA_TRANSMISSION"}}
+        "usedBytes":1, "bitPos": {"first":5, "last":0},
+        "state": {0: "KPA_UNUSED", 1: "KPA_THRESH",
+                  2: "KPA_FILTER", 3: "KPA_LOLIMIT",
+                  4: "KPA_HILIMIT"}}
+qpaD  = {"name": "QPA", "longName":"Qualifier of parameter activation", 
+        "usedBytes":1, "bitPos": {"first":7, "last":0},
+        "state": {0: "QPA_UNUSED", 1: "QPA_GENERAL",
+                  2: "QPA_OBJECT", 3: "QPA_TRANSMISSION"}}
 
 ###############################################################################
-#   dictionary of Information Objects 
+#  IEC60870-5-104 infoObjectElements data information
 ###############################################################################   
-infoObjects = {
-     1: [[["SIQ", "Single-point information with quality descriptor"],[iv, nt, sb, bl, spi]]], 
-     2: [[["SIQ", "Single-point information with quality descriptor"],[iv, nt, sb, bl, spi]],
-         [["CP24Time2a", "Three octets binary time tag"],[ms, min]]], 
-    30: [[["SIQ", "Single-point information with quality descriptor"],[iv, nt, sb, bl, spi]],
-         [["CP56Time2a", "Seven octets binary time tag"],[ms, min, su, h, dow, m, y]]], 
-  
-    45: [[["SCO", "Single command"],[se, qu, scs]]], 
-    46: [[["DCO", "Double command"],[se, qu, dcs]]],
-
-    58: [[["SCO", "Single command"],[se, qu, scs]],
-         [["CP56Time2a", "Seven octets binary time tag"],[ms, min, h, dow, d, m, y]]], 
-
-   100: [[["QOI", "Qualifier of Interrogation command"],[qoiE]]] 
-    }
-
-'''
-##############################################################################
-#   Info Objects
-###############################################################################
 #PROCESS Information in Monitoring Direction ----------------------------------
 #[1] Single-point information with quality descriptor 
-SIQ = {iv:0, nt:0, sb:0, bl:0, spi:0}
+siq = [["SIQ", "Single-point information with quality descriptor"],
+       [iv, nt, sb, bl, spi]]
 #[1] Double-point information with quality descriptor [1]
-DIQ = {"IV":0, "NT":0, "SB":0, "BL":0, "DPI":0}
+#DIQ = {"IV":0, "NT":0, "SB":0, "BL":0, "DPI":0}
 #[4] Binary state information
-BSI = {"B1":0, "B2":0, "B3":0, "B4":0}
+bsi = [["BSI", "Binary state information"],
+       [bsiD]]
 #[4] Status and change detection
-SCD = {"B1":0, "B2":0, "B3":0, "B4":0}
+#SCD = {"B1":0, "B2":0, "B3":0, "B4":0}
 #[1] Quality descriptor
-QDS = {"IV":0, "NT":0, "SB":0, "BL":0, "OV":0}
-QDS1 = {"IV":0, "CA":0, "CY":0, "SEQ":0}
+#QDS = {"IV":0, "NT":0, "SB":0, "BL":0, "OV":0}
+#QDS1 = {"IV":0, "CA":0, "CY":0, "SEQ":0}
 #[1] Value with transient state indication
-VTI = {"TranState":0, "value":0}
+#VTI = {"TranState":0, "value":0}
 #[2] Normalized value
-NVA = {"norm Value":0}
+nva = [["NVA", "Normalized value"],
+       [nvaD]]
 #[2] Scaled value
-SVA = {"scal Value":0}
+sva = [["SVA", "Scaled value"],
+       [svaD]]
 #[4] Short floating point number
-R32 = {"short float":0}
+r32 = [["R32", "Short floating point number"],
+       [r32]]
 #[5] Binary counter reading
-BCR = {"BC1":0, "BC2":0, "BC3":0, "BC4":0}
+#BCR = {"BC1":0, "BC2":0, "BC3":0, "BC4":0}
 
 #Protection -------------------------------------------------------------------
 #[1] Single event of protection equipment
-SEP = {"IV":0, "NT":0, "SB":0, "BL":0, "EI":0,"ES":0}
+#SEP = {"IV":0, "NT":0, "SB":0, "BL":0, "EI":0,"ES":0}
 #[1] Start events of protection equipment
-SPE = {"SRD":0, "SIE":0, "SL3":0, "SL2":0, "SL1":0,"GS":0}
+#SPE = {"SRD":0, "SIE":0, "SL3":0, "SL2":0, "SL1":0,"GS":0}
 #[1] Output circuit information of protection equipment
-OCI = {"CL3":0, "CL2":0, "CL1":0,"GC":0}
+#OCI = {"CL3":0, "CL2":0, "CL1":0,"GC":0}
 #[1] Quality descriptor for events of protection equipment
-QDP = {"IV":0, "NT":0, "SB":0, "BL":0, "EI":0}
+#QDP = {"IV":0, "NT":0, "SB":0, "BL":0, "EI":0}
 
 #Commands ---------------------------------------------------------------------
 #[1] Single command
-SCO = {"SE":0, "QU":0, "SCS":0}
+sco = [["SCO", "Single command"],
+       [se, qu, scs]]
 #[1] Double command
-DCO = {"SE":0, "QU":0, "DCS":0}
+dco = [["DCO", "Double command"],
+       [se, qu, dcs]]
 #[1] Regulating step command
-RCO = {"SE":0, "QU":0, "RCS":0}
+rco = {se, qu, rcs}
 
 #Time -------------------------------------------------------------------------
 #[7] Seven octet binary time
-CP56Time2a = {"MS":0, "IV":0, "MIN":0, "SU":0, "H":0, 
-           "DOW":0, "D":0, "M":0, "Y":0, "S":0}
+cp56Time2a = [["CP56Time2a", "Seven octets binary time tag"],
+              [ms, min, h, dow, d, m, y]]
   #1 xxxx xxxx [MS LSB] milli seconds
   #2 xxxx xxxx [MS MSB] milli seconds
   #3 x... .... [IV]     1=invalid
@@ -252,7 +241,7 @@ CP56Time2a = {"MS":0, "IV":0, "MIN":0, "SU":0, "H":0,
   #  NIL       [S]      seconds from MS
 
 #[3] Three octet binary time
-CP24Time2a = {"MS":0, "IV":0, "MIN":0}
+#CP24Time2a = {"MS":0, "IV":0, "MIN":0}
   #1 xxxx xxxx [MS LSB] milli seconds
   #2 xxxx xxxx [MS MSB] milli seconds
   #3 x... .... [IV]     1=invalid
@@ -260,79 +249,85 @@ CP24Time2a = {"MS":0, "IV":0, "MIN":0}
   #  NIL       [S]      seconds from MS
 
 #[2] Two octet binary time
-CP16Time2a = {"MS":0}
+#CP16Time2a = {"MS":0}
   #1 xxxx xxxx [MS LSB] milli seconds
   #2 xxxx xxxx [MS MSB] milli seconds
 
 #Qualifiers -------------------------------------------------------------------
 #[1] Qualifier of interrogation
-QOI = {"QOIe":0}
+qoi = [["QOI", "Qualifier of Interrogation command"],
+       [qoiD]]
 #[1] Qualifier of counter interrogation command
-QCC = {"FRZ":0, "ROT":0}
+#QCC = {"FRZ":0, "ROT":0}
 #[1] Qualifier of parameter of measured values
-QPM = {"LPC":0, "POP":0, "KPA":0}
+#QPM = {"LPC":0, "POP":0, "KPA":0}
 #[1] Qualifier of parameter activation
-QPA = {"QPA":0}
+#QPA = {"QPA":0}
 #[1] Qualifier of reset process command
-QRP = {"QRP":0}
+#QRP = {"QRP":0}
 #[1] Qualifier of command
-QOC = {"QOC":0}
+#QOC = {"QOC":0}
 #[1] Qualifier of set-point command
-QOS = {"QOS":0}
+qos = [["QOS", "Qualifier of set-point command"],
+       [se, ql]]
 
 #File Transfer ----------------------------------------------------------------
 #[1] File ready qualifier
-FRQ = {}
+#FRQ = {}
 #[1] Section ready qualifier
-SRQ = {}
+#SRQ = {}
 #[1] Select and call qualifier
-SCQ = {}
+#SCQ = {}
 #[1] Last section or segment qualifier
-LSQ = {}
+#LSQ = {}
 #[1] Acknowledge file or section qualifier
-AFQ = {}
+#AFQ = {}
 #[2] Name of file
-NOF = {}
+#NOF = {}
 #[2] Name of section
-NOS = {}
+#NOS = {}
 #[3] Length of file or section
-LOF = {}
+#LOF = {}
 #[1] Length of segment
-LOS = {}
+#LOS = {}
 #[1] Checksum
-CHS = {}
+#CHS = {}
 #[1] Status of file
-SOF = {}
+#SOF = {}
 
 #Miscellaneous ----------------------------------------------------------------
 #[1] Cause of initialization
-COI = {}
+#COI = {}
 #[1] Fixed test bit pattern, two octets
-FBP = {}
-'''
+#FBP = {}
 
-'''
-   100: [                               #                           
-            [                           #  [0]          elements
-                [                       #  [0][0]       dataByteDescription    
-                    "QOI",              #  [0][0][0]      short description
-                    "Qualifier of .."], #  [0][0][1]      long description
-                [                       #  [0][1]       data
-                    QOIe]               #  [0][1][0]    dataDetails
-            ], 
-            [                           #  [1]          elements
-                [                       #  [1][0]       dataByteDescription
-                    "SCO",              #  [1][0][0]      short description
-                    "Single command"],  #  [1][0][1]      long description
-                [                       #  [1][1]       data      
-                    SE,                 #  [1][1][0]    dataDetails
-                    QU,                 #  [1][1][1]    dataDetails
-                    SCS]                #  [1][1][2]    dataDetails
-            ]                           #   ^  ^  ^
-        ]                               #   |  | (k) dataBDI (Bit Data Information) 
-   }                                    #   | (j) dataGroup 
-                                        #  (i) elements 
-'''
+###############################################################################
+#  IEC60870-5-104 infoObjects in Type Identifyer data groups
+###############################################################################   
+infoObjects = {
+     1: [siq], 
+     2: [siq, cp56Time2a], 
+    30: [siq, cp56Time2a], 
+  
+    45: [sco], 
+    46: [dco],
+    47: [rco],
+    48: [nva, qos],
+    49: [sva, qos],
+    50: [r32, qos],
+    51: [bsi],
+    
+    58: [sco, cp56Time2a],
+    59: [dco, cp56Time2a],
+    60: [rco, cp56Time2a],
+    61: [nva, qos, cp56Time2a],
+    62: [sva, qos, cp56Time2a],
+    63: [r32, qos, cp56Time2a],
+    64: [bsi, cp56Time2a],
+    
+   100: [qoi] 
+    }
+
 ###############################################################################
 #   dictionary I-Frame type identification
 ###############################################################################
@@ -776,4 +771,27 @@ class QOI():
         print("    - QOI - Qualifier of interrogation")
         self.QOIe.pO()
 
+'''
+
+'''
+   xxx: [                               #                           
+            [                           #  [0]          element #1
+                [                       #  [0][0]       dataByteDescription    
+                    "QOI",              #  [0][0][0]      short description
+                    "Qualifier of .."], #  [0][0][1]      long description
+                [                       #  [0][1]       data
+                    QOIe]               #  [0][1][0]    dataDetail #1
+            ], 
+            [                           #  [1]          element #2
+                [                       #  [1][0]       dataByteDescription
+                    "SCO",              #  [1][0][0]      short description
+                    "Single command"],  #  [1][0][1]      long description
+                [                       #  [1][1]       data      
+                    SE,                 #  [1][1][0]    dataDetail #1
+                    QU,                 #  [1][1][1]    dataDetail #2
+                    SCS]                #  [1][1][2]    dataDetail #3
+            ]                           #   ^  ^  ^
+        ]                               #   |  |  dataDetail (Bit Data Information) 
+   }                                    #   |  dataGroup 
+                                        #   elements 
 '''

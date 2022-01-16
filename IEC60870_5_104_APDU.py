@@ -154,9 +154,9 @@ class Address():
         self._3 =    frame[14]  
     def pO(self):
         print ("    ---<InfoObjectAddress>-------------------------------------------------------------")
-        print (" 13 - " + h.fPL(self._1) + " - Information Object Address (IOA) (LSB)")
-        print (" 14 - " + h.fPL(self._2) + " - Information Object Address (IOA) (...)")
-        print (" 15 - " + h.fPL(self._3) + " - Information Object Address (IOA) (MSB)")
+        print (" 13 - " + h.fPL(self._1) + " - Information Object Address (IOA1) (LSB)")
+        print (" 14 - " + h.fPL(self._2) + " - Information Object Address (IOA2) (...)")
+        print (" 15 - " + h.fPL(self._3) + " - Information Object Address (IOA3) (MSB)")
         addr ="{:10,d}".format(self.DEZ)
         addr = addr.replace(",",".")
         print ("                   "+ addr + " - Information Object Address (IOA)")
