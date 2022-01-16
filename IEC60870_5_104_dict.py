@@ -19,8 +19,6 @@ m    = {"name": "M", "longName":"Month",
         "usedBytes":1, "bitPos": {"first":3, "last":0}}
 y    = {"name": "Y", "longName":"Year", 
         "usedBytes":1, "bitPos": {"first":6, "last":0}}
-s    = {"name": "s", "longName":"Second", 
-        "usedBytes":1, "bitPos": {"first":7, "last":0}}
 
 #Quality descriptor
 iv   = {"name": "IV", "longName":"Invalid quality flag", 
@@ -69,9 +67,9 @@ ts   = {"name": "TS", "longName":"Transient state",
 bsiD = {"name": "BSI", "longName":"Binary state information", 
         "usedBytes":4, "bitPos": {"first":7, "last":0}}
 nvaD = {"name": "NVA", "longName":"Normalized value", 
-        "usedBytes":1, "bitPos": {"first":7, "last":0}}
+        "usedBytes":2, "bitPos": {"first":7, "last":0}}
 svaD = {"name": "SVA", "longName":"Scaled value", 
-        "usedBytes":1, "bitPos": {"first":7, "last":0}}
+        "usedBytes":2, "bitPos": {"first":7, "last":0}}
 r32  = {"name": "R32", "longName":"Short floating point value", 
         "usedBytes":4, "bitPos": {"first":7, "last":0}}
 bcr  = {"name": "BCR", "longName":"Binary counter reading", 
@@ -79,22 +77,26 @@ bcr  = {"name": "BCR", "longName":"Binary counter reading",
 
 #Command Information
 se   = {"name": "SE", "longName":"Select/execute state", 
-        "usedBytes":1, "bitPos": {"first":8, "last":8},
+        "usedBytes":1, "bitPos": {"first":7, "last":7},
         "state": {0: "execute", 1: "select"}}
 qu   = {"name": "QU", "longName":"Qualifier of Command", 
-        "usedBytes":1, "bitPos": {"first":7, "last":3},
-        "state": {0: "QU_UNSPECIFIED", 1: "QU_SHORTPULSE", 2: "QU_LONGPULSE", 3: "QU_PERSISTENT"}}
+        "usedBytes":1, "bitPos": {"first":6, "last":2},
+        "state": {0: "QU_UNSPECIFIED", 1: "QU_SHORTPULSE", 
+                  2: "QU_LONGPULSE", 3: "QU_PERSISTENT"}}
 scs  = {"name": "SCS", "longName":"Single command state", 
-        "usedBytes":1, "bitPos": {"first":1, "last":1},
+        "usedBytes":1, "bitPos": {"first":0, "last":0},
         "state": {0: "SCS_OFF", 1: "SCS_ON"}}
 dcs  = {"name": "DCS", "longName":"Double command state", 
-        "usedBytes":1, "bitPos": {"first":2, "last":1},
-        "state": {0: "DCS_INDETERMINATE", 1: "DCS_OFF", 2: "DCS_ON", 3: "DCS_INDETERMINATE"}}
+        "usedBytes":1, "bitPos": {"first":1, "last":0},
+        "state": {0: "DCS_INDETERMINATE", 1: "DCS_OFF", 
+                  2: "DCS_ON", 3: "DCS_INDETERMINATE"}}
 rcs  = {"name": "RCS", "longName":"Step Command state", 
-        "usedBytes":1, "bitPos": {"first":2, "last":1},
-        "state": {0: "RCS_NOTALLOWED", 1: "RCS_DECREMENT", 2: "RCS_INCREMENT", 3: "RCS_NOTALLOWED"}}
+        "usedBytes":1, "bitPos": {"first":1, "last":0},
+        "state": {0: "RCS_NOTALLOWED", 1: "RCS_DECREMENT", 
+                  2: "RCS_INCREMENT", 3: "RCS_NOTALLOWED"}}
 ql   = {"name": "QL", "longName":"Qualifier of set-point command", 
-        "usedBytes":1, "bitPos": {"first":6, "last":0}}
+        "usedBytes":1, "bitPos": {"first":6, "last":0},
+        "state": {0: "QL_DEFAULT"}}
 tp   = {"name": "tp", "longName":"Test Pattern", 
         "usedBytes":2, "bitPos": {"first":7, "last":0}}
 
@@ -107,7 +109,7 @@ coi  = {"name": "COI", "longName":"Cause of initialization",
         "state": {0: "COI_LOCAL_POWER_ON", 1: "COI_LOCAL_MANUAL_RESET",
                   2: "COI_REMOTE_RESET"}}
 qoiD = {"name": "QOI", "longName":"Qualifier of interrogation command", 
-        "usedBytes":1, "bitPos": {"first":8, "last":8},
+        "usedBytes":1, "bitPos": {"first":7, "last":0},
         "state": {0: "QOI_UNUSED", 20: "QOI_INROGEN", 
                  21: "QOI_INRO1", 22: "QOI_INRO2"}}
 frz   = {"name": "FRZ", "longName":"Freeze/reset qualifier of counter interrogation command", 
@@ -178,12 +180,12 @@ qpaD  = {"name": "QPA", "longName":"Qualifier of parameter activation",
 ###############################################################################   
 #PROCESS Information in Monitoring Direction ----------------------------------
 #[1] Single-point information with quality descriptor 
-siq = [["SIQ", "Single-point information with quality descriptor"],
+siq = [["SIQ", "Single-point information with quality descriptor", {"usedBytes":1}],
        [iv, nt, sb, bl, spi]]
 #[1] Double-point information with quality descriptor [1]
 #DIQ = {"IV":0, "NT":0, "SB":0, "BL":0, "DPI":0}
 #[4] Binary state information
-bsi = [["BSI", "Binary state information"],
+bsi = [["BSI", "Binary state information", {"usedBytes":4}],
        [bsiD]]
 #[4] Status and change detection
 #SCD = {"B1":0, "B2":0, "B3":0, "B4":0}
@@ -193,13 +195,13 @@ bsi = [["BSI", "Binary state information"],
 #[1] Value with transient state indication
 #VTI = {"TranState":0, "value":0}
 #[2] Normalized value
-nva = [["NVA", "Normalized value"],
+nva = [["NVA", "Normalized value", {"usedBytes":2}],
        [nvaD]]
 #[2] Scaled value
-sva = [["SVA", "Scaled value"],
+sva = [["SVA", "Scaled value", {"usedBytes":2}],
        [svaD]]
 #[4] Short floating point number
-r32 = [["R32", "Short floating point number"],
+r32 = [["R32", "Short floating point number", {"usedBytes":4}],
        [r32]]
 #[5] Binary counter reading
 #BCR = {"BC1":0, "BC2":0, "BC3":0, "BC4":0}
@@ -216,19 +218,19 @@ r32 = [["R32", "Short floating point number"],
 
 #Commands ---------------------------------------------------------------------
 #[1] Single command
-sco = [["SCO", "Single command"],
+sco = [["SCO", "Single command", {"usedBytes":1}],
        [se, qu, scs]]
 #[1] Double command
-dco = [["DCO", "Double command"],
+dco = [["DCO", "Double command", {"usedBytes":1}],
        [se, qu, dcs]]
 #[1] Regulating step command
-rco = [["RCO", "Regulating step command"],
+rco = [["RCO", "Regulating step command", {"usedBytes":1}],
        [se, qu, rcs]]
 
 #Time -------------------------------------------------------------------------
 #[7] Seven octet binary time
-cp56Time2a = [["CP56Time2a", "Seven octets binary time tag"],
-              [ms, min, h, dow, d, m, y]]
+cp56Time2a = [["CP56Time2a", "Seven octets binary time tag", {"usedBytes":7}],
+              [ms, iv, min, su, h, dow, d, m, y]]
   #1 xxxx xxxx [MS LSB] milli seconds
   #2 xxxx xxxx [MS MSB] milli seconds
   #3 x... .... [IV]     1=invalid
@@ -256,7 +258,7 @@ cp56Time2a = [["CP56Time2a", "Seven octets binary time tag"],
 
 #Qualifiers -------------------------------------------------------------------
 #[1] Qualifier of interrogation
-qoi = [["QOI", "Qualifier of Interrogation command"],
+qoi = [["QOI", "Qualifier of Interrogation command", {"usedBytes":1}],
        [qoiD]]
 #[1] Qualifier of counter interrogation command
 #QCC = {"FRZ":0, "ROT":0}
@@ -269,7 +271,7 @@ qoi = [["QOI", "Qualifier of Interrogation command"],
 #[1] Qualifier of command
 #QOC = {"QOC":0}
 #[1] Qualifier of set-point command
-qos = [["QOS", "Qualifier of set-point command"],
+qos = [["QOS", "Qualifier of set-point command", {"usedBytes":1}],
        [se, ql]]
 
 #File Transfer ----------------------------------------------------------------

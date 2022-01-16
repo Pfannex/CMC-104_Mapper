@@ -1,6 +1,7 @@
 ###############################################################################
 #   IMPORT
 ###############################################################################
+import struct
 import helper as h
 import IEC60870_5_104_dict as d
 
@@ -114,37 +115,57 @@ class InfoObject():
         self.address = Address(frame)
         type = frame[6]
         elements = []  #all InfoObjectElements
-        self.data = [] #data details
+        self.dataObject = [] #data details
         try:
             self.loadListOK = False
-            elements = d.infoObjects[type]                   
-            for i in range(len(elements)):                     
-                self.data.append(Typ(elements[i]))  
+            elements = d.infoObjects[type]  
+            byteCounter = 15
+            for i in range(len(elements)): #e.g. 61: [nva, qos, cp56Time2a],
+                usedBytes = 0
+                for i in range(len(elements)):
+                    usedBytes += elements[i][0][2]["usedBytes"]
+                                
+                                
+                                
+                    infoBytes = []
+                for j in range(usedBytes):
+                    infoBytes.append(frame[byteCounter])
+                    byteCounter += 1
+                    
+                #fill detailObject    
+                self.dataObject.append(Type(elements[i], infoBytes))  
             self.loadListOK = True
         except BaseException as ex:
             h.logEx(ex, "infoObject")
         
     def pO(self):
         print ("    -<InfoObject>----------------------------------------------------------------------")
+        print ("    ---<InfoObjectAddress>-------------------------------------------------------------")
         self.address.pO()
         if self.loadListOK:
             print ("    ---<InfoObjectData>----------------------------------------------------------------")
-            for i in range(len(self.data)):
-                print("        {} - {}".format(self.data[i].typ, self.data[i].typLong))
-                for j in range(len(self.data[i].detail)):
-                    print("          - {}".format(self.data[i].detail[j]))
+            
+            for i in range(len(self.dataObject)):
+                print("        {} - {}".format(self.dataObject[i].name, self.dataObject[i].longName))
+                for j in range(len(self.dataObject[i].detail)):
+                    state = ""
+                    if self.dataObject[i].detail[j].state != "":
+                        state = " - "
+                        state += self.dataObject[i].detail[j].state
+                    print("          - {}: {}{}".format(self.dataObject[i].detail[j].name,
+                                                           self.dataObject[i].detail[j].value,
+                                                           state))
         else:
             print("    ERROR - Information Object not in list")
 
-class Typ():
-    def __init__(self, data):
-        self.typ = data[0][0]
-        self.typLong = data[0][1]
+class Type():
+    def __init__(self, data, infoBytes):
+        self.name = data[0][0]
+        self.longName = data[0][1]
         detailList = data[1]
         self.detail = []
-        
         for i in range(len(detailList)):
-            self.detail.append(detailList[i]["name"])
+            self.detail.append(Detail(detailList[i], infoBytes))
 
 class Address():
     def __init__(self, frame):
@@ -153,11 +174,93 @@ class Address():
         self._2 =    frame[13]
         self._3 =    frame[14]  
     def pO(self):
-        print ("    ---<InfoObjectAddress>-------------------------------------------------------------")
         print (" 13 - " + h.fPL(self._1) + " - Information Object Address (IOA1) (LSB)")
         print (" 14 - " + h.fPL(self._2) + " - Information Object Address (IOA2) (...)")
         print (" 15 - " + h.fPL(self._3) + " - Information Object Address (IOA3) (MSB)")
         addr ="{:10,d}".format(self.DEZ)
         addr = addr.replace(",",".")
         print ("                   "+ addr + " - Information Object Address (IOA)")
+
+# split detailInformation from Byte
+class Detail():
+    def __init__(self, data, infoBytes):
+        #frameByte = frame[15]
+        print("len(infoBytes): {}".format(len(infoBytes)))
+        self.name = data["name"]
+        #print (self.name)
+        self.longName = data["longName"]
+        usedBytes = data["usedBytes"]
+        firstBit =  data["bitPos"]["first"]
+        #print(firstBit)
+        lastBit =  data["bitPos"]["last"]
+        #print(lastBit)
+        detailLen = firstBit - lastBit + 1
+        #print(detailLen)
+        bitStr = "0"*(7-firstBit) + "1"*(detailLen) + "0"*(lastBit)
+        #print(bitStr)
+        bitMask = int(bitStr, 2)
+        
+        if usedBytes == 1:
+            self.value = (infoBytes[0] & bitMask)>>lastBit
+            #print(self.value)
+        if usedBytes == 2:
+            self.value = int.from_bytes(infoBytes, byteorder='little', signed=False)
+        if usedBytes == 3:
+            self.value = int.from_bytes(infoBytes, byteorder='little', signed=False)
+        if usedBytes == 4:
+            if self.name == "BSI":
+                self.value = "{:08b}-{:08b}-{:08b}-{:08b}".format(infoBytes[0],
+                                                                  infoBytes[1],
+                                                                  infoBytes[2],
+                                                                  infoBytes[3])
+            elif self.name == "R32":
+                [data] = struct.unpack("f", bytearray(infoBytes))
+                self.value = data
+            else:
+                self.value = "NIL"
+        ########if 
+        self.state = ""
+        try:
+            #print (data["state"][self.value])
+            self.state = data["state"][self.value]
+        except BaseException as ex:
+            pass
+        
+        
+        
+    
+"""   
+self.name = name
+        self.pos = pos[0] + 14
+        self.byteN = pos[0] + 15 
+        self.frame = frame
+        self.frameByte = frame[self.pos]
+        self.msb = (self.frameByte & 0b11110000) >>8 
+        self.lsb = (self.frameByte & 0b00001111)
+        self.first = pos[2]
+        self.last = pos[1]
+        self.len = self.last - self.first + 1
+        self.lenMSB = 4 - (8-self.last)
+        self.lenLSB = self.len - self.lenMSB 
+        self.bitStr = "0"*(8-self.last) + "1"*(self.len) + "0"*(self.first -1)
+        self.bitMask = int(self.bitStr, 2)
+        self.value = (self.frameByte & self.bitMask)>>self.first -1
+        
+        self.pStr = "{:3} - ".format(self.byteN)
+        self.pStr += "."*(8-self.last)
+        msbValue = "{0:0{1}b}".format(self.msb,self.lenMSB) if self.lenMSB != 0 else ""
+        self.pStr += msbValue + " "
+        lsbValue = "{0:0{1}b}".format(self.lsb, self.lenLSB) if self.lenLSB != 0 else ""
+        self.pStr += lsbValue
+        self.pStr += "."*(4-self.lenLSB)
+                
+        print ("len {}".format(self.len))
+        print ("lenMSB {}".format(self.lenMSB))
+        print ("lenLSB {}".format(self.lenLSB))
+        
+        print(self.bitStr)
+        print("{:08b}".format(self.bitMask))
+        print(self.frameByte)
+        print(self.value)    
+"""
    
