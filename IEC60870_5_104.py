@@ -9,9 +9,11 @@ from typing import Text
 import struct
 import json
 import pprint
-import yaml
+#import yaml
 import helper as h
-import IEC60870_5_104_Typs as T104
+import IEC60870_5_104_APDU as T104
+import IEC60870_5_104_dict as d
+
 import time
 import socket
 import threading
@@ -58,7 +60,7 @@ class Server(threading.Thread):
                     client_socket.close()
                     self.RxCounter = 0
                     self.TxCounter = 0
-                    h.log_error(inst)
+                    h.log_error(inst, "handle_client_connection - receive")
                     break
                 
                 if not request:
@@ -118,7 +120,12 @@ class Server(threading.Thread):
     #--- I-Frame handle  ------------------------------------------------------
     def handle_iFrame(self, frame, client):
         APDU = T104.APDU(frame)
-        T104.print_iFrame(APDU)
+        h.log("<- I [{}-{}-{}] - {} - {}".format(APDU.ASDU.InfoObject.address._1,
+                                                   APDU.ASDU.InfoObject.address._2,
+                                                   APDU.ASDU.InfoObject.address._3,
+                                                   APDU.ASDU.TI.ref,
+                                                   APDU.ASDU.TI.des))
+        APDU.pO()
         
         #confirm activation frame
         if APDU.ASDU.COT.short == "act":
@@ -129,7 +136,8 @@ class Server(threading.Thread):
             data[5] = (self.RxCounter & 0b0111111110000000) >> 7
             data[8] = APDU.ASDU.Test<<8 | APDU.ASDU.PN<<7 | 7 
             client.send(data)
-            print ("-> I ({}/{})".format(self.TxCounter, self.RxCounter))
+            h.log("-> I ({}/{}) - COT = {}".format(self.TxCounter, self.RxCounter,
+                                                    d.cot[7]["long"]))
             self.TxCounter += 1
         
         #callback to main
@@ -156,3 +164,4 @@ class Server(threading.Thread):
         print ("-> I ({}/{})".format(self.TxCounter, self.RxCounter))
         self.TxCounter += 1
                                       
+

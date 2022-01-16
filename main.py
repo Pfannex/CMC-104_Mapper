@@ -9,6 +9,7 @@
 #
 #   Autor:   Pf@nne-mail.de
 #   Version: V1.00
+#   Date:    10.01.2022
 #
 ###############################################################################
 
@@ -17,7 +18,7 @@
 ###############################################################################
 import CMEngine as cmc
 import IEC60870_5_104
-import IEC60870_5_104_Typs as T104
+import IEC60870_5_104_APDU as TAPDU
 import helper as h
 import time
 
@@ -32,40 +33,18 @@ def timer2_callback():
     h.log("here we go every 300 seconds")
 
 def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
-    h.log("<- I Type={} - ".format(APDU.ASDU.TI.Typ) + APDU.ASDU.TI.ref)
-    h.log("     Qualifier of interrogation command = 0x{0:02X} [{0:}]".
-                    format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["QOIe"]))
+    pass
+    #h.log("incomming {} - {}".format(APDU.ASDU.TI.ref, APDU.ASDU.TI.des))
+    #h.log(APDU.ASDU.InfoObject.data[0].typ)
+    #h.log(APDU.ASDU.InfoObject.address._1)
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
-    h.log("{} - ".format(APDU.ASDU.TI.Typ) + APDU.ASDU.TI.ref)
-
-    if APDU.ASDU.TI.Typ == 45:
-        h.log("S/E = {}".format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["SE"]))
-        h.log("QU =  {}".format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["QU"]))
-        h.log("SCS = {}".format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["SCS"]))
-        Server104.send_iFrame(1, APDU.ASDU.InfoObject.InfoObjektElements["e1"]["SCS"])
-
-    if APDU.ASDU.TI.Typ == 46:
-        h.log("S/E = {}".format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["SE"]))
-        h.log("QU =  {}".format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["QU"]))
-        h.log("DCS = {}".format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["DCS"]))
-    if APDU.ASDU.TI.Typ == 58:
-        h.log("S/E = {}".format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["SE"]))
-        h.log("QU =  {}".format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["QU"]))
-        h.log("SCS = {}".format(APDU.ASDU.InfoObject.InfoObjektElements["e1"]["SCS"]))
-        h.log("Time {0:02}.{1:02}.20{2:02}-{3:02}:{4:02}:{5:02}.{6:03} /IV={7}/SU={8}/DoW={9}".format(
-                APDU.ASDU.InfoObject.InfoObjektElements["e2"]["D"],
-                APDU.ASDU.InfoObject.InfoObjektElements["e2"]["M"],
-                APDU.ASDU.InfoObject.InfoObjektElements["e2"]["Y"],
-                APDU.ASDU.InfoObject.InfoObjektElements["e2"]["H"],
-                APDU.ASDU.InfoObject.InfoObjektElements["e2"]["MIN"],
-                APDU.ASDU.InfoObject.InfoObjektElements["e2"]["S"],
-                APDU.ASDU.InfoObject.InfoObjektElements["e2"]["MS"],
-                APDU.ASDU.InfoObject.InfoObjektElements["e2"]["IV"],
-                APDU.ASDU.InfoObject.InfoObjektElements["e2"]["SU"],
-                APDU.ASDU.InfoObject.InfoObjektElements["e2"]["DOW"]))
-    
-      
+    #h.log("incomming {} - {}".format(APDU.ASDU.TI.ref, APDU.ASDU.TI.des))
+    #try:
+    #    h.log("InfoObject {}".format(APDU.ASDU.InfoObject.data[0].typ))
+    #except:
+        pass
+     
 ###############################################################################
 #   FUNCTIONS
 ###############################################################################
