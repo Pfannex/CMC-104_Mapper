@@ -42,7 +42,7 @@ class Server(threading.Thread):
     def run(self):  #threat running continuously
         while self.running:
             self.client_socket, address = self.TCPsever.accept()   #waiting for client
-            h.log('IEC 60870-5-104 Client connectet -  {}:{}'.format(address[0], address[1]))
+            h.log('IEC 60870-5-104 Client connected -  {}:{}'.format(address[0], address[1]))
             self.handle_client_connection(self.client_socket)
             h.log('IEC 60870-5-104 Server listening on {}:{}'.format(self.IP, self.port))
     def stop(self):
