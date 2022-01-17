@@ -4,12 +4,10 @@
 import helper as h
 import win32com.client # get e.g. via "pip install pywin32"
 import time
-x = win32com.client.Dispatch("OMICRON.CMEngAL")
 
 class CMCControll():
-    def __init__(self):
+    def __init__(self, x):
         #self.x = win32com.client.Dispatch("OMICRON.CMEngAL")
-        global x
         x.DevScanForNew(False)
         devList = x.DevGetList(0) #return all associated CMCs
         self.devId = int(devList[0])     #first associated CMC is used - make sure only one is associated
@@ -25,8 +23,7 @@ class CMCControll():
         h.log("IP:   "+x.IPAddress(self.devId))
         h.log("--------------------------")
 
-    def on(self):
-        global x
+    def on(self, x):
         h.log("####### start CMC ######################")
         x.Exec(self.devId,"out:on")
         time.sleep(2)
