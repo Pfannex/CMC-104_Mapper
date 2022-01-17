@@ -3,11 +3,38 @@
 ###############################################################################
 import helper as h
 import win32com.client # get e.g. via "pip install pywin32"
+import sys
 import time
+import win32com.client as win32
 
 class CMCControll():
-    def __init__(self, x):
-        #self.x = win32com.client.Dispatch("OMICRON.CMEngAL")
+    def __init__(self):
+        self.shell = win32com.client.Dispatch("WScript.Shell")
+    def on(self):
+        h.log("####### start CMC ######################")
+        h.log("#  do CMC event")
+        self.shell.Run("notepad " + sys.argv[0])
+        #x.Exec(self.devId,"out:on")
+        #time.sleep(2)
+        #x.Exec(self.devId,"out:off")
+        #x.Exec(self.devId,"out:ana:off(zcross)")
+        #x.DevUnlock(self.devId)
+        h.log("####### stop CMC #######################")
+
+#def __repr__(self):
+    #return self.CMC
+
+    #configure voltage output
+        #CMC.Exec(devId,"out:v(1:1):a(10);p(0);f(50)")	
+        #CMC.Exec(devId,"out:v(1:2):a(10);p(-120);f(50)")	
+        #CMC.Exec(devId,"out:v(1:3):a(10);p(120);f(50)")	
+        #if cmd == "SCS_ON":
+        #    self.on()
+        #else:
+        #    self.off()
+
+"""       
+    #self.x = win32com.client.Dispatch("OMICRON.CMEngAL")
         x.DevScanForNew(False)
         devList = x.DevGetList(0) #return all associated CMCs
         self.devId = int(devList[0])     #first associated CMC is used - make sure only one is associated
@@ -22,33 +49,10 @@ class CMCControll():
         h.log("Type: "+x.DeviceType(self.devId))
         h.log("IP:   "+x.IPAddress(self.devId))
         h.log("--------------------------")
+"""
 
-    def on(self, x):
-        h.log("####### start CMC ######################")
-        x.Exec(self.devId,"out:on")
-        time.sleep(2)
-        x.Exec(self.devId,"out:off")
-        x.Exec(self.devId,"out:ana:off(zcross)")
-        x.DevUnlock(self.devId)
-        h.log("####### stop CMC #######################")
-
-
-#def __repr__(self):
-    #return self.CMC
-
-    #configure voltage output
-        #CMC.Exec(devId,"out:v(1:1):a(10);p(0);f(50)")	
-        #CMC.Exec(devId,"out:v(1:2):a(10);p(-120);f(50)")	
-        #CMC.Exec(devId,"out:v(1:3):a(10);p(120);f(50)")	
-        #if cmd == "SCS_ON":
-        #    self.on()
-        #else:
-        #    self.off()
-
-"""   
-    def on(self):
-        self.CMC.Exec(devId,"out:on")
-    def off(self):
+ 
+"""       def off(self):
         self.CMC.Exec(devId,"out:off")
     def out(self, cmd):
         self.CMC.Exec(self.devId,"out:on")

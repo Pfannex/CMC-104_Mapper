@@ -17,7 +17,7 @@
 #   IMPORT
 ###############################################################################
 import CMEngine
-import win32com.client # get e.g. via "pip install pywin32"
+#import win32com.client # get e.g. via "pip install pywin32"
 
 import IEC60870_5_104
 import IEC60870_5_104_APDU as TAPDU
@@ -25,7 +25,7 @@ import helper as h
 import time
 
 #cmc = CMEngine.CMCControll()
-x = win32com.client.Dispatch("OMICRON.CMEngAL")
+#x = win32com.client.Dispatch("OMICRON.CMEngAL")
 #cmc.on()
 
 
@@ -46,14 +46,9 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     if APDU.ASDU.InfoObject.address.DEZ == 1:
-        #cmc.out(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
-        cmc.on(x)
+        cmc.on()
     
-    print(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
-    #h.log("incomming {} - {}".format(APDU.ASDU.TI.ref, APDU.ASDU.TI.des))
-    #try:
-    #    h.log("InfoObject {}".format(APDU.ASDU.InfoObject.data[0].typ))
-    #except:
+    #print(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
     pass
      
 ###############################################################################
@@ -69,7 +64,7 @@ Server104 = IEC60870_5_104.Server(on_IEC60870_5_104_I_Frame_GA_callback,
                                   on_IEC60870_5_104_I_Frame_received_callback,
                                   "127.0.0.1", 2404)
 
-cmc = CMEngine.CMCControll(x)
+cmc = CMEngine.CMCControll()
 
 t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
