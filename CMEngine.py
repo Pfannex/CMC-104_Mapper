@@ -5,15 +5,22 @@ import helper as h
 import win32com.client # get e.g. via "pip install pywin32"
 import sys
 import time
-import win32com.client as win32
+#import win32com.client as win32
 
 class CMCControll():
     def __init__(self):
         self.shell = win32com.client.Dispatch("WScript.Shell")
-    def on(self):
+        #self.cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
+        #h.log(self.cmEngine.DevScanForNew(False))
+        #h.log(self.cmEngine.DevGetList(0))  #return all associated CMCs
+        
+    def on(self, instanz):
+        cmc = instanz
         h.log("####### start CMC ######################")
         h.log("#  do CMC event")
-        self.shell.Run("notepad " + sys.argv[0])
+        #self.shell.Run("notepad " + sys.argv[0])
+        h.log(cmc.DevScanForNew(False))
+        h.log(cmc.DevGetList(0))  #return all associated CMCs
         #x.Exec(self.devId,"out:on")
         #time.sleep(2)
         #x.Exec(self.devId,"out:off")
