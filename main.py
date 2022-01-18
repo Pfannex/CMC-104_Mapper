@@ -17,18 +17,18 @@
 #   IMPORT
 ###############################################################################
 import CMEngine
-import win32com.client # get e.g. via "pip install pywin32"
-cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
-deviceID = 0
-
 import IEC60870_5_104
 import IEC60870_5_104_APDU as TAPDU
 import helper as h
 import time
 
-#cmc = CMEngine.CMCControll()
-#cmc.on()
 
+import win32com.client # gget e.g. via "pip install pywin32"
+
+cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
+deviceID = 0
+myTest = "new"
+import pythoncom
 
 ###############################################################################
 #   CALLBACKS
@@ -46,9 +46,13 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     #h.log(APDU.ASDU.InfoObject.address._1)
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
-    if APDU.ASDU.InfoObject.address.DEZ == 1:
-        #cmc.on()
+    ioa =APDU.ASDU.InfoObject.address.DEZ
+    if ioa == 1:
+        cmcConnect()
+        #cmc.cmcOn()
+    if ioa == 2:
         cmcOn()
+        #cmc.notepad()
     
     #print(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
     pass
@@ -56,34 +60,53 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 ###############################################################################
 #   FUNCTIONS
 ###############################################################################
+
 def cmcConnect():
+    #pythoncom.CoInitialize()
     global cmEngine
     global deviceID
-    h.log(cmEngine.DevScanForNew(False))
+    global myTest
+    myTest = "cmcConnect"
+    print(myTest)
+    print(cmEngine)
+    print(deviceID)
+    print(cmEngine.DevScanForNew(False))
     deviceList = cmEngine.DevGetList(0)    #return all associated CMCs
-    deviceID = int(deviceList[0])              #first associated CMC is used - make sure only one is associated
+    deviceID = int(deviceList[0])          #first associated CMC is used - make sure only one is associated
+    cmEngine.DevUnlock(deviceID)
     cmEngine.DevLock(deviceID)
     #device information
     deviceList = deviceList.split(",")
-    h.log("Devices found: " + str(int(len(deviceList)/4)))
-    h.log("ID :  "+deviceList[0])
-    h.log("SER:  "+deviceList[1])
-    h.log("Type: "+cmEngine.DeviceType(deviceID))
-    h.log("IP:   "+cmEngine.IPAddress(deviceID))
-    h.log("--------------------------")
+    print("Devices found: " + str(int(len(deviceList)/4)))
+    print("ID :  "+deviceList[0])
+    print("SER:  "+deviceList[1])
+    print("Type: "+cmEngine.DeviceType(deviceID))
+    print("IP:   "+cmEngine.IPAddress(deviceID))
+    print("--------------------------")
 
-    pass
-
-def cmcOn():
-    global cmEngine
-    global deviceID
+########################## geht
     cmEngine.Exec(deviceID,"out:on")
     time.sleep(2)
     cmEngine.Exec(deviceID,"out:off")
     cmEngine.Exec(deviceID,"out:ana:off(zcross)")
-    cmEngine.DevUnlock(deviceID)
+    #cmEngine.DevUnlock(deviceID)
 
-    pass
+def cmcOn():
+########################## geht nicht
+    #pythoncom.CoInitialize()
+    global cmEngine
+    global deviceID
+    global myTest
+    print(myTest)
+
+    #cmEngine.DevLock(deviceID)
+    print(cmEngine)
+    print(deviceID)
+    cmEngine.Exec(deviceID,"out:on")
+    time.sleep(2)
+    cmEngine.Exec(deviceID,"out:off")
+    cmEngine.Exec(deviceID,"out:ana:off(zcross)")
+    #cmEngine.DevUnlock(deviceID)
 
 ###############################################################################
 #   MAIN START
@@ -92,15 +115,7 @@ h.start()
 Server104 = IEC60870_5_104.Server(on_IEC60870_5_104_I_Frame_GA_callback,
                                   on_IEC60870_5_104_I_Frame_received_callback,
                                   "127.0.0.1", 2404)
-
-#cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
-#h.log(cmEngine.DevScanForNew(False))
-#h.log(cmEngine.DevGetList(0))  #return all associated CMCs
-
-cmcConnect()
-cmc = CMEngine.CMCControll()
-
-
+#cmc = CMEngine.CMCControll()
 
 t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
@@ -110,6 +125,18 @@ t2 = h.idleTimer(300, timer2_callback)
 ###############################################################################
 
 while True:
+    print("c = CMC connect")
+    print("o = CMC ON")
+    print("q = quit")
+    key = input()
+    if key == "c":
+        cmcConnect()
+    if key == "o":
+        cmcOn()
+    if key == 'q':
+        print("bye")
+        cmEngine.DevUnlock(deviceID)
+        exit()
     #cmc.handle()
     #time.sleep(10)
     pass

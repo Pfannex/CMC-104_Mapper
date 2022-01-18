@@ -3,42 +3,53 @@
 ###############################################################################
 import helper as h
 import win32com.client # get e.g. via "pip install pywin32"
+#import pythoncom
 import sys
 import time
-#import win32com.client as win32
+
+cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
+deviceID = 0
 
 class CMCControll():
     def __init__(self):
-        self.shell = win32com.client.Dispatch("WScript.Shell")
-        #self.cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
-        #h.log(self.cmEngine.DevScanForNew(False))
-        #h.log(self.cmEngine.DevGetList(0))  #return all associated CMCs
+        #Notepad
+        #self.shell = win32com.client.Dispatch("WScript.Shell")
         
-    def on(self):
-        #cmc = instanz
-        h.log("####### start CMC ######################")
-        h.log("#  do CMC event")
+        #CMC
+        #self.cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
+        global cmEngine
+        global deviceID
+
+        h.log(cmEngine.DevScanForNew(False))
+        deviceList = cmEngine.DevGetList(0)  #return all associated CMCs
+        deviceID = int(deviceList[0])         #first associated CMC is used - make sure only one is associated
+        cmEngine.DevUnlock(deviceID)
+        cmEngine.DevLock(deviceID)
+        #device information
+        deviceList = deviceList.split(",")
+        h.log("Devices found: " + str(int(len(deviceList)/4)))
+        h.log("ID:   "+deviceList[0])
+        h.log("SER:  "+deviceList[1])
+        h.log("Type: "+cmEngine.DeviceType(deviceID))
+        h.log("IP:   "+cmEngine.IPAddress(deviceID))
+        h.log("--------------------------")
+        cmEngine.DevUnlock(deviceID)
+    
+    def notepad(self):
+        #Notepad
         self.shell.Run("notepad " + sys.argv[0])
-        #h.log(cmc.DevScanForNew(False))
-        #h.log(cmc.DevGetList(0))  #return all associated CMCs
-        #x.Exec(self.devId,"out:on")
-        #time.sleep(2)
-        #x.Exec(self.devId,"out:off")
-        #x.Exec(self.devId,"out:ana:off(zcross)")
-        #x.DevUnlock(self.devId)
+
+    def cmcOn(self):
+        global cmEngine
+        global deviceID
+        h.log("####### start CMC ######################")
+        cmEngine.Exec(deviceID,"out:on")
+        time.sleep(2)
+        cmEngine.Exec(deviceID,"out:off")
+        cmEngine.Exec(deviceID,"out:ana:off(zcross)")
+        cmEngine.DevUnlock(deviceID)
         h.log("####### stop CMC #######################")
 
-#def __repr__(self):
-    #return self.CMC
-
-    #configure voltage output
-        #CMC.Exec(devId,"out:v(1:1):a(10);p(0);f(50)")	
-        #CMC.Exec(devId,"out:v(1:2):a(10);p(-120);f(50)")	
-        #CMC.Exec(devId,"out:v(1:3):a(10);p(120);f(50)")	
-        #if cmd == "SCS_ON":
-        #    self.on()
-        #else:
-        #    self.off()
 
 """       
     #self.x = win32com.client.Dispatch("OMICRON.CMEngAL")

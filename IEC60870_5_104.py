@@ -17,6 +17,8 @@ import IEC60870_5_104_dict as d
 import time
 import socket
 import threading
+import pythoncom
+
  
 ###############################################################################
 #   IEC60870-5-104 Server
@@ -37,9 +39,11 @@ class Server(threading.Thread):
         h.log('IEC 60870-5-104 Server listening on {}:{}'.format(self.IP, self.port))
         
         threading.Thread.__init__(self)
+
         self.running = True
         self.start()
     def run(self):  #threat running continuously
+        pythoncom.CoInitialize()
         while self.running:
             self.client_socket, address = self.TCPsever.accept()   #waiting for client
             h.log('IEC 60870-5-104 Client connected -  {}:{}'.format(address[0], address[1]))
@@ -144,6 +148,7 @@ class Server(threading.Thread):
         if APDU.ASDU.TI.Typ == 100:     #C_IC_NA_1 - (General-) Interrogation command 
             self.GA_callback(APDU)
         else:
+            pythoncom.CoInitialize
             self.iFrame_callback(APDU)  #other I-Frame
 
     #--- send I-Frame  --------------------------------------------------------
