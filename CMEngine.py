@@ -14,13 +14,13 @@ class CMCControll():
         #h.log(self.cmEngine.DevScanForNew(False))
         #h.log(self.cmEngine.DevGetList(0))  #return all associated CMCs
         
-    def on(self, instanz):
-        cmc = instanz
+    def on(self):
+        #cmc = instanz
         h.log("####### start CMC ######################")
         h.log("#  do CMC event")
-        #self.shell.Run("notepad " + sys.argv[0])
-        h.log(cmc.DevScanForNew(False))
-        h.log(cmc.DevGetList(0))  #return all associated CMCs
+        self.shell.Run("notepad " + sys.argv[0])
+        #h.log(cmc.DevScanForNew(False))
+        #h.log(cmc.DevGetList(0))  #return all associated CMCs
         #x.Exec(self.devId,"out:on")
         #time.sleep(2)
         #x.Exec(self.devId,"out:off")

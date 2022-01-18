@@ -18,6 +18,8 @@
 ###############################################################################
 import CMEngine
 import win32com.client # get e.g. via "pip install pywin32"
+cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
+deviceID = 0
 
 import IEC60870_5_104
 import IEC60870_5_104_APDU as TAPDU
@@ -45,7 +47,8 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     if APDU.ASDU.InfoObject.address.DEZ == 1:
-        cmc.on(cmEngine)
+        #cmc.on()
+        cmcOn()
     
     #print(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
     pass
@@ -53,7 +56,34 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 ###############################################################################
 #   FUNCTIONS
 ###############################################################################
+def cmcConnect():
+    global cmEngine
+    global deviceID
+    h.log(cmEngine.DevScanForNew(False))
+    deviceList = cmEngine.DevGetList(0)    #return all associated CMCs
+    deviceID = int(deviceList[0])              #first associated CMC is used - make sure only one is associated
+    cmEngine.DevLock(deviceID)
+    #device information
+    deviceList = deviceList.split(",")
+    h.log("Devices found: " + str(int(len(deviceList)/4)))
+    h.log("ID :  "+deviceList[0])
+    h.log("SER:  "+deviceList[1])
+    h.log("Type: "+cmEngine.DeviceType(deviceID))
+    h.log("IP:   "+cmEngine.IPAddress(deviceID))
+    h.log("--------------------------")
 
+    pass
+
+def cmcOn():
+    global cmEngine
+    global deviceID
+    cmEngine.Exec(deviceID,"out:on")
+    time.sleep(2)
+    cmEngine.Exec(deviceID,"out:off")
+    cmEngine.Exec(deviceID,"out:ana:off(zcross)")
+    cmEngine.DevUnlock(deviceID)
+
+    pass
 
 ###############################################################################
 #   MAIN START
@@ -63,11 +93,11 @@ Server104 = IEC60870_5_104.Server(on_IEC60870_5_104_I_Frame_GA_callback,
                                   on_IEC60870_5_104_I_Frame_received_callback,
                                   "127.0.0.1", 2404)
 
-cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
-h.log(cmEngine.DevScanForNew(False))
-h.log(cmEngine.DevGetList(0))  #return all associated CMCs
+#cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
+#h.log(cmEngine.DevScanForNew(False))
+#h.log(cmEngine.DevGetList(0))  #return all associated CMCs
 
-
+cmcConnect()
 cmc = CMEngine.CMCControll()
 
 
@@ -81,5 +111,6 @@ t2 = h.idleTimer(300, timer2_callback)
 
 while True:
     #cmc.handle()
-    time.sleep(10)
+    #time.sleep(10)
+    pass
     
