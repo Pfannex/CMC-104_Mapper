@@ -17,16 +17,17 @@
 #   IMPORT
 ###############################################################################
 #import CMEngine
-#import win32com.client # get e.g. via "pip install pywin32"
+import win32com.client # get e.g. via "pip install pywin32"
 
 import IEC60870_5_104
 import IEC60870_5_104_APDU as TAPDU
 import helper as h
 import time
 
-#cmc = CMEngine.CMCControll()
-#x = win32com.client.Dispatch("OMICRON.CMEngAL")
-#cmc.on()
+import pythoncom
+pythoncom.CoInitialize()
+cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
+cmEngine_id = pythoncom.CoMarshalInterThreadInterfaceInStream(pythoncom.IID_IDispatch, cmEngine)
 
 
 ###############################################################################
@@ -44,13 +45,14 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     #h.log(APDU.ASDU.InfoObject.data[0].typ)
     #h.log(APDU.ASDU.InfoObject.address._1)
 
-def on_IEC60870_5_104_I_Frame_received_callback(APDU):
+def on_IEC60870_5_104_I_Frame_received_callback(APDU, cmEngine_id):       
     if APDU.ASDU.InfoObject.address.DEZ == 1:
-        pass
+        doFromThread(cmEngine_id)
+        #pass
         #cmc.out(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
         #cmc.on(x)
     
-    print(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
+        print(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
     #h.log("incomming {} - {}".format(APDU.ASDU.TI.ref, APDU.ASDU.TI.des))
     #try:
     #    h.log("InfoObject {}".format(APDU.ASDU.InfoObject.data[0].typ))
@@ -61,6 +63,17 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 #   FUNCTIONS
 ###############################################################################
 
+def doFromThread(cmEngine_id):
+    pythoncom.CoInitialize()
+    # Get instance from the id
+    cmEngine = win32com.client.Dispatch(
+            pythoncom.CoGetInterfaceAndReleaseStream(cmEngine_id, pythoncom.IID_IDispatch)
+    ) 
+    print(cmEngine.DevScanForNew(False))
+    print(cmEngine.DevGetList(0)) #return all associated CMCs
+    print("OK")
+    
+    
 
 ###############################################################################
 #   MAIN START
@@ -68,7 +81,7 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 h.start()
 Server104 = IEC60870_5_104.Server(on_IEC60870_5_104_I_Frame_GA_callback,
                                   on_IEC60870_5_104_I_Frame_received_callback,
-                                  "127.0.0.1", 2404)
+                                  "127.0.0.1", 2404, cmEngine_id)
 
 #cmc = CMEngine.CMCControll(x)
 

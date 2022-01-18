@@ -17,12 +17,15 @@ import IEC60870_5_104_dict as d
 import time
 import socket
 import threading
+
+import pythoncom
  
 ###############################################################################
 #   IEC60870-5-104 Server
 ###############################################################################
 class Server(threading.Thread):
-    def __init__(self, GA_callback, iFrame_callback, ip, port):
+    def __init__(self, GA_callback, iFrame_callback, ip, port, cmEngine_id):
+        self.cmEngine_id = cmEngine_id
         self.GA_callback = GA_callback
         self.iFrame_callback = iFrame_callback
         #TCP-Server
@@ -36,14 +39,15 @@ class Server(threading.Thread):
         self.TCPsever.listen(5)  # max backlog of connections
         h.log('IEC 60870-5-104 Server listening on {}:{}'.format(self.IP, self.port))
         
-        threading.Thread.__init__(self)
+        pythoncom.CoInitialize()
+        threading.Thread.__init__(self, target=self.handle_iFrame, kwargs={'cmEngine_id': cmEngine_id})
         self.running = True
         self.start()
     def run(self):  #threat running continuously
         while self.running:
             self.client_socket, address = self.TCPsever.accept()   #waiting for client
             h.log('IEC 60870-5-104 Client connected -  {}:{}'.format(address[0], address[1]))
-            self.handle_client_connection(self.client_socket)
+            self.handle_client_connection(self.client_socket, self.cmEngine_id)
             h.log('IEC 60870-5-104 Server listening on {}:{}'.format(self.IP, self.port))
     def stop(self):
         self.running = False
@@ -51,7 +55,7 @@ class Server(threading.Thread):
         self.running = True
         
     #--- handle client Rx-Data ------------------------------------------------
-    def handle_client_connection(self, client_socket):
+    def handle_client_connection(self, client_socket, cmEngine_id):
         try: 
             while True: 
                 try:
@@ -81,7 +85,7 @@ class Server(threading.Thread):
                         #I-Frame        
                         if request[2] & 0b00000001 == 0b0:     #.0 I-Frame                                 #_0 I-Frame
                             self.RxCounter += 1
-                            self.handle_iFrame(request, client_socket)
+                            self.handle_iFrame(request, client_socket, cmEngine_id)
                     
         finally: 
             h.log_error("client disconnected")
@@ -118,7 +122,7 @@ class Server(threading.Thread):
                 str((frame[4] | frame[5]<<8)>>1))
 
     #--- I-Frame handle  ------------------------------------------------------
-    def handle_iFrame(self, frame, client):
+    def handle_iFrame(self, frame, client, cmEngine_id):
         APDU = T104.APDU(frame)
         h.log("<- I [{}-{}-{}] - {} - {}".format(APDU.ASDU.InfoObject.address._1,
                                                    APDU.ASDU.InfoObject.address._2,
@@ -144,7 +148,7 @@ class Server(threading.Thread):
         if APDU.ASDU.TI.Typ == 100:     #C_IC_NA_1 - (General-) Interrogation command 
             self.GA_callback(APDU)
         else:
-            self.iFrame_callback(APDU)  #other I-Frame
+            self.iFrame_callback(APDU, cmEngine_id)  #other I-Frame
 
     #--- send I-Frame  --------------------------------------------------------
     def send_iFrame(self, TI, value):
