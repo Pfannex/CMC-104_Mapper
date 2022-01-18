@@ -23,12 +23,12 @@ import helper as h
 import time
 
 
-import win32com.client # gget e.g. via "pip install pywin32"
+"""import win32com.client # gget e.g. via "pip install pywin32"
 
 cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
 deviceID = 0
 myTest = "new"
-import pythoncom
+import pythoncom"""
 
 ###############################################################################
 #   CALLBACKS
@@ -48,11 +48,13 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     ioa =APDU.ASDU.InfoObject.address.DEZ
     if ioa == 1:
-        cmcConnect()
+        Server104.cmcConnect()
+        #cmcConnect()
         #cmc.cmcOn()
     if ioa == 2:
-        cmcOn()
-        #cmc.notepad()
+        Server104.cmcOn()
+        #cmcOn()
+        ##cmc.notepad()
     
     #print(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
     pass
@@ -60,7 +62,7 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 ###############################################################################
 #   FUNCTIONS
 ###############################################################################
-
+"""
 def cmcConnect():
     #pythoncom.CoInitialize()
     global cmEngine
@@ -107,7 +109,7 @@ def cmcOn():
     cmEngine.Exec(deviceID,"out:off")
     cmEngine.Exec(deviceID,"out:ana:off(zcross)")
     #cmEngine.DevUnlock(deviceID)
-
+"""
 ###############################################################################
 #   MAIN START
 ###############################################################################
@@ -125,6 +127,8 @@ t2 = h.idleTimer(300, timer2_callback)
 ###############################################################################
 
 while True:
+    pass
+"""
     print("c = CMC connect")
     print("o = CMC ON")
     print("q = quit")
@@ -139,5 +143,5 @@ while True:
         exit()
     #cmc.handle()
     #time.sleep(10)
-    pass
+"""
     

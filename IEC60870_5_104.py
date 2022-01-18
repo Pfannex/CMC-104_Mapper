@@ -17,14 +17,25 @@ import IEC60870_5_104_dict as d
 import time
 import socket
 import threading
-import pythoncom
 
+
+
+import win32com.client # gget e.g. via "pip install pywin32"
+
+myTest = "new"
+import pythoncom
  
 ###############################################################################
 #   IEC60870-5-104 Server
 ###############################################################################
 class Server(threading.Thread):
     def __init__(self, GA_callback, iFrame_callback, ip, port):
+
+        self.cmEngine = win32com.client.Dispatch("OMICRON.CMEngAL")
+        self.deviceID = 0
+
+
+
         self.GA_callback = GA_callback
         self.iFrame_callback = iFrame_callback
         #TCP-Server
@@ -43,7 +54,6 @@ class Server(threading.Thread):
         self.running = True
         self.start()
     def run(self):  #threat running continuously
-        pythoncom.CoInitialize()
         while self.running:
             self.client_socket, address = self.TCPsever.accept()   #waiting for client
             h.log('IEC 60870-5-104 Client connected -  {}:{}'.format(address[0], address[1]))
@@ -148,8 +158,13 @@ class Server(threading.Thread):
         if APDU.ASDU.TI.Typ == 100:     #C_IC_NA_1 - (General-) Interrogation command 
             self.GA_callback(APDU)
         else:
-            pythoncom.CoInitialize
-            self.iFrame_callback(APDU)  #other I-Frame
+            #self.iFrame_callback(APDU)  #other I-Frame
+            ioa =APDU.ASDU.InfoObject.address.DEZ
+            if ioa == 1:
+                self.cmcConnect()
+            if ioa == 2:
+                self.cmcOn()
+ 
 
     #--- send I-Frame  --------------------------------------------------------
     def send_iFrame(self, TI, value):
@@ -168,5 +183,45 @@ class Server(threading.Thread):
         self.client_socket.send(data)
         print ("-> I ({}/{})".format(self.TxCounter, self.RxCounter))
         self.TxCounter += 1
+
+#######################################################################################################
+
+    def cmcConnect(self):
+        #pythoncom.CoInitialize()
+        print(self.cmEngine)
+        print(self.deviceID)
+        print(self.cmEngine.DevScanForNew(False))
+        deviceList = self.cmEngine.DevGetList(0)    #return all associated CMCs
+        deviceID = int(deviceList[0])          #first associated CMC is used - make sure only one is associated
+        self.cmEngine.DevUnlock(deviceID)
+        self.cmEngine.DevLock(deviceID)
+        #device information
+        deviceList = deviceList.split(",")
+        print("Devices found: " + str(int(len(deviceList)/4)))
+        print("ID :  "+deviceList[0])
+        print("SER:  "+deviceList[1])
+        print("Type: "+self.cmEngine.DeviceType(self.deviceID))
+        print("IP:   "+self.cmEngine.IPAddress(self.deviceID))
+        print("--------------------------")
+
+########################## geht
+        self.cmEngine.Exec(self.deviceID,"out:on")
+        time.sleep(2)
+        self.cmEngine.Exec(self.deviceID,"out:off")
+        self.cmEngine.Exec(self.deviceID,"out:ana:off(zcross)")
+        #cmEngine.DevUnlock(deviceID)
+
+    def cmcOn(self):
+########################## geht nicht
+        #pythoncom.CoInitialize()
+
+        #cmEngine.DevLock(deviceID)
+        print(self.cmEngine)
+        print(self.deviceID)
+        self.cmEngine.Exec(self.deviceID,"out:on")
+        time.sleep(2)
+        self.cmEngine.Exec(self.deviceID,"out:off")
+        self.cmEngine.Exec(self.deviceID,"out:ana:off(zcross)")
+        #cmEngine.DevUnlock(deviceID)        
                                       
 
