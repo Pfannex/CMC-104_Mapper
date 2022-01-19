@@ -17,7 +17,7 @@
 #   IMPORT
 ###############################################################################
 #import CMEngine
-#import win32com.client # get e.g. via "pip install pywin32"
+import win32com.client # get e.g. via "pip install pywin32"
 
 import IEC60870_5_104
 import IEC60870_5_104_APDU as TAPDU
@@ -25,7 +25,7 @@ import helper as h
 import time
 
 #cmc = CMEngine.CMCControll()
-#x = win32com.client.Dispatch("OMICRON.CMEngAL")
+x = win32com.client.Dispatch("OMICRON.CMEngAL")
 #cmc.on()
 
 
@@ -45,8 +45,9 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     #h.log(APDU.ASDU.InfoObject.address._1)
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
+    #pass
     if APDU.ASDU.InfoObject.address.DEZ == 1:
-        pass
+        cmc()
         #cmc.out(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
         #cmc.on(x)
     
@@ -55,25 +56,33 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     #try:
     #    h.log("InfoObject {}".format(APDU.ASDU.InfoObject.data[0].typ))
     #except:
-    pass
      
 ###############################################################################
 #   FUNCTIONS
 ###############################################################################
 
+def cmc():
+    global x
+    print(x.DevScanForNew(False))
+    print(x.DevGetList(0)) #return all associated CMCs
+  
 
 ###############################################################################
 #   MAIN START
 ###############################################################################
+t1 = h.idleTimer(60, timer1_callback)
+t2 = h.idleTimer(300, timer2_callback)
 h.start()
-Server104 = IEC60870_5_104.Server(on_IEC60870_5_104_I_Frame_GA_callback,
-                                  on_IEC60870_5_104_I_Frame_received_callback,
-                                  "127.0.0.1", 2404)
+#Server104 = IEC60870_5_104.Server(on_IEC60870_5_104_I_Frame_GA_callback,
+#                                  on_IEC60870_5_104_I_Frame_received_callback,
+#                                  "127.0.0.1", 2404)
+IEC60870_5_104.start_server(on_IEC60870_5_104_I_Frame_GA_callback,
+                            on_IEC60870_5_104_I_Frame_received_callback,
+                            "127.0.0.1", 2404)
 
 #cmc = CMEngine.CMCControll(x)
 
-t1 = h.idleTimer(60, timer1_callback)
-t2 = h.idleTimer(300, timer2_callback)
+
 
 ###############################################################################
 #   MAIN LOOP

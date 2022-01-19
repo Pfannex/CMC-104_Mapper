@@ -3,7 +3,7 @@
 ###############################################################################
 import helper as h
 import win32com.client # get e.g. via "pip install pywin32"
-import time
+#import time
 
 class CMCControll():
     def __init__(self, x):
