@@ -50,7 +50,7 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
         #cmc.out(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
         #cmc.on(x)
     
-    print(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
+    #print(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
     #h.log("incomming {} - {}".format(APDU.ASDU.TI.ref, APDU.ASDU.TI.des))
     #try:
     #    h.log("InfoObject {}".format(APDU.ASDU.InfoObject.data[0].typ))
