@@ -17,10 +17,52 @@ import IEC60870_5_104_dict as d
 import time
 import socket
 import threading
- 
+
+import sys
+
+
 ###############################################################################
 #   IEC60870-5-104 Server
 ###############################################################################
+def start_Server(GA_callback, iFrame_callback, ip, port):
+    TCPServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    TCPServer.bind(ip, port)
+    TCPServer.listen(5)
+    h.log('IEC 60870-5-104 Server listening on {}:{}'.format(self.IP, self.port))
+    client_socket, address = TCPsever.accept()   #waiting for client Code Stops here
+    h.log('IEC 60870-5-104 Client connected -  {}:{}'.format(address[0], address[1]))
+    #handle_client_connection(client_socket)
+    #h.log('IEC 60870-5-104 Server listening on {}:{}'.format(self.IP, self.port))
+
+    TCPServer.settimeout(2)
+
+    while True:
+        try:
+            msg = s.recv(4096)
+        except client_socket. , e:
+            err = e.args[0]
+            # this next if/else is a bit redundant, but illustrates how the
+            # timeout exception is setup
+            if err == 'timed out':
+                sleep(1)
+                print 'recv timed out, retry later'
+                continue
+            else:
+                print e
+                sys.exit(1)
+        except socket.error, e:
+            # Something else happened, handle error, exit, etc.
+            print e
+            sys.exit(1)
+        else:
+            if len(msg) == 0:
+                print 'orderly shutdown on server end'
+                sys.exit(0)
+            else:
+                # got a message do something :)
+
+
+
 class Server(threading.Thread):
     def __init__(self, GA_callback, iFrame_callback, ip, port):
         self.GA_callback = GA_callback
@@ -165,3 +207,37 @@ class Server(threading.Thread):
         self.TxCounter += 1
                                       
 
+"""
+import sys
+import socket
+from time import sleep
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('127.0.0.1',9999))
+s.settimeout(2)
+
+while True:
+    try:
+        msg = s.recv(4096)
+    except socket.timeout, e:
+        err = e.args[0]
+        # this next if/else is a bit redundant, but illustrates how the
+        # timeout exception is setup
+        if err == 'timed out':
+            sleep(1)
+            print 'recv timed out, retry later'
+            continue
+        else:
+            print e
+            sys.exit(1)
+    except socket.error, e:
+        # Something else happened, handle error, exit, etc.
+        print e
+        sys.exit(1)
+    else:
+        if len(msg) == 0:
+            print 'orderly shutdown on server end'
+            sys.exit(0)
+        else:
+            # got a message do something :)
+"""
