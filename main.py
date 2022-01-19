@@ -16,16 +16,14 @@
 ###############################################################################
 #   IMPORT
 ###############################################################################
-#import CMEngine
-import win32com.client # get e.g. via "pip install pywin32"
-
 import IEC60870_5_104
 import IEC60870_5_104_APDU as TAPDU
 import helper as h
-import time
+import CMC_Control
 
+#import time
 #cmc = CMEngine.CMCControll()
-x = win32com.client.Dispatch("OMICRON.CMEngAL")
+#x = win32com.client.Dispatch("OMICRON.CMEngAL")
 #cmc.on()
 
 
@@ -45,9 +43,11 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     #h.log(APDU.ASDU.InfoObject.address._1)
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
-    #pass
-    if APDU.ASDU.InfoObject.address.DEZ == 1:
-        cmc()
+    if APDU.ASDU.CASDU.DEZ == 356:
+        if APDU.ASDU.TI.Typ == 45:
+            cmc.set_output(APDU.ASDU.InfoObject.address,
+                           APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
+            
         #cmc.out(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
         #cmc.on(x)
     
@@ -61,28 +61,17 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 #   FUNCTIONS
 ###############################################################################
 
-def cmc():
-    global x
-    print(x.DevScanForNew(False))
-    print(x.DevGetList(0)) #return all associated CMCs
-  
-
 ###############################################################################
 #   MAIN START
 ###############################################################################
 t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
 h.start()
-#Server104 = IEC60870_5_104.Server(on_IEC60870_5_104_I_Frame_GA_callback,
-#                                  on_IEC60870_5_104_I_Frame_received_callback,
-#                                  "127.0.0.1", 2404)
+print("start Engine")
+cmc = CMC_Control.CMEngine
 IEC60870_5_104.start_server(on_IEC60870_5_104_I_Frame_GA_callback,
                             on_IEC60870_5_104_I_Frame_received_callback,
                             "127.0.0.1", 2404)
-
-#cmc = CMEngine.CMCControll(x)
-
-
 
 ###############################################################################
 #   MAIN LOOP

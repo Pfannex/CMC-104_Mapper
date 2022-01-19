@@ -14,7 +14,7 @@ import helper as h
 import IEC60870_5_104_APDU as T104
 import IEC60870_5_104_dict as d
 
-#import time
+import time
 import socket
 #import threading
 
@@ -49,7 +49,7 @@ def handle_client_connection(client_socket, ga_callback, iFrame_callback):
             # this next if/else is a bit redundant, but illustrates how the
             # timeout exception is setup
             if err == 'timed out':
-                sleep(1)
+                time.sleep(1)
                 h.log('recv timed out, retry later')
                 rx_counter = 0
                 tx_counter = 0
@@ -143,6 +143,7 @@ def handle_iFrame(frame, client, ga_callback, iFrame_callback):
 
 #--- send I-Frame  --------------------------------------------------------
 def send_iFrame(ti, value):
+    global rx_counter, tx_counter
     list = [0x68, 0x0E, 0x02, 0x00, 0x02, 0x00,
             ti, 0x01, 0x03, 0x00, 0x0a, 0x0b, 
             0x32, 0x33, 0x3C, value]       
