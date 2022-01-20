@@ -182,25 +182,17 @@ class Address():
 # split detailInformation from Byte
 class Detail():
     def __init__(self, data, infoBytes):
-        #frameByte = frame[15]
-        #print("len(infoBytes): {}".format(len(infoBytes)))
         self.name = data["name"]
-        #print (self.name)
         self.longName = data["longName"]
         usedBytes = data["usedBytes"]
         firstBit =  data["bitPos"]["first"]
-        #print(firstBit)
         lastBit =  data["bitPos"]["last"]
-        #print(lastBit)
         detailLen = firstBit - lastBit + 1
-        #print(detailLen)
         bitStr = "0"*(7-firstBit) + "1"*(detailLen) + "0"*(lastBit)
-        #print(bitStr)
         bitMask = int(bitStr, 2)
         
         if usedBytes == 1:
             self.value = (infoBytes[0] & bitMask)>>lastBit
-            #print(self.value)
         if usedBytes == 2:
             self.value = int.from_bytes(infoBytes, byteorder='little', signed=False)
         if usedBytes == 3:
@@ -218,7 +210,6 @@ class Detail():
                 self.value = "NIL"
         self.state = ""
         try:
-            #print (data["state"][self.value])
             self.state = data["state"][self.value]
         except BaseException as ex:
             pass

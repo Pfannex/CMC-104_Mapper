@@ -77,6 +77,8 @@ class CMEngine():
             self.cmd("out:ana:off(zcross)")
             
     def reset_output(self):
+        max_generators = 1
+        
         for _phase in range(0,2):
             for _parameter in range(0,2):
                 self.ana["v"][_parameter][_phase] = 0
@@ -88,7 +90,9 @@ class CMEngine():
         for i in range(0,2):
             self.ana["v"][2][i] = 50
             self.ana["i"][2][i] = 50
-        self.set_output()
+        for i in range(1,max_generators+1):
+            self.set_output(i, "v")
+            self.set_output(i, "i")
                
     def prepare_output(self, generator, phase, parameter, value):
         u_max = 150
