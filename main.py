@@ -21,12 +21,6 @@ import IEC60870_5_104_APDU as TAPDU
 import helper as h
 import CMC_Control
 
-#import time
-#cmc = CMEngine.CMCControll()
-#x = win32com.client.Dispatch("OMICRON.CMEngAL")
-#cmc.on()
-
-
 ###############################################################################
 #   CALLBACKS
 ###############################################################################
@@ -38,25 +32,10 @@ def timer2_callback():
 
 def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     pass
-    #h.log("incomming {} - {}".format(APDU.ASDU.TI.ref, APDU.ASDU.TI.des))
-    #h.log(APDU.ASDU.InfoObject.data[0].typ)
-    #h.log(APDU.ASDU.InfoObject.address._1)
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     if APDU.ASDU.CASDU.DEZ == 356:
         cmc.set_command(APDU.ASDU.InfoObject)
-        #if APDU.ASDU.TI.Typ == 45:
-            #cmc.set_output(APDU.ASDU.InfoObject.address,
-                           #APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
-            
-        #cmc.out(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
-        #cmc.on(x)
-    
-    #print(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
-    #h.log("incomming {} - {}".format(APDU.ASDU.TI.ref, APDU.ASDU.TI.des))
-    #try:
-    #    h.log("InfoObject {}".format(APDU.ASDU.InfoObject.data[0].typ))
-    #except:
      
 ###############################################################################
 #   FUNCTIONS
@@ -67,6 +46,7 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 ###############################################################################
 t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
+
 h.start()
 cmc = CMC_Control.CMEngine()
 IEC60870_5_104.start_server(on_IEC60870_5_104_I_Frame_GA_callback,

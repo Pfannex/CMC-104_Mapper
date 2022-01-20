@@ -10,11 +10,11 @@ class CMEngine():
         self.device_locked = False
         self.cm_engine = win32com.client.Dispatch("OMICRON.CMEngAL")
         self.ana = {"v": [[0, 0, 0],      #Amplitude
-                         [0, -120, 120], #Phase
-                         [50, 50, 50]],  #Frequency
+                         [0, -120, 120],  #Phase
+                         [50, 50, 50]],   #Frequency
                     "i": [[0, 0, 0],      #Amplitude
-                         [0, -120, 120], #Phase
-                         [50, 50, 50]]   #Frequency
+                         [0, -120, 120],  #Phase
+                         [50, 50, 50]]    #Frequency
                     }    
         if str(self.cm_engine.DevScanForNew(False)) == "None":
             h.log_error("No CMC devices found!")
@@ -45,7 +45,9 @@ class CMEngine():
             self.power(info_object.dataObject[0].detail[2].state)
         if ioa_1 == 1 and ioa_2 in range(1,7) and ioa_3 in range (1,4) and info_detail_typ == "R32":
             value = info_object.dataObject[0].detail[0].value
-            self.set_output(ioa_1, ioa_2, ioa_3, value)
+            self.prepare_output(ioa_1, ioa_2, ioa_3, value)
+        if ioa_1 == 99:
+            self.reset_output()
 
         #set power:
         #IOA1           | IOA2       | IOA3            | value
@@ -58,9 +60,10 @@ class CMEngine():
         #               | 4: IL1     |                 | R32
         #               | 5: IL2     |                 | R32 
         #               | 6: IL3     |                 | R32 
+        # 99            | 0          | 0               | reset_output 
 
     def cmd(self, cmd):
-        print("cmd= " + cmd)
+        h.log("CMC Command: " + cmd)
         if self.device_locked:
             self.cm_engine.Exec(self.devId,cmd)
         else:
@@ -73,29 +76,65 @@ class CMEngine():
             self.cmd("out:off")
             self.cmd("out:ana:off(zcross)")
             
-    def set_output(self, generator, phase, parameter, value):
-        print("generator: {}".format(generator))
-        print("phase: {}".format(phase))
-        print("parameter: {}".format(parameter))
-        print("value: {}".format(value))
-
+    def reset_output(self):
+        for _phase in range(0,2):
+            for _parameter in range(0,2):
+                self.ana["v"][_parameter][_phase] = 0
+                self.ana["i"][_parameter][_phase] = 0
+        self.ana["v"][1][1] = -120
+        self.ana["i"][1][1] = -120
+        self.ana["v"][1][2] = 120
+        self.ana["i"][1][2] = 120
+        for i in range(0,2):
+            self.ana["v"][2][i] = 50
+            self.ana["i"][2][i] = 50
+        self.set_output()
+               
+    def prepare_output(self, generator, phase, parameter, value):
+        u_max = 150
+        i_max = 5
+        f_min = 40
+        f_max = 60
+        
         triple = "v" if phase in range(0,4) else "i"
         ui_phase = phase if triple == "v" else phase - 3
+        
+        max_value = value
+        if triple == "v" and parameter == 1 and value >= u_max:
+            max_value = u_max
+            h.log_error("U > Umax! --> set {}V".format(u_max))
+        if triple == "i" and parameter == 1 and value >= i_max:
+            max_value = i_max
+            h.log_error("I > Imax! --> set {}A".format(i_max))
+            
+        if parameter == 3 and value not in range(f_min,f_max):
+            max_value = 50
+            h.log_error("f <> fmin/max! --> set {}Hz".format(50))
+            
+        
+        self.ana[triple][parameter-1][ui_phase-1] = max_value
+        self.set_output(generator, "v")
+        self.set_output(generator, "i")
 
-        self.ana[triple][parameter-1][ui_phase-1] = value
-
-        cmd = "out:{}({}:{}):".format(triple, generator, ui_phase)
-
-        for _phase in range(1,3):
-            cmd += "a("{});
-            for _parameter in range(1,3):
-                self.ana["v"][_parameter][ui_phase-1]
-
-        self.cmd(cmd)
-        #self.cm_engine(devId,"out:v(1:1):a(10);p(0);f(50)")	
-        #self.cm_engine(devId,"out:v(1:2):a(10);p(-120);f(50)")	
-        #self.cm_engine(devId,"out:v(1:3):a(10);p(120);f(50)")	
- 
+    def set_output(self, generator, vi):
+        for phase in range(0,3):
+            cmd = "out:{}({}:{}):a({:3.3f});p({:3.3f});f({:3.3f})" \
+                                    .format(vi, generator, phase+1, 
+                                            self.ana[vi][0][phase],
+                                            self.ana[vi][1][phase],
+                                            self.ana[vi][2][phase])
+            self.cmd(cmd)
+                
+        #"out:v(1:1):a(10);p(0);f(50)"               
+        """
+        self.ana = {"v": [[0, 0, 0],     #Amplitude
+                         [0, -120, 120], #Phase
+                         [50, 50, 50]],  #Frequency
+                    "i": [[0, 0, 0],     #Amplitude
+                         [0, -120, 120], #Phase
+                         [50, 50, 50]]   #Frequency
+                    }    
+        """ 
 
 #--- Start up -----------------------------------------------------------------
 def start():
