@@ -7,70 +7,95 @@ import win32com.client
 class CMEngine():
     def __init__(self):   
         h.log("scan for CMC-Devices")
+        self.device_locked = False
         self.cm_engine = win32com.client.Dispatch("OMICRON.CMEngAL")
-        device_list = self.cm_engine.DevGetList(0)  #return all associated CMCs
-        h.log("Devices found: " + str(int(len(device_list)/4)))
-        print(self.cm_engine.DevScanForNew(False))
-        #if self.cm_engine.DevScanForNew(False) != ""
-        self.device_id = int(device_list[0])        #first associated CMC is used - make sure only one is associated
+        self.ana = {"v": [[0, 0, 0],      #Amplitude
+                         [0, -120, 120], #Phase
+                         [50, 50, 50]],  #Frequency
+                    "i": [[0, 0, 0],      #Amplitude
+                         [0, -120, 120], #Phase
+                         [50, 50, 50]]   #Frequency
+                    }    
+        if str(self.cm_engine.DevScanForNew(False)) == "None":
+            h.log_error("No CMC devices found!")
+            return
+        else:
+            device_list = self.cm_engine.DevGetList(0)  #return all associated CMCs
+            h.log("Devices found: " + str(int(len(device_list)/4)))
+            self.device_id = int(device_list[0])        #first associated CMC is used - make sure only one is associated
 
-        self.cm_engine.DevUnlock(self.device_id)
-        self.cm_engine.DevLock(self.device_id)
-        #device information
-        device_list = device_list.split(",")
-        h.log("ID :  "+device_list[0])
-        h.log("SER:  "+device_list[1])
-        h.log("Type: "+self.cm_engine.DeviceType(self.device_id))
-        h.log("IP:   "+self.cm_engine.IPAddress(self.device_id))
-        h.log("--------------------------")
+            self.cm_engine.DevUnlock(self.device_id)
+            self.cm_engine.DevLock(self.device_id)
+            self.device_locked = True
+            #device information
+            device_list = device_list.split(",")
+            h.log("ID :  "+device_list[0])
+            h.log("SER:  "+device_list[1])
+            h.log("Type: "+self.cm_engine.DeviceType(self.device_id))
+            h.log("IP:   "+self.cm_engine.IPAddress(self.device_id))
+            h.log("--------------------------")
+
+    def set_command(self, info_object):
+        ioa_1 = info_object.address._1
+        ioa_2 = info_object.address._2
+        ioa_3 = info_object.address._3
+        info_detail_typ = info_object.dataObject[0].name  #SCO / R32
+        
+        if info_object.address.DEZ == 1 and info_detail_typ == "SCO":
+            self.power(info_object.dataObject[0].detail[2].state)
+        if ioa_1 == 1 and ioa_2 in range(1,7) and ioa_3 in range (1,4) and info_detail_typ == "R32":
+            value = info_object.dataObject[0].detail[0].value
+            self.set_output(ioa_1, ioa_2, ioa_3, value)
+
+        #set power:
+        #IOA1           | IOA2       | IOA3            | value
+        # 1             | 0          | 0               | SCS_ON / SCS_OFF
+        #set output:
+        #IOA1-Generator | IOA2-Phase | IOA3-parameter  | value
+        # 1             | 1: UL1     | 1: Amplitude    | R32
+        #               | 2: UL2     | 2: Phase        | R32
+        #               | 3: UL3     | 3: Frequency    | R32
+        #               | 4: IL1     |                 | R32
+        #               | 5: IL2     |                 | R32 
+        #               | 6: IL3     |                 | R32 
+
+    def cmd(self, cmd):
+        print("cmd= " + cmd)
+        if self.device_locked:
+            self.cm_engine.Exec(self.devId,cmd)
+        else:
+            h.log_error("No CMC connected!")
 
     def power(self, command):
         if command == "SCS_ON":
-            print("on")
-            #self.cm_engine.Exec(self.devId,"out:on")
+            self.cmd("out:on")
         else:  
-            print("off")
-            #self.cm_engine.Exec(self.devId,"out:off")
-            #self.cm_engine.Exec(self.devId,"out:ana:off(zcross)")
+            self.cmd("out:off")
+            self.cmd("out:ana:off(zcross)")
             
-    def set_output(address, value):
-        print(address.DEZ)
-        print(value)
-         
+    def set_output(self, generator, phase, parameter, value):
+        print("generator: {}".format(generator))
+        print("phase: {}".format(phase))
+        print("parameter: {}".format(parameter))
+        print("value: {}".format(value))
+
+        triple = "v" if phase in range(0,4) else "i"
+        ui_phase = phase if triple == "v" else phase - 3
+
+        self.ana[triple][parameter-1][ui_phase-1] = value
+
+        cmd = "out:{}({}:{}):".format(triple, generator, ui_phase)
+
+        for _phase in range(1,3):
+            cmd += "a("{});
+            for _parameter in range(1,3):
+                self.ana["v"][_parameter][ui_phase-1]
+
+        self.cmd(cmd)
         #self.cm_engine(devId,"out:v(1:1):a(10);p(0);f(50)")	
         #self.cm_engine(devId,"out:v(1:2):a(10);p(-120);f(50)")	
         #self.cm_engine(devId,"out:v(1:3):a(10);p(120);f(50)")	
  
- 
- 
-#def __repr__(self):
-    #return self.CMC
-
-    #configure voltage output
-       #if cmd == "SCS_ON":
-        #    self.on()
-        #else:
-        #    self.off()
-
-"""   
-       #CMC.Exec(devId,"out:v(1:1):a(10);p(0);f(50)")	
-        #CMC.Exec(devId,"out:v(1:2):a(10);p(-120);f(50)")	
-        #CMC.Exec(devId,"out:v(1:3):a(10);p(120);f(50)")	
-        #if cmd == "SCS_ON":
- 
-
-    def on(self):
-        self.CMC.Ecm_engineec(devId,"out:on")
-    def off(self):
-        self.CMC.Ecm_engineec(devId,"out:off")
-    def out(self, cmd):
-        self.CMC.Ecm_engineec(self.devId,"out:on")
-        time.sleep(2)
-        self.CMC.Ecm_engineec(self.devId,"out:off")
-        self.CMC.Ecm_engineec(self.devId,"out:ana:off(zcross)")
-        self.CMC.DevUnlock(self.devId)
-        pass
-"""
 
 #--- Start up -----------------------------------------------------------------
 def start():
@@ -82,48 +107,3 @@ def handle():
 
 
 
-
-'''
-#configure measurement input
-CMC.Ecm_engineec(devId,"inp:ana(1,2,3):def(v,100)")
-CMC.Ecm_engineec(devId,"inp:mode(multimeter)")
-CMC.Ecm_engineec(devId,"inp:ana:cfg(3.16,1.0)")
-
-CMC.Ecm_engineec(devId,"inp:ana:clr(all)")
-CMC.Ecm_engineec(devId,"inp:ana(1,2,3):rms?(1.0)")    #handle 1
-CMC.Ecm_engineec(devId,"inp:ana(1,2,3):phase?(1.0)")  #handle 2
-
-
-#-- main -----------------------------------
-
-#loop
-try:
-    while True:
-        result = CMC.Ecm_engineec(devId,"inp:ana:get?(1)")
-        U_List = result.split(",")
-        result = CMC.Ecm_engineec(devId,"inp:ana:get?(2)")
-        P_List = result.split(",")
-        UL1 = "{:3.2f} V ".format(float(U_List[1])) + "| {:7.2f} ° ".format(float(P_List[1]))
-        UL2 = "{:3.2f} V ".format(float(U_List[5])) + "| {:7.2f} ° ".format(float(P_List[3]))
-        UL3 = "{:3.2f} V ".format(float(U_List[9])) + "| {:7.2f} ° ".format(float(P_List[5]))
-        print ("--------------------------")
-        print (UL1)
-        print (UL2)
-        print (UL3)
-        print ("press Ctrl-c to cancel")
-
-        #MQTT
-        client.publish("UL1", UL1)
-        client.publish("UL2", UL2)
-        client.publish("UL3", UL3)
-        time.sleep(1)
-ecm_enginecept KeyboardInterrupt:
-    pass
-
-#-- close -----------------------------------
-CMC.Ecm_engineec(devId,"out:ana:off(zcross)")
-CMC.DevUnlock(devId)
-client.loop_stop()
-print ("Ecm_engineIT")
-
-'''

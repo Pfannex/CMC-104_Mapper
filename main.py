@@ -44,9 +44,10 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     if APDU.ASDU.CASDU.DEZ == 356:
-        if APDU.ASDU.TI.Typ == 45:
-            cmc.set_output(APDU.ASDU.InfoObject.address,
-                           APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
+        cmc.set_command(APDU.ASDU.InfoObject)
+        #if APDU.ASDU.TI.Typ == 45:
+            #cmc.set_output(APDU.ASDU.InfoObject.address,
+                           #APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
             
         #cmc.out(APDU.ASDU.InfoObject.dataObject[0].detail[2].state)
         #cmc.on(x)
@@ -67,8 +68,7 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
 h.start()
-print("start Engine")
-cmc = CMC_Control.CMEngine
+cmc = CMC_Control.CMEngine()
 IEC60870_5_104.start_server(on_IEC60870_5_104_I_Frame_GA_callback,
                             on_IEC60870_5_104_I_Frame_received_callback,
                             "127.0.0.1", 2404)
