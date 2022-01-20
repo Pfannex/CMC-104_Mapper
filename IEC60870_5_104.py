@@ -5,20 +5,12 @@
 ###############################################################################
 #   IMPORT
 ###############################################################################
-#from typing import Text
-#import struct
-#import json
-#import pprint
-#import yaml
 import helper as h
 import IEC60870_5_104_APDU as T104
 import IEC60870_5_104_dict as d
 
 import time
 import socket
-#import threading
-
-#import sys
 
 rx_counter = 0
 tx_counter = 0
@@ -142,6 +134,7 @@ def handle_iFrame(frame, client, ga_callback, iFrame_callback):
         iFrame_callback(APDU)  #other I-Frame
 
 #--- send I-Frame  --------------------------------------------------------
+"""
 def send_iFrame(ti, value):
     global rx_counter, tx_counter
     list = [0x68, 0x0E, 0x02, 0x00, 0x02, 0x00,
@@ -160,130 +153,4 @@ def send_iFrame(ti, value):
     print ("-> I ({}/{})".format(tx_counter, rx_counter))
     tx_counter += 1                                   
 
-
-
-
-
-
-
-
-
-
-
-"""
-class Server(threading.Thread):
-    def __init__(self, GA_callback, iFrame_callback, ip, port):
-        self.GA_callback = GA_callback
-        self.iFrame_callback = iFrame_callback
-        #TCP-Server
-        self.IP = ip
-        self.port = port
-        self.RxCounter = 0
-        self.TxCounter = 0
-        
-        self.TCPsever = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.TCPsever.bind((self.IP, self.port))
-        self.TCPsever.listen(5)  # max backlog of connections
-        h.log('IEC 60870-5-104 Server listening on {}:{}'.format(self.IP, self.port))
-        
-        threading.Thread.__init__(self)
-        self.running = True
-        self.start()
-    def run(self):  #threat running continuously
-        while self.running:
-            self.client_socket, address = self.TCPsever.accept()   #waiting for client
-            h.log('IEC 60870-5-104 Client connected -  {}:{}'.format(address[0], address[1]))
-            self.handle_client_connection(self.client_socket)
-            h.log('IEC 60870-5-104 Server listening on {}:{}'.format(self.IP, self.port))
-    def stop(self):
-        self.running = False
-    def resume(self):
-        self.running = True
-        
-    #--- handle client Rx-Data ------------------------------------------------
-    def handle_client_connection(self, client_socket):
-        try: 
-            while True: 
-                try:
-                    request = client_socket.recv(1024)
-                except Exception as inst:
-                    client_socket.close()
-                    self.RxCounter = 0
-                    self.TxCounter = 0
-                    h.log_error(inst, "handle_client_connection - receive")
-                    break
-                
-                if not request:
-                    h.log_error("no request")
-                    client_socket.close()
-                    self.RxCounter = 0
-                    self.TxCounter = 0
-                    break
-                    
-                else:
-                    if request[0] == 0x68:
-                        #S-Frame
-                        if request[2] & 0b00000011 == 0b01:    #01 S-Frame
-                            self.handle_sFrame(request)
-                        #U-Frame
-                        if request[2] & 0b00000011 == 0b11:    #11 U-Frame
-                            self.handle_uFrame(request, client_socket)
-                        #I-Frame        
-                        if request[2] & 0b00000001 == 0b0:     #.0 I-Frame                                 #_0 I-Frame
-                            self.RxCounter += 1
-                            self.handle_iFrame(request, client_socket)
-                    
-        finally: 
-            h.log_error("client disconnected")
-            client_socket.close()
-            self.RxCounter = 0
-            self.TxCounter = 0
-"""
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-import sys
-import socket
-from time import sleep
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('127.0.0.1',9999))
-s.settimeout(2)
-
-while True:
-    try:
-        msg = s.recv(4096)
-    except socket.timeout, e:
-        err = e.args[0]
-        # this next if/else is a bit redundant, but illustrates how the
-        # timeout exception is setup
-        if err == 'timed out':
-            sleep(1)
-            print 'recv timed out, retry later'
-            continue
-        else:
-            print e
-            sys.exit(1)
-    except socket.error, e:
-        # Something else happened, handle error, exit, etc.
-        print e
-        sys.exit(1)
-    else:
-        if len(msg) == 0:
-            print 'orderly shutdown on server end'
-            sys.exit(0)
-        else:
-            # got a message do something :)
 """
