@@ -25,10 +25,12 @@ import CMC_Control
 #   CALLBACKS
 ###############################################################################
 def timer1_callback():
-    h.log("here we go every 60 seconds")
+    pass
+    #h.log("here we go every 60 seconds")
     
 def timer2_callback():
-    h.log("here we go every 300 seconds")
+    pass
+    #h.log("here we go every 300 seconds")
 
 def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     pass

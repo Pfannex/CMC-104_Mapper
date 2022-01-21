@@ -8,6 +8,7 @@ class CMEngine():
     def __init__(self):   
         h.log("scan for CMC-Devices")
         self.device_locked = False
+        self.is_on = False
         self.cm_engine = win32com.client.Dispatch("OMICRON.CMEngAL")
         self.ana = {"v": [[0, 0, 0],      #Amplitude
                          [0, -120, 120],  #Phase
@@ -16,18 +17,21 @@ class CMEngine():
                          [0, -120, 120],  #Phase
                          [50, 50, 50]]    #Frequency
                     }    
-        if str(self.cm_engine.DevScanForNew(False)) == "None":
+        self.cm_engine.DevScanForNew(False)
+        device_list = self.cm_engine.DevGetList(0)  #return all associated CMCs
+        if str(device_list) == "":
             h.log_error("No CMC devices found!")
             return
         else:
-            device_list = self.cm_engine.DevGetList(0)  #return all associated CMCs
-            h.log("Devices found: " + str(int(len(device_list)/4)))
+            h.log("Devices found: {}".format(device_list))
             self.device_id = int(device_list[0])        #first associated CMC is used - make sure only one is associated
 
             self.cm_engine.DevUnlock(self.device_id)
             self.cm_engine.DevLock(self.device_id)
             self.device_locked = True
             #device information
+            h.log("--------------------------")
+            h.log("Mapper connected to:")
             device_list = device_list.split(",")
             h.log("ID :  "+device_list[0])
             h.log("SER:  "+device_list[1])
@@ -63,18 +67,25 @@ class CMEngine():
         # 99            | 0          | 0               | reset_output 
 
     def cmd(self, cmd):
-        h.log("CMC Command: " + cmd)
+        #h.log("CMC Command: " + cmd)
         if self.device_locked:
-            self.cm_engine.Exec(self.devId,cmd)
+            self.cm_engine.Exec(self.device_id, cmd)
+            if self.is_on:
+                self.cm_engine.Exec(self.device_id, "out:on")
         else:
             h.log_error("No CMC connected!")
 
     def power(self, command):
         if command == "SCS_ON":
             self.cmd("out:on")
+            h.log("CMC --> ON")
+            self.is_on = True
         else:  
+            self.is_on = False
             self.cmd("out:off")
             self.cmd("out:ana:off(zcross)")
+            h.log("CMC --> OFF")
+
             
     def reset_output(self):
         max_generators = 1
@@ -97,8 +108,8 @@ class CMEngine():
     def prepare_output(self, generator, phase, parameter, value):
         u_max = 150
         i_max = 5
-        f_min = 40
-        f_max = 60
+        f_min = 40.0
+        f_max = 60.0
         
         triple = "v" if phase in range(0,4) else "i"
         ui_phase = phase if triple == "v" else phase - 3
@@ -111,7 +122,7 @@ class CMEngine():
             max_value = i_max
             h.log_error("I > Imax! --> set {}A".format(i_max))
             
-        if parameter == 3 and value not in range(f_min,f_max):
+        if parameter == 3 and (value < f_min or value > f_max):
             max_value = 50
             h.log_error("f <> fmin/max! --> set {}Hz".format(50))
             
@@ -127,6 +138,11 @@ class CMEngine():
                                             self.ana[vi][0][phase],
                                             self.ana[vi][1][phase],
                                             self.ana[vi][2][phase])
+            out = "U" if vi == "v" else "I"
+            unit = "V" if vi == "v" else "A"
+            h.log("{}L{}: {: 6.2f}{} - {: 7.2f}° - {: 6.2f}Hz".format(out,phase+1,self.ana[vi][0][phase],unit,
+                                                                                  self.ana[vi][1][phase],
+                                                                                  self.ana[vi][2][phase]))
             self.cmd(cmd)
                 
         #"out:v(1:1):a(10);p(0);f(50)"               
