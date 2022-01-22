@@ -17,7 +17,7 @@
 #   IMPORT
 ###############################################################################
 import IEC60870_5_104
-import IEC60870_5_104_APDU as TAPDU
+#import IEC60870_5_104_APDU as TAPDU
 import helper as h
 import CMC_Control
 
