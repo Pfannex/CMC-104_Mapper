@@ -124,7 +124,7 @@ class InfoObject():
             
             byteCounter = 15
             for i in range(len(elements)): #e.g. 61: [nva, qos, cp56Time2a],
-                usedBytes = elements[i][1][0]["usedBytes"]
+                usedBytes = elements[i][0][2]["usedBytes"]
                 infoBytes = []
                 for j in range(usedBytes):
                     infoBytes.append(frame[byteCounter])
@@ -162,8 +162,11 @@ class Type():
         self.longName = data[0][1]
         detailList = data[1]
         self.detail = []
+        print(self.name)
+        if "Time2a" in self.name: is_time = True 
+        else: is_time = False
         for i in range(len(detailList)):
-            self.detail.append(Detail(detailList[i], infoBytes))
+            self.detail.append(Detail(detailList[i], infoBytes, is_time))
 
 class Address():
     def __init__(self, frame):
@@ -181,7 +184,7 @@ class Address():
 
 # split detailInformation from Byte
 class Detail():
-    def __init__(self, data, infoBytes):
+    def __init__(self, data, infoBytes, is_time):
         self.name = data["name"]
         self.longName = data["longName"]
         usedBytes = data["usedBytes"]
@@ -190,13 +193,27 @@ class Detail():
         detailLen = firstBit - lastBit + 1
         bitStr = "0"*(7-firstBit) + "1"*(detailLen) + "0"*(lastBit)
         bitMask = int(bitStr, 2)
+
+        #change bytes for Time details
+        if (self.name == "IV" or self.name == "MIN") and is_time:
+            infoBytes[0] = infoBytes[2]
+        if (self.name == "SU" or self.name == "H") and is_time:
+            infoBytes[0] = infoBytes[3]
+        if (self.name == "DOW" or self.name == "D") and is_time:
+            infoBytes[0] = infoBytes[4]
+        if self.name == "M" and is_time:
+            infoBytes[0] = infoBytes[5]
+        if self.name == "Y" and is_time:
+            infoBytes[0] = infoBytes[6]
         
         if usedBytes == 1:
             self.value = (infoBytes[0] & bitMask)>>lastBit
         if usedBytes == 2:
-            self.value = int.from_bytes(infoBytes, byteorder='little', signed=False)
+            val = [infoBytes[0],infoBytes[1]]
+            self.value = int.from_bytes(val, byteorder='little', signed=False)
         if usedBytes == 3:
-            self.value = int.from_bytes(infoBytes, byteorder='little', signed=False)
+            val = [infoBytes[0],infoBytes[1],infoBytes[2]]
+            self.value = int.from_bytes(val, byteorder='little', signed=False)
         if usedBytes == 4:
             if self.name == "BSI":
                 self.value = "{:08b}-{:08b}-{:08b}-{:08b}".format(infoBytes[0],
@@ -204,6 +221,7 @@ class Detail():
                                                                   infoBytes[2],
                                                                   infoBytes[3])
             elif self.name == "R32":
+                val = [infoBytes[0],infoBytes[1],infoBytes[2],infoBytes[3]]
                 [data] = struct.unpack("f", bytearray(infoBytes))
                 self.value = data
             else:

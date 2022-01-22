@@ -1,5 +1,5 @@
 ###############################################################################
-#   CMEngine connector
+#   CMEngine control
 ###############################################################################
 import helper as h
 import win32com.client
@@ -39,6 +39,7 @@ class CMEngine():
             h.log("IP:   "+self.cm_engine.IPAddress(self.device_id))
             h.log("--------------------------")
 
+    #----<set command from IEC60870-5-104 Frame by IOA>------------------------
     def set_command(self, info_object):
         ioa_1 = info_object.address._1
         ioa_2 = info_object.address._2
@@ -66,6 +67,7 @@ class CMEngine():
         #               | 6: IL3     |                 | R32 
         # 99            | 0          | 0               | reset_output 
 
+    #----<set command to CMC-Device>-------------------------------------------
     def cmd(self, cmd):
         #h.log("CMC Command: " + cmd)
         if self.device_locked:
@@ -86,7 +88,7 @@ class CMEngine():
             self.cmd("out:ana:off(zcross)")
             h.log("CMC --> OFF")
 
-            
+    #----<reset output triples to zero>----------------------------------------
     def reset_output(self):
         max_generators = 1
         
@@ -105,6 +107,7 @@ class CMEngine():
             self.set_output(i, "v")
             self.set_output(i, "i")
                
+    #----<prepare output triple list>------------------------------------------
     def prepare_output(self, generator, phase, parameter, value):
         u_max = 150
         i_max = 5
@@ -131,6 +134,7 @@ class CMEngine():
         self.set_output(generator, "v")
         self.set_output(generator, "i")
 
+    #----<set output triple to CMC-Device>-------------------------------------
     def set_output(self, generator, vi):
         for phase in range(0,3):
             cmd = "out:{}({}:{}):a({:3.3f});p({:3.3f});f({:3.3f})" \
