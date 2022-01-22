@@ -5,7 +5,7 @@
 ms   = {"name": "MS", "longName":"Milli Second", 
         "usedBytes":2, "bitPos": {"first":7, "last":0}}
 min  = {"name": "MIN", "longName":"Minute", 
-        "usedBytes":1, "bitPos": {"first":6, "last":7}}
+        "usedBytes":1, "bitPos": {"first":5, "last":0}}
 su   = {"name": "SU", "longName":"Summer Time", 
         "usedBytes":1, "bitPos": {"first":7, "last":7},
         "state": {0: "normal time", 1: "summer time"}}
