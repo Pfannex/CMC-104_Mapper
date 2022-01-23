@@ -108,7 +108,6 @@ class IEC_104_Server():
 
     #--- I-Frame handle  ------------------------------------------------------
     def handle_iFrame(self, frame):
-        global rx_counter, tx_counter
         APDU = T104.APDU(frame)
         h.log("<- I [{}-{}-{}] - {} - {}".format(APDU.ASDU.InfoObject.address._1,
                                                 APDU.ASDU.InfoObject.address._2,
@@ -132,28 +131,30 @@ class IEC_104_Server():
             
         #callback to main
         if APDU.ASDU.TI.Typ == 100:     #C_IC_NA_1 - (General-) Interrogation command 
-            self.ga_callback(APDU)
+            #self.ga_callback(APDU)
+            self.handle_ga()
         else:
             self.iFrame_callback(APDU)  #other I-Frame
 
     #--- send I-Frame  --------------------------------------------------------
-    """
-    def send_iFrame(ti, value):
-        global rx_counter, tx_counter
-        list = [0x68, 0x0E, 0x02, 0x00, 0x02, 0x00,
-                ti, 0x01, 0x03, 0x00, 0x0a, 0x0b, 
-                0x32, 0x33, 0x3C, value]       
+    def send_iFrame(self, length, ti, info_object_data):
+        list = [0x68, length, 0x02, 0x00, 0x02, 0x00,
+                ti, 0x01, 0x05, 0x00, 0x64, 0x01, 
+                0x02, 0x00, 0x00, info_object_data]       
         data = bytearray(list)
-        data[2] = (tx_counter & 0b0000000001111111) << 1
-        data[3] = (tx_counter & 0b0111111110000000) >> 7
-        data[4] = (rx_counter & 0b0000000001111111) << 1
-        data[5] = (rx_counter & 0b0111111110000000) >> 7
+        data[2] = (self.tx_counter & 0b0000000001111111) << 1
+        data[3] = (self.tx_counter & 0b0111111110000000) >> 7
+        data[4] = (self.rx_counter & 0b0000000001111111) << 1
+        data[5] = (self.rx_counter & 0b0111111110000000) >> 7
             
-        #APDU = splitFrame(data)
-        #print_iFrame(APDU)
+        APDU = T104.APDU(data)
+        APDU.pO()
+               
             
-        client_socket.send(data)
-        print ("-> I ({}/{})".format(tx_counter, rx_counter))
-        tx_counter += 1                                   
+        self.client_socket.send(data)
+        h.log("-> I ({}/{})".format(self.tx_counter, self.rx_counter))
+        self.tx_counter += 1                                   
 
-    """
+    #--- handle GA  -----------------------------------------------------------
+    def handle_ga(self):
+        self.send_iFrame(14,1,0b00000001)
