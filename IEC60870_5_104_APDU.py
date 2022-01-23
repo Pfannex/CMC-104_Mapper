@@ -162,7 +162,6 @@ class Type():
         self.longName = data[0][1]
         detailList = data[1]
         self.detail = []
-        print(self.name)
         if "Time2a" in self.name: is_time = True 
         else: is_time = False
         for i in range(len(detailList)):

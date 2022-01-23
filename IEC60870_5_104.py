@@ -148,11 +148,17 @@ class IEC_104_Server():
         data[5] = (self.rx_counter & 0b0111111110000000) >> 7
             
         APDU = T104.APDU(data)
-        APDU.pO()
+        #APDU.pO()
+        h.log("<- I ({}/{}) [{}-{}-{}] - {} - {}".format(self.tx_counter, self.rx_counter,
+                                                         APDU.ASDU.InfoObject.address._1,
+                                                         APDU.ASDU.InfoObject.address._2,
+                                                         APDU.ASDU.InfoObject.address._3,
+                                                         APDU.ASDU.TI.ref,
+                                                         APDU.ASDU.TI.des))
                
             
         self.client_socket.send(data)
-        h.log("-> I ({}/{})".format(self.tx_counter, self.rx_counter))
+        #h.log("-> I ({}/{})".format(self.tx_counter, self.rx_counter))
         self.tx_counter += 1                                   
 
     #--- handle GA  -----------------------------------------------------------

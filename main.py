@@ -37,7 +37,6 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     if APDU.ASDU.CASDU.DEZ == 356:
         cmc.set_command(APDU.ASDU.InfoObject)
-        #iec104_server.ga_callback()
      
 ###############################################################################
 #   FUNCTIONS
@@ -49,11 +48,11 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
 
-#h.start()
+h.start()
 cmc = CMC_Control.CMEngine()
-iec104_server = IEC60870_5_104.IEC_104_Server(on_IEC60870_5_104_I_Frame_GA_callback,
-                                              on_IEC60870_5_104_I_Frame_received_callback,
-                                              "127.0.0.1", 2404)
+iec_104_server = IEC60870_5_104.IEC_104_Server(on_IEC60870_5_104_I_Frame_GA_callback,
+                                on_IEC60870_5_104_I_Frame_received_callback,
+                                "127.0.0.1", 2404)
 
 ###############################################################################
 #   MAIN LOOP
