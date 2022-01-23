@@ -34,9 +34,9 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     pass
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
-    #print(cmEngine_id)
+    global cmc, iec104_server
     if APDU.ASDU.CASDU.DEZ == 356:
-        #iec104_server.handle_ga()
+        #iec104_server.handle_ga()   ??? why
         cmc.set_command(APDU.ASDU.InfoObject)
      
 ###############################################################################
