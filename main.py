@@ -16,51 +16,54 @@
 ###############################################################################
 #   IMPORT
 ###############################################################################
-import IEC60870_5_104
-import helper as h
-import CMC_Control
+import threading
 ###############################################################################
 #   CALLBACKS
 ###############################################################################
-def timer1_callback():
+
+class WorkerClass1():
+    def print_class1():
+        print("--------")
+        print("class1")
+        print("--------")
+
+class ServerClass2():
+    def __init__(self, callback):
+        self.callback = callback
+        thread = threading.Thread(target=self.Wait_for_client)
+        thread.start()
+        thread.join()
+        
+    def print_class2():
+        print("--------")
+        print("class2")
+        print("--------")
+        
+    def Wait_for_client(self):
+        while 1:
+            print("1 = class 1")
+            print("2 = class 2")
+            print("q = quit")
+            key = input()
+            if key == "1":
+                self.callback(key)
+            if key == "2":
+                self.callback(key)
+            if key == 'q':
+                print("bye")
+                exit()
+
+
+def on_callback(key):
+    print("{} pressed (callback)".format(key))
+    if key == "1": c1.print_class1
+    if key == "2": c2.print_class2 
+       
+c1 = WorkerClass1()
+c2 = ServerClass2(on_callback)
+
+def main():
     pass
-    #h.log("here we go every 60 seconds")
-    
-def timer2_callback():
-    pass
-    #h.log("here we go every 300 seconds")
 
-def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
-    pass
-
-def on_IEC60870_5_104_I_Frame_received_callback(APDU):
-    global cmc, iec104_server
-    if APDU.ASDU.CASDU.DEZ == 356:
-        #iec104_server.handle_ga()   ??? why
-        cmc.set_command(APDU.ASDU.InfoObject)
-     
-###############################################################################
-#   FUNCTIONS
-###############################################################################
-
-###############################################################################
-#   MAIN START
-###############################################################################
-t1 = h.idleTimer(60, timer1_callback)
-t2 = h.idleTimer(300, timer2_callback)
-
-h.start()
-cmc = CMC_Control.CMEngine()
-iec104_server = IEC60870_5_104.IEC_104_Server(on_IEC60870_5_104_I_Frame_GA_callback,
-                                              on_IEC60870_5_104_I_Frame_received_callback,
-                                              "127.0.0.1", 2404)
-
-###############################################################################
-#   MAIN LOOP
-###############################################################################
-
-while True:
-    #cmc.handle()
-    #time.sleep(10)
-    pass
-    
+if __name__ == '__main__':
+    main()
