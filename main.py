@@ -17,7 +17,6 @@
 #   IMPORT
 ###############################################################################
 import IEC60870_5_104
-#import IEC60870_5_104_APDU as TAPDU
 import helper as h
 import CMC_Control
 
@@ -51,9 +50,9 @@ t2 = h.idleTimer(300, timer2_callback)
 
 h.start()
 cmc = CMC_Control.CMEngine()
-IEC60870_5_104.start_server(on_IEC60870_5_104_I_Frame_GA_callback,
-                            on_IEC60870_5_104_I_Frame_received_callback,
-                            "127.0.0.1", 2404)
+iec_104_server = IEC60870_5_104.IEC_104_Server(on_IEC60870_5_104_I_Frame_GA_callback,
+                                on_IEC60870_5_104_I_Frame_received_callback,
+                                "127.0.0.1", 2404)
 
 ###############################################################################
 #   MAIN LOOP
