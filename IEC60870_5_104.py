@@ -12,6 +12,8 @@ import IEC60870_5_104_dict as d
 import time
 import socket
 
+import pythoncom, threading
+
 ###############################################################################
 #   IEC60870-5-104 Server
 ###############################################################################
@@ -22,6 +24,7 @@ class IEC_104_Server():
         self.testframe_ok = False
         self.ga_callback = ga_callback
         self.iFrame_callback = iFrame_callback
+        #self.cmEngine_id = cmEngine_id
         
         tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         tcp_server.bind((ip, port))
@@ -31,7 +34,16 @@ class IEC_104_Server():
         self.client_socket, address = tcp_server.accept()   #waiting for client Code Stops here
         h.log('IEC 60870-5-104 Client connected -  {}:{}'.format(address[0], address[1]))
         tcp_server.settimeout(2)
-        self.handle_client_connection()
+        
+
+        #thread = threading.Thread(target=self.handle_client_connection, kwargs={'cmEngine_id': cmEngine_id})
+        thread = threading.Thread(target=self.handle_client_connection)
+        thread.start()
+        # Wait for child to finish
+        thread.join()
+
+
+        #self.handle_client_connection()
 
 
     #--- handle client Rx-Data ------------------------------------------------
@@ -149,12 +161,12 @@ class IEC_104_Server():
             
         APDU = T104.APDU(data)
         #APDU.pO()
-        h.log("<- I ({}/{}) [{}-{}-{}] - {} - {}".format(self.tx_counter, self.rx_counter,
+        h.log("-> I ({}/{}) [{}-{}-{}] - TI[{}] - Value: {}".format(self.tx_counter, self.rx_counter,
                                                          APDU.ASDU.InfoObject.address._1,
                                                          APDU.ASDU.InfoObject.address._2,
                                                          APDU.ASDU.InfoObject.address._3,
-                                                         APDU.ASDU.TI.ref,
-                                                         APDU.ASDU.TI.des))
+                                                         APDU.ASDU.TI.Typ,
+                                                         APDU.ASDU.InfoObject.dataObject[0].detail[4].state))
                
             
         self.client_socket.send(data)

@@ -19,7 +19,6 @@
 import IEC60870_5_104
 import helper as h
 import CMC_Control
-
 ###############################################################################
 #   CALLBACKS
 ###############################################################################
@@ -35,9 +34,10 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     pass
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
+    #print(cmEngine_id)
     if APDU.ASDU.CASDU.DEZ == 356:
+        #iec104_server.handle_ga()
         cmc.set_command(APDU.ASDU.InfoObject)
-        #iec104_server.ga_callback()
      
 ###############################################################################
 #   FUNCTIONS

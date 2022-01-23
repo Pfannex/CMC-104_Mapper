@@ -1,15 +1,29 @@
 ###############################################################################
 #   CMEngine control
 ###############################################################################
+###############################################################################
+#   IMPORT
+###############################################################################
 import helper as h
 import win32com.client
+import pythoncom
+
+###############################################################################
+#   class CMEngine
+###############################################################################
 
 class CMEngine():
     def __init__(self):   
         h.log("scan for CMC-Devices")
         self.device_locked = False
         self.is_on = False
+        
+        pythoncom.CoInitialize()
+    # Get instance
         self.cm_engine = win32com.client.Dispatch("OMICRON.CMEngAL")
+    # Create id
+        self.id = pythoncom.CoMarshalInterThreadInterfaceInStream(pythoncom.IID_IDispatch, self.cm_engine)
+        
         self.ana = {"v": [[0, 0, 0],      #Amplitude
                          [0, -120, 120],  #Phase
                          [50, 50, 50]],   #Frequency
