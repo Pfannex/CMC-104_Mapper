@@ -33,11 +33,11 @@ def timer2_callback():
 def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
     pass
 
-def on_IEC60870_5_104_I_Frame_received_callback(APDU):
+def on_IEC60870_5_104_I_Frame_received_callback(APDU, callback_send):
     global cmc, iec104_server
     if APDU.ASDU.CASDU.DEZ == 356:
-        #iec104_server.handle_ga()   ??? why
         cmc.set_command(APDU.ASDU.InfoObject)
+        callback_send(cmc.is_on)
      
 ###############################################################################
 #   FUNCTIONS
