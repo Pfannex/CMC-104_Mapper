@@ -32,7 +32,6 @@ class ServerClass2():
         self.callback = callback
         thread = threading.Thread(target=self.Wait_for_client)
         thread.start()
-        thread.join()
         
     def print_class2():
         print("--------")
@@ -56,8 +55,8 @@ class ServerClass2():
 
 def on_callback(key):
     print("{} pressed (callback)".format(key))
-    if key == "1": c1.print_class1
-    if key == "2": c2.print_class2 
+    if key == "1": WorkerClass1.print_class1()
+    if key == "2": ServerClass2.print_class2() 
        
 c1 = WorkerClass1()
 c2 = ServerClass2(on_callback)
