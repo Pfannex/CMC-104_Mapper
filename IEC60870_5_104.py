@@ -21,42 +21,156 @@ class counter():
         rx_counter = 1
         
 
-"""
-import asyncio 
+import socketserver
 
-async def handle_echo(reader, writer): 
-     data = await reader.read(100) 
-     message = data.decode() 
-     addr = writer.get_extra_info('peername') 
-     print("Received %r from %r" % (message, addr))
+#class MyTCPHandler(socketserver.StreamRequestHandler):
+    
+    #def handle(self):
+        # self.rfile is a file-like object created by the handler;
+        # we can now use e.g. readline() instead of raw recv() calls
+        #self.data = self.rfile.readline()
+        #print("{} wrote:".format(self.client_address[0]))
+        #print(self.data)
+        # Likewise, self.wfile is a file-like object used to write back
+        # to the client
+        #self.wfile.write(self.data.upper())
 
- print("Send: %r" % message)
- writer.write(data) 
- await writer.drain() 
-
-print("Close the client socket") 
-writer.close() 
-
-loop = asyncio.get_event_loop() 
-coro = asyncio.start_server(handle_echo, '127.0.0.1', 8888, loop=loop) 
-
-server = loop.run_until_complete(coro)
- # Serve requests until Ctrl+C is pressed 
-
-print('Serving on {}'.format(server.sockets[0].getsockname()))
- try: 
-     loop.run_forever() 
-     except KeyboardInterrupt: 
-          pass 
-# Close the server 
-server.close() 
-loop.run_until_complete(server.wait_closed()) 
-loop.close()
+class xMyTCPHandler(socketserver.BaseRequestHandler):
+ 
+    def handle(self):
+        # self.request is the TCP socket connected to the client
+        #self.server.socket_type = socket.SOCK_STREAM
+        self.data = self.request.recv(1024).strip()
+        #print("{}:{} wrote:".format(self.client_address[0],self.client_address[1]))
+        #print(self.data)
+        # just send back the same data, but upper-cased
+        #self.request.sendall(self.data.upper())
         
-"""
+        msg = self.data
+        #print(msg)
+
+        if msg[0] == 0x68:  #start
+            if msg[1] == len(msg)-2:
+                #S-Frame
+                if msg[2] & 0b00000011 == 0b01:    #01 S-Frame
+                    self.handle_sFrame(msg)
+                #U-Frame
+                if msg[2] & 0b00000011 == 0b11:    #11 U-Frame
+                    self.handle_uFrame(msg)
+                #I-Frame        
+                if msg[2] & 0b00000001 == 0b0:     #.0 I-Frame 
+                    print("I-Frame")
+                    self.rx_counter += 1
+                    self.handle_iFrame(msg)
+            else:
+                h.log_error("Wrong size of incomming IEC 60870-5-104 Frame")
+        
+
+ 
+        
+
 ###############################################################################
 #   IEC60870-5-104 Server
 ###############################################################################
+
+
+
+
+    #--- U-Frame handle  ------------------------------------------------------
+    def handle_uFrame(self, frame):
+        if frame[2] == 0x07:                              
+            h.log("<- U (STARTDT act)")
+            data = bytearray(frame)
+            data[2] = 0x0B
+            self.request.sendall(data)
+            self.is_connected = True
+            h.log("-> U (STARTDT con)")
+        elif frame[2] == 0x13:                              
+            h.log("<- U (STOPDT act)")
+            data = bytearray(frame)
+            data[2] = 0x23
+            self.request.sendall(data)
+            h.log("-> U (STOPDT con)")
+        elif frame[2] == 0x43:                              
+            h.log("<- U (TESTFR act)")
+            data = bytearray(frame)
+            data[2] = 0x83
+            self.request.sendall(data)
+            h.log("-> U (TESTFR con)")
+        elif frame[2] == 0x83:
+            h.log("<- U (TESTFR con)")
+            self.u_frame_confirmation = True
+            #self.u_frame_con = True
+            #self.send_u_frame == False
+        else:
+            h.log('<- unknown U {}'.format(frame))
+    
+    #--- S-Frame handle  ------------------------------------------------------
+    def handle_sFrame(self, frame):
+        h.log("<- S (Rx con) Rx = " + str((frame[4] | frame[5]<<8)>>1))
+
+    #--- I-Frame handle  ------------------------------------------------------
+    def handle_iFrame(self, frame):
+        APDU = T104.APDU(frame)
+        h.log("<- I [{}-{}-{}] - {} - {}".format(APDU.ASDU.InfoObject.address._1,
+                                                 APDU.ASDU.InfoObject.address._2,
+                                                 APDU.ASDU.InfoObject.address._3,
+                                                 APDU.ASDU.TI.ref,
+                                                 APDU.ASDU.TI.des))
+        APDU.pO()
+            
+        #confirm activation frame
+        if APDU.ASDU.COT.short == "act":
+            data = bytearray(frame)
+            data[2] = (self.tx_counter & 0b0000000001111111) << 1
+            data[3] = (self.tx_counter & 0b0111111110000000) >> 7
+            data[4] = (self.rx_counter & 0b0000000001111111) << 1
+            data[5] = (self.rx_counter & 0b0111111110000000) >> 7
+            data[8] = APDU.ASDU.Test<<8 | APDU.ASDU.PN<<7 | 7 
+            self.request.sendall(data)
+            h.log("-> I ({}/{}) - COT = {}".format(self.tx_counter, self.rx_counter,
+                                                    d.cot[7]["long"]))
+            self.tx_counter += 1
+            
+        #callback to main
+        if APDU.ASDU.TI.Typ == 100:     #C_IC_NA_1 - (General-) Interrogation command 
+            self.ga_callback(APDU)
+        else:
+            self.iFrame_callback(APDU, self.callback_send)  #other I-Frame
+
+    #--- send I-Frame  --------------------------------------------------------
+    def send_iFrame(self, length, ti, info_object_data):
+        list = [0x68, length, 0x02, 0x00, 0x02, 0x00,
+                ti, 0x01, 0x05, 0x00, 0x64, 0x01, 
+                0x02, 0x00, 0x00, info_object_data]       
+        data = bytearray(list)
+        data[2] = (self.tx_counter & 0b0000000001111111) << 1
+        data[3] = (self.tx_counter & 0b0111111110000000) >> 7
+        data[4] = (self.rx_counter & 0b0000000001111111) << 1
+        data[5] = (self.rx_counter & 0b0111111110000000) >> 7
+            
+        APDU = T104.APDU(data)
+        #APDU.pO()
+        h.log("-> I ({}/{}) [{}-{}-{}] - TI[{}] - Value: {}".format(self.tx_counter, self.rx_counter,
+                                                         APDU.ASDU.InfoObject.address._1,
+                                                         APDU.ASDU.InfoObject.address._2,
+                                                         APDU.ASDU.InfoObject.address._3,
+                                                         APDU.ASDU.TI.Typ,
+                                                         APDU.ASDU.InfoObject.dataObject[0].detail[4].state))
+        self.request.sendall(data)
+        self.tx_counter += 1  
+    
+    #--- send callback from main  ---------------------------------------------
+    def callback_send(self, cmc_is_on):
+        if cmc_is_on: 
+            value = 0b00000001
+        else: value = 0b00000000
+        self.send_iFrame(14,1,value)
+
+
+
+
+"""
 class IEC_104_Server():
     def __init__(self, ga_callback, iFrame_callback, ip, port):
         self.rx_counter = 0
@@ -151,96 +265,4 @@ class IEC_104_Server():
                 h.log_error("Rx from Client")
                 self.restart_server()
 
-
-
-    #--- U-Frame handle  ------------------------------------------------------
-    def handle_uFrame(self, frame):
-        if frame[2] == 0x07:                              
-            #h.log("<- U (STARTDT act)")
-            data = bytearray(frame)
-            data[2] = 0x0B
-            self.client_socket.send(data)
-            self.is_connected = True
-            #h.log("-> U (STARTDT con)")
-        elif frame[2] == 0x13:                              
-           # h.log("<- U (STOPDT act)")
-            data = bytearray(frame)
-            data[2] = 0x23
-            self.client.send(data)
-            #h.log("-> U (STOPDT con)")
-        elif frame[2] == 0x43:                              
-            #h.log("<- U (TESTFR act)")
-            data = bytearray(frame)
-            data[2] = 0x83
-            self.client_socket.send(data)
-            #h.log("-> U (TESTFR con)")
-        elif frame[2] == 0x83:
-            h.log("<- U (TESTFR con)")
-            self.u_frame_confirmation = True
-            #self.u_frame_con = True
-            #self.send_u_frame == False
-        else:
-            h.log('<- unknown U {}'.format(frame))
-    
-    #--- S-Frame handle  ------------------------------------------------------
-    def handle_sFrame(self, frame):
-        h.log("<- S (Rx con) Rx = " + str((frame[4] | frame[5]<<8)>>1))
-
-    #--- I-Frame handle  ------------------------------------------------------
-    def handle_iFrame(self, frame):
-        APDU = T104.APDU(frame)
-        h.log("<- I [{}-{}-{}] - {} - {}".format(APDU.ASDU.InfoObject.address._1,
-                                                 APDU.ASDU.InfoObject.address._2,
-                                                 APDU.ASDU.InfoObject.address._3,
-                                                 APDU.ASDU.TI.ref,
-                                                 APDU.ASDU.TI.des))
-        APDU.pO()
-            
-        #confirm activation frame
-        if APDU.ASDU.COT.short == "act":
-            data = bytearray(frame)
-            data[2] = (self.tx_counter & 0b0000000001111111) << 1
-            data[3] = (self.tx_counter & 0b0111111110000000) >> 7
-            data[4] = (self.rx_counter & 0b0000000001111111) << 1
-            data[5] = (self.rx_counter & 0b0111111110000000) >> 7
-            data[8] = APDU.ASDU.Test<<8 | APDU.ASDU.PN<<7 | 7 
-            self.client_socket.send(data)
-            h.log("-> I ({}/{}) - COT = {}".format(self.tx_counter, self.rx_counter,
-                                                    d.cot[7]["long"]))
-            self.tx_counter += 1
-            
-        #callback to main
-        if APDU.ASDU.TI.Typ == 100:     #C_IC_NA_1 - (General-) Interrogation command 
-            self.ga_callback(APDU)
-        else:
-            self.iFrame_callback(APDU, self.callback_send)  #other I-Frame
-
-    #--- send I-Frame  --------------------------------------------------------
-    def send_iFrame(self, length, ti, info_object_data):
-        list = [0x68, length, 0x02, 0x00, 0x02, 0x00,
-                ti, 0x01, 0x05, 0x00, 0x64, 0x01, 
-                0x02, 0x00, 0x00, info_object_data]       
-        data = bytearray(list)
-        data[2] = (self.tx_counter & 0b0000000001111111) << 1
-        data[3] = (self.tx_counter & 0b0111111110000000) >> 7
-        data[4] = (self.rx_counter & 0b0000000001111111) << 1
-        data[5] = (self.rx_counter & 0b0111111110000000) >> 7
-            
-        APDU = T104.APDU(data)
-        #APDU.pO()
-        h.log("-> I ({}/{}) [{}-{}-{}] - TI[{}] - Value: {}".format(self.tx_counter, self.rx_counter,
-                                                         APDU.ASDU.InfoObject.address._1,
-                                                         APDU.ASDU.InfoObject.address._2,
-                                                         APDU.ASDU.InfoObject.address._3,
-                                                         APDU.ASDU.TI.Typ,
-                                                         APDU.ASDU.InfoObject.dataObject[0].detail[4].state))
-        self.client_socket.send(data)
-        self.tx_counter += 1  
-    
-    #--- send callback from main  ---------------------------------------------
-    def callback_send(self, cmc_is_on):
-        if cmc_is_on: 
-            value = 0b00000001
-        else: value = 0b00000000
-        self.send_iFrame(14,1,value)
-
+"""
