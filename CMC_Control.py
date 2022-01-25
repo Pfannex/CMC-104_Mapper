@@ -6,6 +6,7 @@
 ###############################################################################
 import helper as h
 import win32com.client
+import math
 import pythoncom
 
 ###############################################################################
@@ -58,6 +59,7 @@ class CMEngine():
         ioa_1 = info_object.address._1
         ioa_2 = info_object.address._2
         ioa_3 = info_object.address._3
+        dez = info_object.address.DEZ
         info_detail_typ = info_object.dataObject[0].name  #SCO / R32
         
         if info_object.address.DEZ == 1 and info_detail_typ == "SCO":
@@ -65,8 +67,15 @@ class CMEngine():
         if ioa_1 == 1 and ioa_2 in range(1,7) and ioa_3 in range (1,4) and info_detail_typ == "R32":
             value = info_object.dataObject[0].detail[0].value
             self.prepare_output(ioa_1, ioa_2, ioa_3, value)
-        if ioa_1 == 99:
+        if dez == 3:
+            value = info_object.dataObject[0].detail[0].value
+            self.triple_out(1, "v", value)
+        if dez == 4:
+            value = info_object.dataObject[0].detail[0].value
+            self.triple_out(1, "i", value)
+        if dez == 99:
             self.reset_output()
+        
 
         #set power:
         #IOA1           | IOA2       | IOA3            | value
@@ -173,6 +182,17 @@ class CMEngine():
                          [50, 50, 50]]   #Frequency
                     }    
         """ 
+
+    def triple_out(self, generator, vi, percent):
+        if vi == "v":
+            value =  100/math.sqrt(3) * percent
+        else: value = percent
+
+        self.ana[vi][0][0] = value
+        self.ana[vi][0][1] = value
+        self.ana[vi][0][2] = value
+
+        self.set_output(generator, vi)
 
 #--- Start up -----------------------------------------------------------------
 def start():

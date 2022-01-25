@@ -35,8 +35,8 @@ class IEC_104_Server():
         self.ip = ip
         self.port = port
         self.is_connected = False
-        self.u_frame_con = False
-        self.send_u_frame = False
+        self.u_frame_confirmation = False
+        #self.send_u_frame = False
         
         self.tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.tcp_server.bind((self.ip, self.port))
@@ -49,7 +49,6 @@ class IEC_104_Server():
         h.log('IEC 60870-5-104 Client connected -  {}:{}'.format(address[0], address[1]))
         self.is_connected = True
         self.tcp_server.settimeout(2)
-        
 
         #thread = threading.Thread(target=self.handle_client_connection, kwargs={'cmEngine_id': cmEngine_id})
         #thread = threading.Thread(target=self.check_connection)
@@ -60,19 +59,47 @@ class IEC_104_Server():
 
     def check_connection(self):
         while True:
-            if self.is_connected and not self.u_frame_con and self.send_u_frame == False:
-                list = [0x68, 4, 0x43, 0x00, 0x00, 0x00]      
-                data = bytearray(list)
-                self.client_socket.send(data)
-                h.log("-> U (TESTFR act)")
-                self.u_frame_con = False
-                send = True
-                time.sleep(5)
-            if send == True and not self.u_frame_con:
-                h.log_error("no confiirmation from client")   
-                send = False                          
+            try:
+                if self.is_connected:
+                    list = [0x68, 4, 0x43, 0x00, 0x00, 0x00]      
+                    data = bytearray(list)
+                    self.u_frame_confirmation = False
+                    self.client_socket.send(data)
+                    h.log("-> U (TESTFR act)")
+                    time.sleep(5)
+                    if self.u_frame_confirmation == False:
+                        h.log_error("no confiirmation from client")   
+                        self.client_socket.close()
+                        self.is_connected = False
+                        self.start_server()
+            except:
+                h.log_error("send TestFrame failed!")   
+                self.client_socket.close()
+                self.is_connected = False
+                self.start_server()
+
+
+                """
+                if self.is_connected and not self.u_frame_con and self.send_u_frame == False:
+                    list = [0x68, 4, 0x43, 0x00, 0x00, 0x00]      
+                    data = bytearray(list)
+                    self.client_socket.send(data)
+                    h.log("-> U (TESTFR act)")
+                    self.u_frame_con = False
+                    send = True
+                    time.sleep(5)
+                if send == True and not self.u_frame_con:
+                    h.log_error("no confiirmation from client")   
+                    send = False                          
                 
-        
+                """        
+    def restart_server(self):
+        self.rx_counter = 0
+        self.tx_counter = 0
+        self.is_connected = False
+        self.client_socket.close()
+        self.start_server()
+
     #--- handle client Rx-Data ------------------------------------------------
     def handle_client_connection(self):
         while True:
@@ -85,28 +112,27 @@ class IEC_104_Server():
                 if err == 'timed out':
                     time.sleep(1)
                     h.log('recv timed out, retry later')
-                    self.rx_counter = 0
-                    self.tx_counter = 0
+                    self.restart_server()
                     continue
                 else:
+                    h.log_error("line 104")
                     h.log_error(e)
-                    self.client_socket.close()
-                    self.is_connected = False
+                    self.restart_server()
                     #sys.exit(1)
             except socket.error as e:
                 # Something else happened, handle error, exit, etc.
+                h.log_error("line 104")
                 h.log_error(e)
-                self.client_socket.close()
-                self.is_connected = False
+                self.restart_server()
                 #sys.exit(1)
             else:
                 if len(msg) == 0:
                     h.log('orderly shutdown on server end')
-                    self.client_socket.close()
-                    self.is_connected = False
+                    self.restart_server()
                     #sys.exit(0)
                 else:
                     if msg[0] == 0x68:  #start
+                        print(msg)
                         if msg[1] == len(msg)-2:
                             #S-Frame
                             if msg[2] & 0b00000011 == 0b01:    #01 S-Frame
@@ -124,25 +150,26 @@ class IEC_104_Server():
     #--- U-Frame handle  ------------------------------------------------------
     def handle_uFrame(self, frame):
         if frame[2] == 0x07:                              
-            h.log("<- U (STARTDT act)")
+            #h.log("<- U (STARTDT act)")
             data = bytearray(frame)
             data[2] = 0x0B
             self.client_socket.send(data)
-            h.log("-> U (STARTDT con)")
+            #h.log("-> U (STARTDT con)")
         elif frame[2] == 0x13:                              
-            h.log("<- U (STOPDT act)")
+           # h.log("<- U (STOPDT act)")
             data = bytearray(frame)
             data[2] = 0x23
             self.client.send(data)
-            h.log("-> U (STOPDT con)")
+            #h.log("-> U (STOPDT con)")
         elif frame[2] == 0x43:                              
-            h.log("<- U (TESTFR act)")
+            #h.log("<- U (TESTFR act)")
             data = bytearray(frame)
             data[2] = 0x83
             self.client_socket.send(data)
-            h.log("-> U (TESTFR con)")
+            #h.log("-> U (TESTFR con)")
         elif frame[2] == 0x83:
-            h.log("<- U (TESTFR con)")
+            #h.log("<- U (TESTFR con)")
+            self.u_frame_confirmation = true
             #self.u_frame_con = True
             #self.send_u_frame == False
         else:
@@ -202,12 +229,7 @@ class IEC_104_Server():
                                                          APDU.ASDU.InfoObject.dataObject[0].detail[4].state))
         self.client_socket.send(data)
         self.tx_counter += 1  
-         
-        list = [0x68, 4, 0x43, 0x00, 0x00, 0x00]      
-        data = bytearray(list)
-        self.client_socket.send(data)
-        h.log("-> U (TESTFR act)")
-
+    
     #--- send callback from main  ---------------------------------------------
     def callback_send(self, cmc_is_on):
         if cmc_is_on: 
