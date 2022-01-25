@@ -21,7 +21,39 @@ class counter():
         rx_counter = 1
         
 
+"""
+import asyncio 
 
+async def handle_echo(reader, writer): 
+     data = await reader.read(100) 
+     message = data.decode() 
+     addr = writer.get_extra_info('peername') 
+     print("Received %r from %r" % (message, addr))
+
+ print("Send: %r" % message)
+ writer.write(data) 
+ await writer.drain() 
+
+print("Close the client socket") 
+writer.close() 
+
+loop = asyncio.get_event_loop() 
+coro = asyncio.start_server(handle_echo, '127.0.0.1', 8888, loop=loop) 
+
+server = loop.run_until_complete(coro)
+ # Serve requests until Ctrl+C is pressed 
+
+print('Serving on {}'.format(server.sockets[0].getsockname()))
+ try: 
+     loop.run_forever() 
+     except KeyboardInterrupt: 
+          pass 
+# Close the server 
+server.close() 
+loop.run_until_complete(server.wait_closed()) 
+loop.close()
+        
+"""
 ###############################################################################
 #   IEC60870-5-104 Server
 ###############################################################################
@@ -36,23 +68,23 @@ class IEC_104_Server():
         self.port = port
         self.is_connected = False
         self.u_frame_confirmation = False
-        #self.send_u_frame = False
         
         self.tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.tcp_server.bind((self.ip, self.port))
+        
         self.start_server()
         
     def start_server(self):
+        
         self.tcp_server.listen(5)
         h.log('IEC 60870-5-104 Server listening on {}:{}'.format(self.ip, self.port))
         self.client_socket, address = self.tcp_server.accept()   #waiting for client Code Stops here
         h.log('IEC 60870-5-104 Client connected -  {}:{}'.format(address[0], address[1]))
-        self.is_connected = True
-        self.tcp_server.settimeout(2)
+        #self.tcp_server.settimeout(2)
 
         #thread = threading.Thread(target=self.handle_client_connection, kwargs={'cmEngine_id': cmEngine_id})
-        #thread = threading.Thread(target=self.check_connection)
-        #thread.start()
+        thread = threading.Thread(target=self.check_connection)
+        thread.start()
         #save
 
         self.handle_client_connection()
@@ -67,73 +99,41 @@ class IEC_104_Server():
                     self.client_socket.send(data)
                     h.log("-> U (TESTFR act)")
                     time.sleep(5)
-                    if self.u_frame_confirmation == False:
+                    #print("sleep done")
+                    if self.u_frame_confirmation == False and self.is_connected:
                         h.log_error("no confiirmation from client")   
-                        self.client_socket.close()
-                        self.is_connected = False
-                        self.start_server()
+                        self.restart_server()
             except:
                 h.log_error("send TestFrame failed!")   
                 self.client_socket.close()
                 self.is_connected = False
                 self.start_server()
 
-
-                """
-                if self.is_connected and not self.u_frame_con and self.send_u_frame == False:
-                    list = [0x68, 4, 0x43, 0x00, 0x00, 0x00]      
-                    data = bytearray(list)
-                    self.client_socket.send(data)
-                    h.log("-> U (TESTFR act)")
-                    self.u_frame_con = False
-                    send = True
-                    time.sleep(5)
-                if send == True and not self.u_frame_con:
-                    h.log_error("no confiirmation from client")   
-                    send = False                          
-                
-                """        
     def restart_server(self):
+        h.log("Restart Server")
+        self.is_connected = False
         self.rx_counter = 0
         self.tx_counter = 0
-        self.is_connected = False
         self.client_socket.close()
         self.start_server()
 
     #--- handle client Rx-Data ------------------------------------------------
     def handle_client_connection(self):
+        incomplete = False
         while True:
             try:
-                msg = self.client_socket.recv(1024)
-            except socket.error as e:
-                err = e.args[0]
-                # this next if/else is a bit redundant, but illustrates how the
-                # timeout exception is setup
-                if err == 'timed out':
-                    time.sleep(1)
-                    h.log('recv timed out, retry later')
-                    self.restart_server()
-                    continue
-                else:
-                    h.log_error("line 104")
-                    h.log_error(e)
-                    self.restart_server()
-                    #sys.exit(1)
-            except socket.error as e:
-                # Something else happened, handle error, exit, etc.
-                h.log_error("line 104")
-                h.log_error(e)
-                self.restart_server()
-                #sys.exit(1)
-            else:
+                if incomplete:
+                    msg += self.client_socket.recv(1024)
+                else:  msg = self.client_socket.recv(1024)
                 if len(msg) == 0:
-                    h.log('orderly shutdown on server end')
+                    h.log_error("Client down")
                     self.restart_server()
-                    #sys.exit(0)
+                    break
                 else:
                     if msg[0] == 0x68:  #start
                         print(msg)
                         if msg[1] == len(msg)-2:
+                            incomplete = False
                             #S-Frame
                             if msg[2] & 0b00000011 == 0b01:    #01 S-Frame
                                 self.handle_sFrame(msg)
@@ -146,6 +146,12 @@ class IEC_104_Server():
                                 self.handle_iFrame(msg)
                         else:
                             h.log_error("Wrong size of incomming IEC 60870-5-104 Frame")
+                            incomplete = True
+            except:
+                h.log_error("Rx from Client")
+                self.restart_server()
+
+
 
     #--- U-Frame handle  ------------------------------------------------------
     def handle_uFrame(self, frame):
@@ -154,6 +160,7 @@ class IEC_104_Server():
             data = bytearray(frame)
             data[2] = 0x0B
             self.client_socket.send(data)
+            self.is_connected = True
             #h.log("-> U (STARTDT con)")
         elif frame[2] == 0x13:                              
            # h.log("<- U (STOPDT act)")
@@ -168,8 +175,8 @@ class IEC_104_Server():
             self.client_socket.send(data)
             #h.log("-> U (TESTFR con)")
         elif frame[2] == 0x83:
-            #h.log("<- U (TESTFR con)")
-            self.u_frame_confirmation = true
+            h.log("<- U (TESTFR con)")
+            self.u_frame_confirmation = True
             #self.u_frame_con = True
             #self.send_u_frame == False
         else:
