@@ -91,7 +91,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         else:
             h.log("NIL: {}".fomat(msg))
 """
-class MyTCPHandler(socketserver.BaseRequestHandler):
+class MyTCPHandler(socketserver.StreamRequestHandler):
     def handle(self):
         with self.request.makefile('rwb') as file:
             msg = file.read(2)
