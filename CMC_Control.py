@@ -115,7 +115,7 @@ class CMEngine():
     def reset_output(self):
         max_generators = 1
         
-        for _phase in range(0,2):
+        for _phase in range(0,3):
             for _parameter in range(0,2):
                 self.ana["v"][_parameter][_phase] = 0
                 self.ana["i"][_parameter][_phase] = 0

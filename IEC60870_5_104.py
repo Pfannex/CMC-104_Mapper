@@ -57,42 +57,6 @@ class IEC_104_Server():
 
         self.handle_client_connection()
 
-    def check_connection(self):
-        while True:
-            try:
-                if self.is_connected:
-                    list = [0x68, 4, 0x43, 0x00, 0x00, 0x00]      
-                    data = bytearray(list)
-                    self.u_frame_confirmation = False
-                    self.client_socket.send(data)
-                    h.log("-> U (TESTFR act)")
-                    time.sleep(5)
-                    if self.u_frame_confirmation == False:
-                        h.log_error("no confiirmation from client")   
-                        self.client_socket.close()
-                        self.is_connected = False
-                        self.start_server()
-            except:
-                h.log_error("send TestFrame failed!")   
-                self.client_socket.close()
-                self.is_connected = False
-                self.start_server()
-
-
-                """
-                if self.is_connected and not self.u_frame_con and self.send_u_frame == False:
-                    list = [0x68, 4, 0x43, 0x00, 0x00, 0x00]      
-                    data = bytearray(list)
-                    self.client_socket.send(data)
-                    h.log("-> U (TESTFR act)")
-                    self.u_frame_con = False
-                    send = True
-                    time.sleep(5)
-                if send == True and not self.u_frame_con:
-                    h.log_error("no confiirmation from client")   
-                    send = False                          
-                
-                """        
     def restart_server(self):
         self.rx_counter = 0
         self.tx_counter = 0
@@ -105,47 +69,28 @@ class IEC_104_Server():
         while True:
             try:
                 msg = self.client_socket.recv(1024)
-            except socket.error as e:
-                err = e.args[0]
-                # this next if/else is a bit redundant, but illustrates how the
-                # timeout exception is setup
-                if err == 'timed out':
-                    time.sleep(1)
-                    h.log('recv timed out, retry later')
-                    self.restart_server()
-                    continue
-                else:
-                    h.log_error("line 104")
-                    h.log_error(e)
-                    self.restart_server()
-                    #sys.exit(1)
-            except socket.error as e:
-                # Something else happened, handle error, exit, etc.
-                h.log_error("line 104")
-                h.log_error(e)
-                self.restart_server()
-                #sys.exit(1)
-            else:
                 if len(msg) == 0:
-                    h.log('orderly shutdown on server end')
+                    h.log_error('Client disconnected')
                     self.restart_server()
-                    #sys.exit(0)
                 else:
                     if msg[0] == 0x68:  #start
-                        print(msg)
-                        if msg[1] == len(msg)-2:
+                        #print(msg)
+                        #if msg[1] == len(msg)-2:
                             #S-Frame
-                            if msg[2] & 0b00000011 == 0b01:    #01 S-Frame
-                                self.handle_sFrame(msg)
-                            #U-Frame
-                            if msg[2] & 0b00000011 == 0b11:    #11 U-Frame
-                                self.handle_uFrame(msg)
-                            #I-Frame        
-                            if msg[2] & 0b00000001 == 0b0:     #.0 I-Frame 
-                                self.rx_counter += 1
-                                self.handle_iFrame(msg)
-                        else:
-                            h.log_error("Wrong size of incomming IEC 60870-5-104 Frame")
+                        if msg[2] & 0b00000011 == 0b01:    #01 S-Frame
+                            self.handle_sFrame(msg)
+                        #U-Frame
+                        if msg[2] & 0b00000011 == 0b11:    #11 U-Frame
+                            self.handle_uFrame(msg)
+                        #I-Frame        
+                        if msg[2] & 0b00000001 == 0b0:     #.0 I-Frame 
+                            self.rx_counter += 1
+                            self.handle_iFrame(msg)
+                        #else:
+                            #h.log_error("Wrong size of incomming IEC 60870-5-104 Frame")
+            except:
+                self.restart_server()
+                h.log_error("Receiving Error")
 
     #--- U-Frame handle  ------------------------------------------------------
     def handle_uFrame(self, frame):
@@ -187,7 +132,7 @@ class IEC_104_Server():
                                                  APDU.ASDU.InfoObject.address._3,
                                                  APDU.ASDU.TI.ref,
                                                  APDU.ASDU.TI.des))
-        APDU.pO()
+        #APDU.pO()
             
         #confirm activation frame
         if APDU.ASDU.COT.short == "act":
