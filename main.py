@@ -61,7 +61,7 @@ h.start()
 ###############################################################################
 #   MAIN LOOP
 ###############################################################################
-
+"""
 class MyTCPHandler(socketserver.BaseRequestHandler):
      
     def handle(self):
@@ -90,9 +90,35 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             h.log("-> U (TESTFR con)")
         else:
             h.log("NIL: {}".fomat(msg))
+"""
+class MyTCPHandler(socketserver.BaseRequestHandler):
+    def handle(self):
+        with self.request.makefile('rwb') as file:
+            msg = file.read(2)
+            assert msg[0] == 0x68
+            msg += file.read(msg[1])
+            #msg = file.read(6)
+            print("{}:{} wrote:".format(self.client_address[0],self.client_address[1]))
+            print(msg)
+            
+            if msg[2] == 0x07:
+                print("<- U (STARTDT act)")
+                data = bytearray(msg)
+                data[2] = 0x0B
+                file.write(data)
+                print("-> U (STARTDT con)")
+            elif msg[2] == 0x43:
+                print("<- U (TESTFR act)")
+                data = bytearray(msg)
+                data[2] = 0x83
+                file.write(data)
+                print("-> U (TESTFR con)")
+            else:
+                print("NIL: {}".fomat(msg)) 
 
 
-HOST, PORT = "localhost", 2404
+
+HOST, PORT = "127.0.0.1", 2404
 
     # Create the server, binding to localhost on port 9999
 with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:

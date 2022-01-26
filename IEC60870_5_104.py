@@ -13,7 +13,7 @@ import IEC60870_5_104_dict as d
 import time
 import socket
 
-import pythoncom, threading
+#import pythoncom, threading
 
 class counter():
     def __init_(self):
@@ -69,7 +69,7 @@ class xMyTCPHandler(socketserver.BaseRequestHandler):
 class MyTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         with self.request.makefile('rwb') as file:
-            msg = file.read(length_of_packet)
+            msg = file.read(6)
             print("{}:{} wrote:".format(self.client_address[0],self.client_address[1]))
             print(msg)
             
