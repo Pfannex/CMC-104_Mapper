@@ -12,6 +12,9 @@ import curio
 
 #print(pynng.version)
 #print(curio.__version__)
+print("---")
+print(pynng)
+print("---")
 
 DATE = "DATE"
 
@@ -40,7 +43,7 @@ async def node1():
         msg = await sock.arecv_msg()
         print(f"NODE1: RECEIVED DATE {msg.bytes.decode()}")
 
-
+"""
 async def main():
     with pynng.Rep0() as rep:
         n0 = await node0(rep)
@@ -49,10 +52,10 @@ async def main():
 
         await n0.cancel()
 
-
-if __name__ == "__main__":
-    try:
-        curio.run(main)
-    except KeyboardInterrupt:
+"""
+#if __name__ == "__main__":
+    #try:
+        #curio.run(main)
+    #except KeyboardInterrupt:
         # that's the way the program *should* end
-        pass
+        #pass
