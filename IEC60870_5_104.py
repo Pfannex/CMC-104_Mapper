@@ -34,7 +34,7 @@ import socketserver
         # Likewise, self.wfile is a file-like object used to write back
         # to the client
         #self.wfile.write(self.data.upper())
-
+"""
 class xMyTCPHandler(socketserver.BaseRequestHandler):
  
     def handle(self):
@@ -64,9 +64,29 @@ class xMyTCPHandler(socketserver.BaseRequestHandler):
                     self.handle_iFrame(msg)
             else:
                 h.log_error("Wrong size of incomming IEC 60870-5-104 Frame")
-        
+"""        
 
- 
+class MyTCPHandler(socketserver.BaseRequestHandler):
+    def handle(self):
+        with self.request.makefile('rwb') as file:
+            msg = file.read(length_of_packet)
+            print("{}:{} wrote:".format(self.client_address[0],self.client_address[1]))
+            print(msg)
+            
+            if msg[2] == 0x07:
+                print("<- U (STARTDT act)")
+                data = bytearray(msg)
+                data[2] = 0x0B
+                file.write(data)
+                print("-> U (STARTDT con)")
+            elif msg[2] == 0x43:
+                print("<- U (TESTFR act)")
+                data = bytearray(msg)
+                data[2] = 0x83
+                file.write(data)
+                print("-> U (TESTFR con)")
+            else:
+                print("NIL: {}".fomat(msg)) 
         
 
 ###############################################################################

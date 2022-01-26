@@ -5,9 +5,13 @@ Like Pipeline, it also can perform load-balancing.
 This is the only reliable messaging pattern in the suite, as it automatically will retry if a request is not matched with a response.
 
 """
-import datetime
+#import datetime
 import pynng
 import curio
+
+
+#print(pynng.version)
+#print(curio.__version__)
 
 DATE = "DATE"
 
