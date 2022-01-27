@@ -19,6 +19,8 @@
 import IEC60870_5_104
 import helper as h
 import CMC_Control
+import socketserver
+
 ###############################################################################
 #   CALLBACKS
 ###############################################################################
@@ -31,10 +33,10 @@ def timer2_callback():
     #h.log("here we go every 300 seconds")
 
 def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
+    #print("Hello World!")
     pass
 
-def on_IEC60870_5_104_I_Frame_received_callback(APDU, callback_send):
-    global cmc, iec104_server
+def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     if APDU.ASDU.CASDU.DEZ == 356:
         cmc.set_command(APDU.ASDU.InfoObject)
         #callback_send(cmc.is_on)
@@ -51,16 +53,21 @@ t2 = h.idleTimer(300, timer2_callback)
 
 h.start()
 cmc = CMC_Control.CMEngine()
-iec104_server = IEC60870_5_104.IEC_104_Server(on_IEC60870_5_104_I_Frame_GA_callback,
-                                              on_IEC60870_5_104_I_Frame_received_callback,
-                                              "127.0.0.1", 2404)
+
+HOST, PORT = "127.0.0.1", 2404
+h.log('IEC 60870-5-104 Server listening on {}:{}'.format(HOST, PORT))
+IEC60870_5_104.callback.set_callback(on_IEC60870_5_104_I_Frame_GA_callback,
+                            on_IEC60870_5_104_I_Frame_received_callback)
+
+with socketserver.TCPServer((HOST, PORT), IEC60870_5_104.MyTCPHandler) as server:
+    server.serve_forever()
 
 ###############################################################################
 #   MAIN LOOP
 ###############################################################################
 
-while True:
+#while True:
     #cmc.handle()
     #time.sleep(10)
-    pass
+    #pass
     

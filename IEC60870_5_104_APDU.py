@@ -1,4 +1,7 @@
 ###############################################################################
+#   IEC 60870-5-104 APDU Frame
+###############################################################################
+###############################################################################
 #   IMPORT
 ###############################################################################
 import struct
@@ -155,6 +158,22 @@ class InfoObject():
                                                            state))
         else:
             print("    ERROR - Information Object not in list")
+            
+    def info_object_data_String(self):
+        if self.loadListOK:
+            msg=""
+            for i in range(len(self.dataObject)):
+                msg += " "*40 + "{} - {}\n".format(self.dataObject[i].name, self.dataObject[i].longName)
+                for j in range(len(self.dataObject[i].detail)):
+                    state = ""
+                    if self.dataObject[i].detail[j].state != "":
+                        state = " - "
+                        state += self.dataObject[i].detail[j].state
+                    msg += " "*40 +"  -{}: {}{} \n".format(self.dataObject[i].detail[j].name,
+                                                           self.dataObject[i].detail[j].value,
+                                                           state)
+        return msg[0:len(msg)-2]
+        
 
 class Type():
     def __init__(self, data, infoBytes):
