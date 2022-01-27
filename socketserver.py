@@ -464,6 +464,7 @@ class TCPServer(BaseServer):
         if self.allow_reuse_address:
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(self.server_address)
+
         self.server_address = self.socket.getsockname()
 
     def server_activate(self):
@@ -781,7 +782,8 @@ class StreamRequestHandler(BaseRequestHandler):
     wbufsize = 0
 
     # A timeout to apply to the request socket, if not None.
-    timeout = None
+    #timeout = None
+    timeout = 1000
 
     # Disable nagle algorithm for this socket, if True.
     # Use only when wbufsize != 0, to avoid small packets.

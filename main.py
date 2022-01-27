@@ -33,13 +33,12 @@ def timer2_callback():
     #h.log("here we go every 300 seconds")
 
 def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
+    #print("Hello World!")
     pass
 
-def on_IEC60870_5_104_I_Frame_received_callback(APDU, callback_send):
-    pass
-    #global cmc, iec104_server
-    #if APDU.ASDU.CASDU.DEZ == 356:
-        #cmc.set_command(APDU.ASDU.InfoObject)
+def on_IEC60870_5_104_I_Frame_received_callback(APDU):
+    if APDU.ASDU.CASDU.DEZ == 356:
+        cmc.set_command(APDU.ASDU.InfoObject)
         #callback_send(cmc.is_on)
      
 ###############################################################################
@@ -53,83 +52,22 @@ t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
 
 h.start()
-#cmc = CMC_Control.CMEngine()
-#iec104_server = IEC60870_5_104.IEC_104_Server(on_IEC60870_5_104_I_Frame_GA_callback,
-#                                              on_IEC60870_5_104_I_Frame_received_callback,
-#                                              "127.0.0.1", 2404)
+cmc = CMC_Control.CMEngine()
+
+HOST, PORT = "127.0.0.1", 2404
+h.log('IEC 60870-5-104 Server listening on {}:{}'.format(HOST, PORT))
+IEC60870_5_104.callback.set_callback(on_IEC60870_5_104_I_Frame_GA_callback,
+                            on_IEC60870_5_104_I_Frame_received_callback)
+
+with socketserver.TCPServer((HOST, PORT), IEC60870_5_104.MyTCPHandler) as server:
+    server.serve_forever()
 
 ###############################################################################
 #   MAIN LOOP
 ###############################################################################
-"""
-class MyTCPHandler(socketserver.BaseRequestHandler):
-     
-    def handle(self):
-        # self.request is the TCP socket connected to the client
-        #self.server.socket_type = socket.SOCK_STREAM
-        self.data = self.request.recv(1024).strip()
-        print("{}:{} wrote:".format(self.client_address[0],self.client_address[1]))
-        print(self.data)
-        # just send back the same data, but upper-cased
-        #self.request.sendall(self.data.upper())
-        
-        msg = self.data
-        print(msg)
-        
-        if msg[2] == 0x07:
-            h.log("<- U (STARTDT act)")
-            data = bytearray(msg)
-            data[2] = 0x0B
-            self.request.sendall(data)
-            h.log("-> U (STARTDT con)")
-        elif msg[2] == 0x43:                              
-            h.log("<- U (TESTFR act)")
-            data = bytearray(msg)
-            data[2] = 0x83
-            self.request.sendall(data)
-            h.log("-> U (TESTFR con)")
-        else:
-            h.log("NIL: {}".fomat(msg))
-"""
-class MyTCPHandler(socketserver.StreamRequestHandler):
-    def handle(self):
-        with self.request.makefile('rwb') as file:
-            msg = file.read(2)
-            assert msg[0] == 0x68
-            msg += file.read(msg[1])
-            #msg = file.read(6)
-            print("{}:{} wrote:".format(self.client_address[0],self.client_address[1]))
-            print(msg)
-            
-            if msg[2] == 0x07:
-                print("<- U (STARTDT act)")
-                data = bytearray(msg)
-                data[2] = 0x0B
-                file.write(data)
-                print("-> U (STARTDT con)")
-            elif msg[2] == 0x43:
-                print("<- U (TESTFR act)")
-                data = bytearray(msg)
-                data[2] = 0x83
-                file.write(data)
-                print("-> U (TESTFR con)")
-            else:
-                print("NIL: {}".fomat(msg)) 
 
-
-
-HOST, PORT = "127.0.0.1", 2404
-
-    # Create the server, binding to localhost on port 9999
-with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
-        # Activate the server; this will keep running until you
-        # interrupt the program with Ctrl-C
-        server.serve_forever()
-
-
-
-while True:
+#while True:
     #cmc.handle()
     #time.sleep(10)
-    pass
+    #pass
     
