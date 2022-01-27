@@ -116,14 +116,14 @@ class CMEngine():
         max_generators = 1
         
         for _phase in range(0,3):
-            for _parameter in range(0,2):
+            for _parameter in range(0,3):
                 self.ana["v"][_parameter][_phase] = 0
                 self.ana["i"][_parameter][_phase] = 0
         self.ana["v"][1][1] = -120
         self.ana["i"][1][1] = -120
         self.ana["v"][1][2] = 120
         self.ana["i"][1][2] = 120
-        for i in range(0,2):
+        for i in range(0,3):
             self.ana["v"][2][i] = 50
             self.ana["i"][2][i] = 50
         for i in range(1,max_generators+1):
