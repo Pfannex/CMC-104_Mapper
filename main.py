@@ -8,10 +8,10 @@
 #   CMC-devices by a 104-client.
 #
 #   Autor:   Pf@nne-mail.de
-#   Version: V1.00
-#   Date:    10.01.2022
+#   Date:    28.01.2022
 #
 ###############################################################################
+VERSION = "V1.11"
 
 ###############################################################################
 #   IMPORT
@@ -50,7 +50,13 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 ###############################################################################
 t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
-
+h.log("##########################################")
+h.log("# IEC <--> CMC Mapper                    #")
+h.log("# Version: {}                         #".format(VERSION))
+h.log("# Mapping IEC 60870-5-104 Frames to      #")
+h.log("# Omicron CMEngine                       #")
+h.log("# © by Pf@nne/2022                       #")
+h.log("########################################## \n")
 h.start()
 cmc = CMC_Control.CMEngine()
 

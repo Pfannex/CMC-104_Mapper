@@ -7,4 +7,4 @@ The main functionnality of the maper is to control the Omicron
 CMC-devices by a 104-client.
 
 Autor:   Pf@nne-mail.de  
-Version: V1.02
+Version: V1.11
