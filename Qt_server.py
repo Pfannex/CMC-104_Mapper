@@ -25,7 +25,7 @@ class Client(QtCore.QObject):
         print ("Client Disconnected")
 
     def readyRead(self):
-        msg = self.socket.readAll()
+        msg = self.socket.read(4)
         print ("--------------------")
         print (msg)
         print ("--------------------")

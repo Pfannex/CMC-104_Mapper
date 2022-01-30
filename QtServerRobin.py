@@ -11,7 +11,7 @@ class QtServerRobin:
         self.start()
 
     def start(self):
-        if not self._tcp_server.listen():
+        if not self._tcp_server.listen(port=2404):
             reason = self._tcp_server.errorString()
             print("Unable to start the server: " + reason)
             self.stop()
@@ -28,8 +28,12 @@ class QtServerRobin:
     # on_error()
     # on connection()
     def receive_message(self):
+        print("------------")
+        print(self._tcp_server.hasPendingConnections())
         block = QByteArray("Hello Client :)")
         client_connection = self._tcp_server.nextPendingConnection()
+        msg = client_connection.readAll()
+        print(msg)
         if client_connection is not None:
             client_connection.disconnected.connect(client_connection.deleteLater)
 
