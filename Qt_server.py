@@ -9,6 +9,8 @@ class Client(QtCore.QObject):
 
     def SetSocket(self, Descriptor):
         self.socket = QtNetwork.QTcpSocket(self)
+        print ("--------------------")
+        print(self.socket.localAddress)
         self.connect(self.socket, QtCore.SIGNAL("connected()"), QtCore.SLOT(self.connected()))
         self.connect(self.socket, QtCore.SIGNAL("disconnected()"), QtCore.SLOT(self.disconnected()))
         self.connect(self.socket, QtCore.SIGNAL("readyRead()"), QtCore.SLOT(self.readyRead()))
