@@ -1,46 +1,8 @@
-import sys
-from PySide6 import QtCore, QtGui, QtNetwork 
+from PySide6 import QtCore, QtGui, QtNetwork
 from Qt_GUI.frm_main import Ui_frm_main
 from PySide6.QtWidgets import QApplication, QMainWindow
-"""
-class Messenger(object):
-    def __init__(self):
-        super(Messenger, self).__init__()
-        self.TCP_HOST = "127.0.0.1"  # QtNetwork.QHostAddress.LocalHost
-        self.TCP_SEND_TO_PORT = 2404
-        self.pSocket = None
-        self.listenServer = None
-        self.pSocket = QtNetwork.QTcpSocket()
-        self.pSocket.readyRead.connect(self.slotReadData)
-        self.pSocket.connected.connect(self.on_connected)
-        self.pSocket.error.connect(self.on_error)
+import sys
 
-    def slotSendMessage(self):
-        self.pSocket.connectToHost(self.TCP_HOST, self.TCP_SEND_TO_PORT)
-
-    def on_error(self, error):
-        if error == QtNetwork.QAbstractSocket.ConnectionRefusedError:
-            print(
-                'Unable to send data to port: "{}"'.format(
-                    self.TCP_SEND_TO_PORT
-                )
-            )
-            print("trying to reconnect")
-            QtCore.QTimer.singleShot(1000, self.slotSendMessage)
-
-    def on_connected(self):
-        cmd = "Hi there!"
-        print("Command Sent:", cmd)
-        #ucmd = unicode(cmd, "utf-8")
-        self.pSocket.write(cmd)
-        self.pSocket.flush()
-        self.pSocket.disconnectFromHost()
-
-    def slotReadData(self):
-        print("Reading data:", self.pSocket.readAll())
-        # QByteArray data = pSocket->readAll();
-
-"""
 class Client(QtCore.QObject):
     def SetSocket(self, socket):
         self.rx_counter = 0
@@ -49,56 +11,55 @@ class Client(QtCore.QObject):
         self.socket.connected.connect(self.on_connected)
         self.socket.disconnected.connect(self.on_disconnected)
         self.socket.readyRead.connect(self.on_readyRead)
-        print(
-            "Client Connected from IP %s" % self.socket.peerAddress().toString()
-        )
-
+        frm_main.print_memo("Client Connected from {}:{}".format(self.socket.peerAddress().toString(),
+                                                                 self.socket.peerPort()))
+        frm_main.tb_client_ip.setPlainText(self.socket.peerAddress().toString())
+        frm_main.tb_client_port.setPlainText(str(self.socket.peerPort()))
+        
     def on_connected(self):
-        print("Client Connected Event")
+        frm_main.print_memo("Client Connected Event")
 
     def on_disconnected(self):
-        print("Client Disconnected")
+        frm_main.print_memo("Client Disconnected")
+        
 
     def on_readyRead(self):
-        msg = self.socket.readAll()
-        #print(type(msg), msg.count())
-        #print("Client Message:", msg)
+        msg = self.socket.read(2)
+        bytes_to_read = int.from_bytes(msg[1], "big")
+        msg += self.socket.read(bytes_to_read)   
         data = bytearray(msg)
         if data[0] == 0x68:  #start
             if data[1] == len(data)-2:
                 #S-Frame
                 if data[2] & 0b00000011 == 0b01:    #01 S-Frame
-                    print("S-Frame")
                     self.handle_sFrame(data)
                 #U-Frame
                 if data[2] & 0b00000011 == 0b11:    #11 U-Frame
-                    print("U-Frame")
                     self.handle_uFrame(data)
                 #I-Frame        
                 if data[2] & 0b00000001 == 0b0:     #.0 I-Frame 
-                    print("I-Frame")
                     self.rx_counter += 1
                     self.handle_iFrame(data)
             else:
-                print("Wrong size of incomming IEC 60870-5-104 Frame")
+                frm_main.print_memo("Wrong size of incomming IEC 60870-5-104 Frame")
         
     #--- U-Frame handle  ------------------------------------------------------
     def handle_uFrame(self, data):
         if data[2] == 0x07:                              
-            print("<- U (STARTDT act)")
+            frm_main.print_memo("<- U (STARTDT act)")
             data[2] = 0x0B
             self.socket.write(data)
-            print("-> U (STARTDT con)")
+            frm_main.print_memo("-> U (STARTDT con)")
         elif data[2] == 0x13:                              
-            print("<- U (STOPDT act)")
+            frm_main.print_memo("<- U (STOPDT act)")
             data[2] = 0x23
             self.socket.write(data)
-            print("-> U (STOPDT con)")
+            frm_main.print_memo("-> U (STOPDT con)")
         elif data[2] == 0x43:                              
-            print("<- U (TESTFR act)")
+            frm_main.print_memo("<- U (TESTFR act)")
             data[2] = 0x83
             self.socket.write(data)
-            print("-> U (TESTFR con)")
+            frm_main.print_memo("-> U (TESTFR con)")
         elif data[2] == 0x83:
             pass
             #h.log("<- U (TESTFR con)")
@@ -106,11 +67,11 @@ class Client(QtCore.QObject):
             #self.u_frame_con = True
             #self.send_u_frame == False
         else:
-            print('<- unknown U {}'.format(data))
+            frm_main.print_memo('<- unknown U {}'.format(data))
 
     #--- S-Frame handle  ------------------------------------------------------
     def handle_sFrame(self, data):
-        print("<- S (Rx con) Rx = " + str((data[4] | data[5]<<8)>>1))
+        frm_main.print_memo("<- S (Rx con) Rx = " + str((data[4] | data[5]<<8)>>1))
 
     #--- I-Frame handle  ------------------------------------------------------
     def handle_iFrame(self, data):
@@ -122,46 +83,46 @@ class Client(QtCore.QObject):
         data[5] = (self.rx_counter & 0b0111111110000000) >> 7
         data[8] = 0<<8 | 0<<7 | 7 
         self.socket.write(data)
-        print("-> I ({}/{}) - COT = ".format(self.tx_counter, self.rx_counter))
+        frm_main.print_memo("-> I ({}/{}) - COT = ".format(self.tx_counter, self.rx_counter))
         self.tx_counter += 1
 
 
 class Server(QtCore.QObject):
     def __init__(self, parent=None):
         QtCore.QObject.__init__(self)
-        self.TCP_LISTEN_TO_PORT = 2404
+        self.TCP_LISTEN_TO_PORT = int(frm_main.tb_server_port.toPlainText())
         self.server = QtNetwork.QTcpServer()
         self.server.newConnection.connect(self.on_newConnection)
+        self.server.serverPort = self.TCP_LISTEN_TO_PORT
+        self.ip = QtNetwork.QHostAddress()
+        self.ip.setAddress(frm_main.tb_server_ip.toPlainText())
 
     def on_newConnection(self):
         while self.server.hasPendingConnections():
-            print("Incoming Connection...")
+            frm_main.print_memo("Incoming Connection...")
             self.client = Client(self)
             self.client.SetSocket(self.server.nextPendingConnection())
 
     def StartServer(self):
-        if self.server.listen(
-            QtNetwork.QHostAddress.Any, self.TCP_LISTEN_TO_PORT
-        ):
-            print(
-                "Server is listening on port: {}".format(
-                    self.TCP_LISTEN_TO_PORT
-                )
-            )
+        if self.server.listen(self.ip, self.TCP_LISTEN_TO_PORT):   #QtNetwork.QHostAddress.Any
+            frm_main.print_memo(
+                "Server is listening on {}:{}".format(self.ip.toString(),
+                                                      self.TCP_LISTEN_TO_PORT))
         else:
-            print("Server couldn't wake up")
+            frm_main.print_memo("Server couldn't wake up")
+            
+    def StopServer(self):
+        frm_main.print_memo("Closing Server")
+        self.server.close()
 
-
-
-
-class Example(QMainWindow, Ui_frm_main):
+class Frm_main(QMainWindow, Ui_frm_main):
     def __init__(self):
-        super(Example, self).__init__()
+        super().__init__()
         #self.setWindowTitle("TCP/Server")
         #self.resize(300, 300)
         self.setupUi(self)
         self.bu_firstButton.clicked.connect(self.setup)
-
+        #mf_RxLog
         #self.uiConnect = QtGui.QPushButton("Connect")
 
         # layout
@@ -180,15 +141,13 @@ class Example(QMainWindow, Ui_frm_main):
 
         #self.tcp = Messenger()
         #self.tcp.slotSendMessage()
-
-def main():
-    app = QApplication()
-    #app = QtGui.QApplication(sys.argv)
-    ex = Example()
-    ex.show()
-    app.exec()
-    sys.exit(app.exec_())
+    
+    def print_memo(self, line):
+        self.mf_RxLog.append(line)
 
 
-if __name__ == "__main__":
-    main()
+app = QApplication()
+frm_main = Frm_main()
+        
+frm_main.show()
+app.exec()
