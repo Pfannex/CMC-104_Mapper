@@ -10,8 +10,6 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.setupUi(self)
         self.bu_firstButton.clicked.connect(self.start_server)
     def start_server(self):
-        #self.port = int(self.tb_server_port.toPlainText())
-        #self.ip = self.tb_server_ip.toPlainText()
         self.server = IEC60870_5_104.Server(self)
         self.server.StartServer()            
      
