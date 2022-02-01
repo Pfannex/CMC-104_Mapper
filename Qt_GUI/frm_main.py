@@ -78,6 +78,9 @@ class Ui_frm_main(object):
         self.mf_RxLog = QTextBrowser(self.tab_104)
         self.mf_RxLog.setObjectName(u"mf_RxLog")
         self.mf_RxLog.setGeometry(QRect(10, 20, 761, 421))
+        font = QFont()
+        font.setPointSize(10)
+        self.mf_RxLog.setFont(font)
         self.lbl_server_log = QLabel(self.tab_104)
         self.lbl_server_log.setObjectName(u"lbl_server_log")
         self.lbl_server_log.setGeometry(QRect(20, 2, 121, 16))
@@ -134,7 +137,7 @@ class Ui_frm_main(object):
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
         self.lbl_client_port.setText(QCoreApplication.translate("frm_main", u"Client Port", None))
-        self.lbl_server_log.setText(QCoreApplication.translate("frm_main", u"Log", None))
+        self.lbl_server_log.setText(QCoreApplication.translate("frm_main", u"Server-Log:", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_104), QCoreApplication.translate("frm_main", u"IEC 60870-5-104 Server", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_cmc), QCoreApplication.translate("frm_main", u"Omicron CMC-Control", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_mqtt), QCoreApplication.translate("frm_main", u"MQTT", None))

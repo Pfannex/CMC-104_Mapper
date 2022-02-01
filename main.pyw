@@ -19,8 +19,10 @@ VERSION = "V1.11"
 import IEC60870_5_104
 import helper as h
 import CMC_Control
-import socketserver
 import GUI
+import sys
+from Qt_GUI.frm_main import Ui_frm_main
+from PySide6.QtWidgets import QApplication, QMainWindow
 
 ###############################################################################
 #   CALLBACKS
@@ -39,43 +41,27 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     if APDU.ASDU.CASDU.DEZ == 356:
+        pass
         cmc.set_command(APDU.ASDU.InfoObject)
         #callback_send(cmc.is_on)
      
-###############################################################################
-#   gui
-###############################################################################
-GUI.start()
-
 ###############################################################################
 #   MAIN START
 ###############################################################################
 t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
-h.log("##########################################")
-h.log("# IEC <--> CMC Mapper                    #")
-h.log("# Version: {}                         #".format(VERSION))
-h.log("# Mapping IEC 60870-5-104 Frames to      #")
-h.log("# Omicron CMEngine                       #")
-h.log("# © by Pf@nne/2022                       #")
-h.log("########################################## \n")
-h.start()
+
 cmc = CMC_Control.CMEngine()
 
-HOST, PORT = "127.0.0.1", 2404
-h.log('IEC 60870-5-104 Server listening on {}:{}'.format(HOST, PORT))
 IEC60870_5_104.callback.set_callback(on_IEC60870_5_104_I_Frame_GA_callback,
-                            on_IEC60870_5_104_I_Frame_received_callback)
-
-with socketserver.TCPServer((HOST, PORT), IEC60870_5_104.MyTCPHandler) as server:
-    server.serve_forever()
+                                     on_IEC60870_5_104_I_Frame_received_callback)
 
 ###############################################################################
 #   MAIN LOOP
 ###############################################################################
+app = QApplication()
+frm_main = GUI.Frm_main()
 
-#while True:
-    #cmc.handle()
-    #time.sleep(10)
-    #pass
-    
+frm_main.show()
+app.exec()
+sys.exit()

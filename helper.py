@@ -4,6 +4,7 @@
 import sys
 import traceback
 import time
+from datetime import datetime
 import threading
 import logging
 
@@ -29,14 +30,32 @@ class idleTimer(threading.Thread):
 ###############################################################################
 
 #--- Start up -----------------------------------------------------------------
-def start():
-    log (__name__+ " start")
+#def start():
+#    log (__name__+ " start")
     
 #--- update  ------------------------------------------------------------------
-def handle():
-    log (__name__ + " handle")
+#def handle():
+#    log (__name__ + " handle")
     
 #--- logging  -----------------------------------------------------------------
+def ts(source):
+    dt = datetime.now()
+    dt_str = "{:02,d}:{:02,d}:{:02,d}.{:03.0f}".format(dt.hour, dt.minute, dt.second, dt.microsecond/1000.0)
+    if source == "":
+        return ""
+    if source == "-":
+        return "{} - {} - ".format(dt_str, "      ")
+    if source == "i":
+        return "{} - {} - ".format(dt_str, "INFO  ")
+    if source == "e":
+        return "{} - {} - ".format(dt_str, "ERROR ")
+    if source == "s":
+        return "{} - {} - ".format(dt_str, "Server")
+    if source == "104":
+        return "{} - {} - ".format(dt_str, "IEC104")
+    if source == "cmc":
+        return "{} - {} - ".format(dt_str, "CMC   ")
+
 def log(msg):
     format = "%(asctime)s - %(levelname)s - %(message)s"
     logging.basicConfig(format=format, level=logging.INFO)
@@ -61,6 +80,6 @@ def logEx(ex, inClass):
     #log_error("trace:   %s" %stack_trace)            
     
 #--- format printLine  --------------------------------------------------------
-def fPL(value):
-    line = "{0:04b} {1:04b} - 0x{2:02X} - {2:4}".format(value>>4, value&0b00001111, value)
-    return line
+#def fPL(value):
+#    line = "{0:04b} {1:04b} - 0x{2:02X} - {2:4}".format(value>>4, value&0b00001111, value)
+#    return line

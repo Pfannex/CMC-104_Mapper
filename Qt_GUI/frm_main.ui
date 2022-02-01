@@ -220,6 +220,11 @@ p, li { white-space: pre-wrap; }
         <height>421</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
      </widget>
      <widget class="QLabel" name="lbl_server_log">
       <property name="geometry">
@@ -231,7 +236,7 @@ p, li { white-space: pre-wrap; }
        </rect>
       </property>
       <property name="text">
-       <string>Log</string>
+       <string>Server-Log:</string>
       </property>
      </widget>
     </widget>
