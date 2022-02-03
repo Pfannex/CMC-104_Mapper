@@ -11,7 +11,7 @@
 #   Date:    28.01.2022
 #
 ###############################################################################
-VERSION = "V1.11"
+VERSION = "IEC 60870-5-104 to Omicron CMEngine Mapper - V1.20"
 
 ###############################################################################
 #   IMPORT
@@ -40,10 +40,7 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     if APDU.ASDU.CASDU.DEZ == 356:
         frm_main.cmc.set_command(APDU.ASDU.InfoObject)
         #callback_send(cmc.is_on)
-
-scd.parse_scd()
-
-     
+  
 ###############################################################################
 #   MAIN START
 ###############################################################################
@@ -57,8 +54,8 @@ IEC60870_5_104.callback.set_callback(on_IEC60870_5_104_I_Frame_GA_callback,
 #   MAIN LOOP
 ###############################################################################
 app = QApplication()
-frm_main = GUI.Frm_main()
-
+frm_main = GUI.Frm_main(VERSION)
 frm_main.show()
+
 app.exec()
 sys.exit()

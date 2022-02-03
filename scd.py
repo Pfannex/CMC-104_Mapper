@@ -1,3 +1,5 @@
+"""
+
 import xml.etree.ElementTree as ET
 root = ET.parse('CMC-104_Mapper/Datenmodel.scd').getroot()
 
@@ -9,7 +11,6 @@ def parse_scd():
     print(ET.tostring(root, encoding='utf8').decode('utf8'))
     
     
-"""
     parser = ET.XMLPullParser(['start', 'end'])
     parser.feed('<author> Ralls')
     list(parser.read_events())
