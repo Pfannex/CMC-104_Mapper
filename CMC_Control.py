@@ -7,8 +7,9 @@
 import helper as h
 import win32com.client
 import math
-import pythoncom
-
+from PySide6 import QtWidgets, QtCore
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QMessageBox
 ###############################################################################
 #   class CMEngine
 ###############################################################################
@@ -16,16 +17,7 @@ import pythoncom
 class CMEngine():
     def __init__(self,frm_main):   
         self.frm_main = frm_main
-        self.frm_main.print_memo("cmc","scan for CMC-Devices")
-        self.device_locked = False
-        self.is_on = False
-        
-        pythoncom.CoInitialize()
-    # Get instance
         self.cm_engine = win32com.client.Dispatch("OMICRON.CMEngAL")
-    # Create id
-        self.id = pythoncom.CoMarshalInterThreadInterfaceInStream(pythoncom.IID_IDispatch, self.cm_engine)
-        
         self.ana = {"v": [[0, 0, 0],      #Amplitude
                          [0, -120, 120],  #Phase
                          [50, 50, 50]],   #Frequency
@@ -33,28 +25,85 @@ class CMEngine():
                          [0, -120, 120],  #Phase
                          [50, 50, 50]]    #Frequency
                     }    
+        
+    def scan_for_new(self):
+        
+        self.frm_main.print_memo("cmc","scan for CMC-Devices")
+        self.device_locked = False
+        self.is_on = False
         self.cm_engine.DevScanForNew(False)
-        device_list = self.cm_engine.DevGetList(0)  #return all associated CMCs
-        if str(device_list) == "":
-            self.frm_main.print_memo("e","No CMC devices found!")
+        ###ret = str(self.cm_engine.DevGetList(0)).split(";")  #return all associated CMCs
+        ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
+        ret = ret.split(";")
+        while '' in ret: ret.remove('')
+        device_list = []
+        for device in ret: device_list.append(device.split(","))   
+        
+        if not len(device_list):
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("No CMC-Device found!")
+            #msg.setInformativeText("No CMC-Device found or selected!")
+            msg.setWindowTitle("CMC-Device Scan for new")
+            msg.setDetailedText("Beim Scan wurde keine CMC-Gerät gedunden, " + \
+                                "oder es wurde keine CMC-Gerät ausgewählt!")
+            msg.setStandardButtons(QMessageBox.Ok)
+            #msg.buttonClicked.connect(msgbtn)
+            retval = msg.exec_()
             return
         else:
-            self.frm_main.print_memo("cmc","Devices found: {}".format(device_list))
-            self.device_id = int(device_list[0])        #first associated CMC is used - make sure only one is associated
+            tab = self.frm_main.tabw_devices
+            for device in device_list:
+                tab.insertRow(tab.rowCount()) 
+                item = QtWidgets.QTableWidgetItem(device[0])
+                item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+                item.setCheckState(Qt.CheckState.Unchecked)
+                tab.setItem(tab.rowCount()-1, 0, item)
+                item = QtWidgets.QTableWidgetItem(device[1])
+                tab.setItem(tab.rowCount()-1, 1, item)
+                item = QtWidgets.QTableWidgetItem("CMC356") #self.cm_engine.DeviceType(i)
+                tab.setItem(tab.rowCount()-1, 2, item)
+                item = QtWidgets.QTableWidgetItem("192.168.2.203") #self.cm_engine.IPAddress(i)
+                tab.setItem(tab.rowCount()-1, 3, item)
+            
+            tab.item(0,0).setCheckState(Qt.CheckState.Checked)
+                #self.frm_main.print_memo("cmc","Devices found: {}".format(device_list))
 
+                #device information
+                #self.frm_main.print_memo("cmc","--------------------------")
+                #self.frm_main.print_memo("cmc","Mapper connected to:")
+                #device_list = device_list.split(",")
+                #self.frm_main.print_memo("cmc","ID :  "+device_list[0])
+                #self.frm_main.print_memo("cmc","SER:  "+device_list[1])
+                #self.frm_main.print_memo("cmc","Type: CMC356")
+                #self.frm_main.print_memo("cmc","IP:   192.168.1.203")
+                ###self.frm_main.print_memo("cmc","Type: "+self.cm_engine.DeviceType(self.device_id))
+                ###self.frm_main.print_memo("cmc","IP:   "+self.cm_engine.IPAddress(self.device_id))
+                #self.frm_main.print_memo("cmc","--------------------------")
+
+    def lock_device(self):
+        tab = self.frm_main.tabw_devices
+        self.device_id = 0
+        for i in range(tab.rowCount()):
+            if tab.item(i, 0).checkState() == QtCore.Qt.Checked:
+                self.device_id = int(tab.item(i, 0).text())
+        
+        if not self.device_id: 
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("No CMC-Device found or selected!")
+            #msg.setInformativeText("No CMC-Device found or selected!")
+            msg.setWindowTitle("CMC-Device lock")
+            msg.setDetailedText("Beim Scan wurde keine CMC-Gerät gedunden, " + \
+                                "oder es wurde keine CMC-Gerät ausgewählt!")
+            msg.setStandardButtons(QMessageBox.Ok)
+            #msg.buttonClicked.connect(msgbtn)
+            retval = msg.exec_()
+        else: 
             self.cm_engine.DevUnlock(self.device_id)
             self.cm_engine.DevLock(self.device_id)
             self.device_locked = True
-            #device information
-            self.frm_main.print_memo("cmc","--------------------------")
-            self.frm_main.print_memo("cmc","Mapper connected to:")
-            device_list = device_list.split(",")
-            self.frm_main.print_memo("cmc","ID :  "+device_list[0])
-            self.frm_main.print_memo("cmc","SER:  "+device_list[1])
-            self.frm_main.print_memo("cmc","Type: "+self.cm_engine.DeviceType(self.device_id))
-            self.frm_main.print_memo("cmc","IP:   "+self.cm_engine.IPAddress(self.device_id))
-            self.frm_main.print_memo("cmc","--------------------------")
-
+        
     #----<set command from IEC60870-5-104 Frame by IOA>------------------------
     def set_command(self, info_object):
         ioa_1 = info_object.address._1

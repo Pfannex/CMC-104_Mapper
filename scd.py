@@ -1,7 +1,60 @@
+###############################################################################
+#   SCD Import
+###############################################################################
+###############################################################################
+#   IMPORT
+###############################################################################
+import helper as h
+import math
+from PySide6 import QtWidgets, QtCore
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QMessageBox
+import xml.etree.ElementTree as ET
+
+###############################################################################
+#   class CMEngine
+###############################################################################
+
+class SCD():
+    def __init__(self,frm_main):   
+        self.frm_main = frm_main
+    def load_file(self):
+        root = ET.parse("CMC-104_Mapper/Datenmodel.scd").getroot()
+        #for ied in root.findall("IED"):
+        #   self.frm_main.print_scd(ied.find("name").text)
+        
+        
+        #print(root.text)
+        for child in root:
+            self.frm_main.print_scd(str(child.tag))
+        
+        #for IED in root.iter('IED'):
+        #    print(IED.attrib)
+
+
+        #for child in root:
+        #    s = "{} - {}".format(child.tag, child.attrib)
+        #    self.frm_main.print_scd(s)
+        
+        #print("type_tag")
+        #for type_tag in root.findall('ied'):
+        #    print("type_tag")
+        #    value = type_tag.get('desc')
+        #    self.frm_main.print_scd(value)
+
+"""        #self.frm_main.print_scd("Hello World")
+        parser = ET.XMLPullParser(['start', 'end'])
+        parser.feed('<author> Ralls')
+        list(parser.read_events())
+        
+        parser.feed(' </author>')
+        for event, elem in parser.read_events():
+            print(event)
+            print(elem.tag, 'text=', elem.text)
+
+"""
 """
 
-import xml.etree.ElementTree as ET
-root = ET.parse('CMC-104_Mapper/Datenmodel.scd').getroot()
 
 def print_xml():
     for child in root:

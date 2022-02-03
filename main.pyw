@@ -16,7 +16,7 @@ VERSION = "IEC 60870-5-104 to Omicron CMEngine Mapper - V1.20"
 ###############################################################################
 #   IMPORT
 ###############################################################################
-import GUI, IEC60870_5_104, CMC_Control, scd
+import GUI, IEC60870_5_104, CMC_Control
 import helper as h, sys
 from Qt_GUI.frm_main import Ui_frm_main
 from PySide6.QtWidgets import QApplication, QMainWindow
@@ -53,9 +53,20 @@ IEC60870_5_104.callback.set_callback(on_IEC60870_5_104_I_Frame_GA_callback,
 ###############################################################################
 #   MAIN LOOP
 ###############################################################################
-app = QApplication()
+
+"""app = QApplication()
 frm_main = GUI.Frm_main(VERSION)
 frm_main.show()
 
 app.exec()
 sys.exit()
+"""
+#def main():
+app = QApplication(sys.argv)
+frm_main = GUI.Frm_main(VERSION)
+frm_main.show()
+sys.exit(app.exec())
+
+
+#if __name__ == '__main__':
+#    main()
