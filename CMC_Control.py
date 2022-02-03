@@ -14,8 +14,9 @@ import pythoncom
 ###############################################################################
 
 class CMEngine():
-    def __init__(self):   
-        h.log("scan for CMC-Devices")
+    def __init__(self,frm_main):   
+        self.frm_main = frm_main
+        self.frm_main.print_memo("cmc","scan for CMC-Devices")
         self.device_locked = False
         self.is_on = False
         
@@ -35,24 +36,24 @@ class CMEngine():
         self.cm_engine.DevScanForNew(False)
         device_list = self.cm_engine.DevGetList(0)  #return all associated CMCs
         if str(device_list) == "":
-            h.log_error("No CMC devices found!")
+            self.frm_main.print_memo("e","No CMC devices found!")
             return
         else:
-            h.log("Devices found: {}".format(device_list))
+            self.frm_main.print_memo("cmc","Devices found: {}".format(device_list))
             self.device_id = int(device_list[0])        #first associated CMC is used - make sure only one is associated
 
             self.cm_engine.DevUnlock(self.device_id)
             self.cm_engine.DevLock(self.device_id)
             self.device_locked = True
             #device information
-            h.log("--------------------------")
-            h.log("Mapper connected to:")
+            self.frm_main.print_memo("cmc","--------------------------")
+            self.frm_main.print_memo("cmc","Mapper connected to:")
             device_list = device_list.split(",")
-            h.log("ID :  "+device_list[0])
-            h.log("SER:  "+device_list[1])
-            h.log("Type: "+self.cm_engine.DeviceType(self.device_id))
-            h.log("IP:   "+self.cm_engine.IPAddress(self.device_id))
-            h.log("--------------------------")
+            self.frm_main.print_memo("cmc","ID :  "+device_list[0])
+            self.frm_main.print_memo("cmc","SER:  "+device_list[1])
+            self.frm_main.print_memo("cmc","Type: "+self.cm_engine.DeviceType(self.device_id))
+            self.frm_main.print_memo("cmc","IP:   "+self.cm_engine.IPAddress(self.device_id))
+            self.frm_main.print_memo("cmc","--------------------------")
 
     #----<set command from IEC60870-5-104 Frame by IOA>------------------------
     def set_command(self, info_object):
@@ -92,24 +93,24 @@ class CMEngine():
 
     #----<set command to CMC-Device>-------------------------------------------
     def cmd(self, cmd):
-        #h.log("CMC Command: " + cmd)
+        #self.frm_main.print_memo("cmc","CMC Command: " + cmd)
         if self.device_locked:
             self.cm_engine.Exec(self.device_id, cmd)
             if self.is_on:
                 self.cm_engine.Exec(self.device_id, "out:on")
         else:
-            h.log_error("No CMC connected!")
+            self.frm_main.print_memo("e","No CMC connected!")
 
     def power(self, command):
         if command == "SCS_ON":
             self.cmd("out:on")
-            h.log("CMC --> ON")
+            self.frm_main.print_memo("cmc","CMC --> ON")
             self.is_on = True
         else:  
             self.is_on = False
             self.cmd("out:off")
             self.cmd("out:ana:off(zcross)")
-            h.log("CMC --> OFF")
+            self.frm_main.print_memo("cmc","CMC --> OFF")
 
     #----<reset output triples to zero>----------------------------------------
     def reset_output(self):
@@ -135,7 +136,7 @@ class CMEngine():
         u_max = 150
         i_max = 5
         f_min = 40.0
-        f_max = 60.0
+        f_max = 70.0
         
         triple = "v" if phase in range(0,4) else "i"
         ui_phase = phase if triple == "v" else phase - 3
@@ -143,14 +144,14 @@ class CMEngine():
         max_value = value
         if triple == "v" and parameter == 1 and value >= u_max:
             max_value = u_max
-            h.log_error("U > Umax! --> set {}V".format(u_max))
+            self.frm_main.print_memo("e","U > Umax! --> set {}V".format(u_max))
         if triple == "i" and parameter == 1 and value >= i_max:
             max_value = i_max
-            h.log_error("I > Imax! --> set {}A".format(i_max))
+            self.frm_main.print_memo("e","I > Imax! --> set {}A".format(i_max))
             
         if parameter == 3 and (value < f_min or value > f_max):
             max_value = 50
-            h.log_error("f <> fmin/max! --> set {}Hz".format(50))
+            self.frm_main.print_memo("e","f <> fmin/max! --> set {}Hz".format(50))
             
         
         self.ana[triple][parameter-1][ui_phase-1] = max_value
@@ -167,7 +168,7 @@ class CMEngine():
                                             self.ana[vi][2][phase])
             out = "U" if vi == "v" else "I"
             unit = "V" if vi == "v" else "A"
-            h.log("{}L{}: {: 6.2f}{} - {: 7.2f}° - {: 6.2f}Hz".format(out,phase+1,self.ana[vi][0][phase],unit,
+            self.frm_main.print_memo("cmc","{}L{}: {: 6.2f}{} - {: 7.2f}° - {: 6.2f}Hz".format(out,phase+1,self.ana[vi][0][phase],unit,
                                                                                   self.ana[vi][1][phase],
                                                                                   self.ana[vi][2][phase]))
             self.cmd(cmd)

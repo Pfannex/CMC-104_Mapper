@@ -41,8 +41,7 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     if APDU.ASDU.CASDU.DEZ == 356:
-        pass
-        cmc.set_command(APDU.ASDU.InfoObject)
+        frm_main.cmc.set_command(APDU.ASDU.InfoObject)
         #callback_send(cmc.is_on)
      
 ###############################################################################
@@ -50,8 +49,6 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 ###############################################################################
 t1 = h.idleTimer(60, timer1_callback)
 t2 = h.idleTimer(300, timer2_callback)
-
-cmc = CMC_Control.CMEngine()
 
 IEC60870_5_104.callback.set_callback(on_IEC60870_5_104_I_Frame_GA_callback,
                                      on_IEC60870_5_104_I_Frame_received_callback)
