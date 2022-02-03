@@ -16,11 +16,8 @@ VERSION = "V1.11"
 ###############################################################################
 #   IMPORT
 ###############################################################################
-import IEC60870_5_104
-import helper as h
-import CMC_Control
-import GUI
-import sys
+import GUI, IEC60870_5_104, CMC_Control, scd
+import helper as h, sys
 from Qt_GUI.frm_main import Ui_frm_main
 from PySide6.QtWidgets import QApplication, QMainWindow
 
@@ -43,6 +40,9 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     if APDU.ASDU.CASDU.DEZ == 356:
         frm_main.cmc.set_command(APDU.ASDU.InfoObject)
         #callback_send(cmc.is_on)
+
+scd.parse_scd()
+
      
 ###############################################################################
 #   MAIN START
