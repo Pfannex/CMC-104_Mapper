@@ -21,9 +21,9 @@ class Frm_main(QMainWindow, Ui_frm_main):
         super().__init__()
         self.setupUi(self)
         self.setWindowTitle(version)
-        self.bu_firstButton.clicked.connect(self.start_server)
+        self.bu_firstButton.clicked.connect(self.start_services)
 
-    def start_server(self):
+    def start_services(self):
         self.server = IEC60870_5_104.Server(self)
         self.server.StartServer()   
         self.cmc = CMC_Control.CMEngine(self)
