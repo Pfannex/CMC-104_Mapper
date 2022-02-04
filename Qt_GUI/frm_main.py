@@ -115,6 +115,7 @@ class Ui_frm_main(object):
         font1 = QFont()
         font1.setPointSize(12)
         self.lbl_locked_to.setFont(font1)
+        self.lbl_locked_to.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.tabWidget.addTab(self.tab_cmc, "")
         self.tab_mqtt = QWidget()
         self.tab_mqtt.setObjectName(u"tab_mqtt")

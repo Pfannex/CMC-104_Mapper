@@ -7,9 +7,10 @@
 import helper as h
 import win32com.client
 import math
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMessageBox
+
 ###############################################################################
 #   class CMEngine
 ###############################################################################
@@ -17,6 +18,7 @@ from PySide6.QtWidgets import QMessageBox
 class CMEngine():
     def __init__(self,frm_main):   
         self.frm_main = frm_main
+        self.tab = self.frm_main.tabw_devices
         self.typ = ""
         self.device_ip = ""
         self.device_id = 0
@@ -30,22 +32,22 @@ class CMEngine():
                     }    
         
     def scan_for_new(self):
-        
+        self.frm_main.bu_lock_device.setEnabled(False)
+
         #self.frm_main.print_memo("cmc","scan for CMC-Devices")
         self.frm_main.lbl_locked_to.setText("scanning....")
         self.device_locked = False
         self.is_on = False
         self.cm_engine.DevScanForNew(False)
-        #ret = str(self.cm_engine.DevGetList(0)).split(";")  #return all associated CMCs
-        ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
-        #ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
-        #print(ret)
+        #ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
+        ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
+        #ret = ""  #return all associated CMCs
         ret = ret.split(";")
         while '' in ret: ret.remove('')
-        device_list = []
-        for device in ret: device_list.append(device.split(","))   
+        self.device_list = []
+        for device in ret: self.device_list.append(device.split(","))   
         
-        if not len(device_list):
+        if not len(self.device_list):
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
             msg.setText("No CMC-Device found!")
@@ -59,9 +61,11 @@ class CMEngine():
             self.frm_main.lbl_locked_to.setText("")
             return
         else:
+            self.frm_main.bu_lock_device.setEnabled(True)
             self.frm_main.lbl_locked_to.setText("Devices found....")
             tab = self.frm_main.tabw_devices
-            for device in device_list:
+            tab.setRowCount(0)
+            for device in self.device_list:
                 tab.insertRow(tab.rowCount()) 
                 item = QtWidgets.QTableWidgetItem(device[0])
                 item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
@@ -69,38 +73,32 @@ class CMEngine():
                 tab.setItem(tab.rowCount()-1, 0, item)
                 item = QtWidgets.QTableWidgetItem(device[1])
                 tab.setItem(tab.rowCount()-1, 1, item)
-                item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) #self.cm_engine.DeviceType(i)
-                #item = QtWidgets.QTableWidgetItem("CMC356") #self.cm_engine.DeviceType(i)
+                ##item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
+                item = QtWidgets.QTableWidgetItem("CMC356") 
                 tab.setItem(tab.rowCount()-1, 2, item)
-                item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) #self.cm_engine.IPAddress(i)
-                #item = QtWidgets.QTableWidgetItem("192.168.2.203") #self.cm_engine.IPAddress(i)
+                ##item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
+                item = QtWidgets.QTableWidgetItem("192.168.2.203") 
                 tab.setItem(tab.rowCount()-1, 3, item)
             
             tab.item(0,0).setCheckState(Qt.CheckState.Checked)
-                #self.frm_main.print_memo("cmc","Devices found: {}".format(device_list))
-
-                #device information
-                #self.frm_main.print_memo("cmc","--------------------------")
-                #self.frm_main.print_memo("cmc","Mapper connected to:")
-                #device_list = device_list.split(",")
-                #self.frm_main.print_memo("cmc","ID :  "+device_list[0])
-                #self.frm_main.print_memo("cmc","SER:  "+device_list[1])
-                #self.frm_main.print_memo("cmc","Type: CMC356")
-                #self.frm_main.print_memo("cmc","IP:   192.168.1.203")
-                ###self.frm_main.print_memo("cmc","Type: "+self.cm_engine.DeviceType(self.device_id))
-                ###self.frm_main.print_memo("cmc","IP:   "+self.cm_engine.IPAddress(self.device_id))
-                #self.frm_main.print_memo("cmc","--------------------------")
-
+            for j in range(4):
+                self.tab.item(0,j).setBackground(QtGui.QColor("lightgrey")) 
+                
     def lock_device(self):
-        #print(self.device_id)
-        #if self.device_id != 0: self.cm_engine.DevUnlock(self.device_id)
-        tab = self.frm_main.tabw_devices
-        self.device_id = 0
-        for i in range(tab.rowCount()):
-            if tab.item(i, 0).checkState() == QtCore.Qt.Checked:
-                self.device_id = int(tab.item(i, 0).text())
-                self.typ = self.cm_engine.DeviceType(self.device_id)
-                self.device_ip = self.cm_engine.IPAddress(self.device_id)
+        #unlock all
+        id = 0
+        for i in range(self.tab.rowCount()):
+            id = self.tab.item(i,0).text()
+            print("unlock device ID: {}".format(id))
+            ##self.cm_engine.DevUnlock(id)
+            
+        for i in range(self.tab.rowCount()):
+            if self.tab.item(i, 0).checkState() == QtCore.Qt.Checked:
+                self.device_id = int(self.tab.item(i, 0).text())
+                ##self.typ = self.cm_engine.DeviceType(self.device_id)
+                ##self.device_ip = self.cm_engine.IPAddress(self.device_id)
+                self.typ = "CMC356"
+                self.device_ip = "192.168.2.333"
         
         if not self.device_id: 
             msg = QMessageBox()
@@ -114,8 +112,8 @@ class CMEngine():
             #msg.buttonClicked.connect(msgbtn)
             retval = msg.exec_()
         else: 
-            self.cm_engine.DevUnlock(self.device_id)
-            self.cm_engine.DevLock(self.device_id)
+            #self.cm_engine.DevUnlock(self.device_id)
+            #self.cm_engine.DevLock(self.device_id)
             self.device_locked = True
             self.frm_main.lbl_locked_to.setText("Mapper locked to: \n{} - {}".format(self.typ,self.device_ip))
 

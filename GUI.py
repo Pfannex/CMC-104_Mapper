@@ -6,9 +6,10 @@ from Qt_GUI.frm_main import Ui_frm_main
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, \
                               QTableWidgetItem, QCheckBox
 import helper as h
-import CMC_Control, scd
+import CMC_Control, SCD
 import IEC60870_5_104
 import time
+from PySide6.QtCore import Qt
 
 #pyside6-designer
 #cd S:\_Untersuchungen\Datenpunktprüfung\Konfiguration\Mapper\CMC-104_Mapper\Qt_GUI
@@ -24,11 +25,12 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.setupUi(self)
         self.setWindowTitle(version)
         self.cmc = CMC_Control.CMEngine(self)
-        self.scd = scd.SCD(self)
+        self.scd = SCD.SCD(self)
         
         self.bu_firstButton.clicked.connect(self.start_services)
         self.bu_scan_devices.clicked.connect(self.cmc.scan_for_new)
         self.bu_lock_device.clicked.connect(self.cmc.lock_device)
+        self.bu_lock_device.setEnabled(False)
         self.bu_import_scd.clicked.connect(self.scd.load_file)
         
         self.tabw_devices.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -37,7 +39,27 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.tabw_devices.setColumnWidth(1,60)
         self.tabw_devices.setColumnWidth(2,60)
         self.tabw_devices.setColumnWidth(3,50)
-        #self.tabw_devices.item(0,0).text()
+        self.tabw_devices.itemClicked.connect(self.handle_item_clicked)
+        #self.tabw_devices.item(0,0)
+
+    #handle Checkboxes
+    def handle_item_clicked(self, item):
+        if item.column() == 0:
+            for i in range(self.tabw_devices.rowCount()):
+                if item.checkState() == Qt.CheckState.Unchecked:
+                    item.setCheckState(Qt.CheckState.Checked)
+                    for j in range(4):
+                        self.tabw_devices.item(i,j).setBackground(QtGui.QColor("lightgrey"))
+                else:
+                   for j in range(4):
+                        self.tabw_devices.item(i,j).setBackground(QtGui.QColor("lightgrey"))
+                    
+                if item.row() != i:
+                    self.tabw_devices.item(i,0).setCheckState(Qt.CheckState.Unchecked)  
+                    for j in range(4):
+                        self.tabw_devices.item(i,j).setBackground(QtGui.QColor("white"))
+                        
+                        
         
     def start_services(self):
         self.server = IEC60870_5_104.Server(self)
