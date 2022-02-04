@@ -28,7 +28,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="documentMode">
      <bool>false</bool>
@@ -319,6 +319,24 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="text">
        <string>Lock Device</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lbl_locked_to">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>290</y>
+        <width>251</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string/>
       </property>
      </widget>
     </widget>

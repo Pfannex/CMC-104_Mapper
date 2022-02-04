@@ -17,6 +17,9 @@ from PySide6.QtWidgets import QMessageBox
 class CMEngine():
     def __init__(self,frm_main):   
         self.frm_main = frm_main
+        self.typ = ""
+        self.device_ip = ""
+        self.device_id = 0
         self.cm_engine = win32com.client.Dispatch("OMICRON.CMEngAL")
         self.ana = {"v": [[0, 0, 0],      #Amplitude
                          [0, -120, 120],  #Phase
@@ -28,12 +31,15 @@ class CMEngine():
         
     def scan_for_new(self):
         
-        self.frm_main.print_memo("cmc","scan for CMC-Devices")
+        #self.frm_main.print_memo("cmc","scan for CMC-Devices")
+        self.frm_main.lbl_locked_to.setText("scanning....")
         self.device_locked = False
         self.is_on = False
         self.cm_engine.DevScanForNew(False)
-        ###ret = str(self.cm_engine.DevGetList(0)).split(";")  #return all associated CMCs
-        ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
+        #ret = str(self.cm_engine.DevGetList(0)).split(";")  #return all associated CMCs
+        ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
+        #ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
+        #print(ret)
         ret = ret.split(";")
         while '' in ret: ret.remove('')
         device_list = []
@@ -50,8 +56,10 @@ class CMEngine():
             msg.setStandardButtons(QMessageBox.Ok)
             #msg.buttonClicked.connect(msgbtn)
             retval = msg.exec_()
+            self.frm_main.lbl_locked_to.setText("")
             return
         else:
+            self.frm_main.lbl_locked_to.setText("Devices found....")
             tab = self.frm_main.tabw_devices
             for device in device_list:
                 tab.insertRow(tab.rowCount()) 
@@ -61,9 +69,11 @@ class CMEngine():
                 tab.setItem(tab.rowCount()-1, 0, item)
                 item = QtWidgets.QTableWidgetItem(device[1])
                 tab.setItem(tab.rowCount()-1, 1, item)
-                item = QtWidgets.QTableWidgetItem("CMC356") #self.cm_engine.DeviceType(i)
+                item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) #self.cm_engine.DeviceType(i)
+                #item = QtWidgets.QTableWidgetItem("CMC356") #self.cm_engine.DeviceType(i)
                 tab.setItem(tab.rowCount()-1, 2, item)
-                item = QtWidgets.QTableWidgetItem("192.168.2.203") #self.cm_engine.IPAddress(i)
+                item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) #self.cm_engine.IPAddress(i)
+                #item = QtWidgets.QTableWidgetItem("192.168.2.203") #self.cm_engine.IPAddress(i)
                 tab.setItem(tab.rowCount()-1, 3, item)
             
             tab.item(0,0).setCheckState(Qt.CheckState.Checked)
@@ -82,11 +92,15 @@ class CMEngine():
                 #self.frm_main.print_memo("cmc","--------------------------")
 
     def lock_device(self):
+        #print(self.device_id)
+        #if self.device_id != 0: self.cm_engine.DevUnlock(self.device_id)
         tab = self.frm_main.tabw_devices
         self.device_id = 0
         for i in range(tab.rowCount()):
             if tab.item(i, 0).checkState() == QtCore.Qt.Checked:
                 self.device_id = int(tab.item(i, 0).text())
+                self.typ = self.cm_engine.DeviceType(self.device_id)
+                self.device_ip = self.cm_engine.IPAddress(self.device_id)
         
         if not self.device_id: 
             msg = QMessageBox()
@@ -103,6 +117,8 @@ class CMEngine():
             self.cm_engine.DevUnlock(self.device_id)
             self.cm_engine.DevLock(self.device_id)
             self.device_locked = True
+            self.frm_main.lbl_locked_to.setText("Mapper locked to: \n{} - {}".format(self.typ,self.device_ip))
+
         
     #----<set command from IEC60870-5-104 Frame by IOA>------------------------
     def set_command(self, info_object):

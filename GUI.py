@@ -6,7 +6,7 @@ from Qt_GUI.frm_main import Ui_frm_main
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, \
                               QTableWidgetItem, QCheckBox
 import helper as h
-import CMC_Control, SCD
+import CMC_Control, scd
 import IEC60870_5_104
 import time
 
@@ -24,7 +24,7 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.setupUi(self)
         self.setWindowTitle(version)
         self.cmc = CMC_Control.CMEngine(self)
-        self.scd = SCD.SCD(self)
+        self.scd = scd.SCD(self)
         
         self.bu_firstButton.clicked.connect(self.start_services)
         self.bu_scan_devices.clicked.connect(self.cmc.scan_for_new)

@@ -109,6 +109,12 @@ class Ui_frm_main(object):
         self.bu_lock_device = QPushButton(self.tab_cmc)
         self.bu_lock_device.setObjectName(u"bu_lock_device")
         self.bu_lock_device.setGeometry(QRect(10, 240, 251, 41))
+        self.lbl_locked_to = QLabel(self.tab_cmc)
+        self.lbl_locked_to.setObjectName(u"lbl_locked_to")
+        self.lbl_locked_to.setGeometry(QRect(10, 290, 251, 41))
+        font1 = QFont()
+        font1.setPointSize(12)
+        self.lbl_locked_to.setFont(font1)
         self.tabWidget.addTab(self.tab_cmc, "")
         self.tab_mqtt = QWidget()
         self.tab_mqtt.setObjectName(u"tab_mqtt")
@@ -134,7 +140,7 @@ class Ui_frm_main(object):
 
         self.retranslateUi(frm_main)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(frm_main)
@@ -178,6 +184,7 @@ class Ui_frm_main(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_104), QCoreApplication.translate("frm_main", u"IEC 60870-5-104 Server", None))
         self.bu_scan_devices.setText(QCoreApplication.translate("frm_main", u"Scan for Devices", None))
         self.bu_lock_device.setText(QCoreApplication.translate("frm_main", u"Lock Device", None))
+        self.lbl_locked_to.setText("")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_cmc), QCoreApplication.translate("frm_main", u"Omicron CMC-Control", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_mqtt), QCoreApplication.translate("frm_main", u"MQTT", None))
         self.bu_import_scd.setText(QCoreApplication.translate("frm_main", u"start Server", None))
