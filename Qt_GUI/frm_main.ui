@@ -357,12 +357,12 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>10</x>
         <y>3</y>
-        <width>101</width>
+        <width>121</width>
         <height>51</height>
        </rect>
       </property>
       <property name="text">
-       <string>start Server</string>
+       <string>Load SCD-File</string>
       </property>
      </widget>
      <widget class="QTextBrowser" name="mf_scd">

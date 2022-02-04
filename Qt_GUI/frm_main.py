@@ -124,7 +124,7 @@ class Ui_frm_main(object):
         self.tab.setObjectName(u"tab")
         self.bu_import_scd = QPushButton(self.tab)
         self.bu_import_scd.setObjectName(u"bu_import_scd")
-        self.bu_import_scd.setGeometry(QRect(10, 3, 101, 51))
+        self.bu_import_scd.setGeometry(QRect(10, 3, 121, 51))
         self.mf_scd = QTextBrowser(self.tab)
         self.mf_scd.setObjectName(u"mf_scd")
         self.mf_scd.setGeometry(QRect(10, 60, 761, 451))
@@ -141,7 +141,7 @@ class Ui_frm_main(object):
 
         self.retranslateUi(frm_main)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(frm_main)
@@ -188,7 +188,7 @@ class Ui_frm_main(object):
         self.lbl_locked_to.setText("")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_cmc), QCoreApplication.translate("frm_main", u"Omicron CMC-Control", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_mqtt), QCoreApplication.translate("frm_main", u"MQTT", None))
-        self.bu_import_scd.setText(QCoreApplication.translate("frm_main", u"start Server", None))
+        self.bu_import_scd.setText(QCoreApplication.translate("frm_main", u"Load SCD-File", None))
         self.mf_scd.setHtml(QCoreApplication.translate("frm_main", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"

@@ -19,14 +19,25 @@ class SCD():
     def __init__(self,frm_main):   
         self.frm_main = frm_main
     def load_file(self):
-        root = ET.parse("CMC-104_Mapper/Datenmodel.scd").getroot()
+        tree = ET.parse("CMC-104_Mapper/Datenmodel.scd")
+        root = tree.getroot()
+        self.frm_main.print_scd(root.tag)
+        self.frm_main.print_scd(root.attrib)
+        
+        #root = ET.parse("CMC-104_Mapper/Datenmodel.scd").getroot()
+        
+        #ieds = root.findall("Communication")
+
+        #or ied in ieds:
+        #   print(ied.text)   
+                 
         #for ied in root.findall("IED"):
         #   self.frm_main.print_scd(ied.find("name").text)
         
         
         #print(root.text)
-        for child in root:
-            self.frm_main.print_scd(str(child.tag))
+        #for child in root:
+         #   self.frm_main.print_scd(str(child.tag))
         
         #for IED in root.iter('IED'):
         #    print(IED.attrib)
