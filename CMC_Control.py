@@ -23,6 +23,12 @@ class CMEngine():
         self.device_ip = ""
         self.device_id = 0
         self.cm_engine = win32com.client.Dispatch("OMICRON.CMEngAL")
+        self.values = [["0,00 V", "0,0 °", "50,00 Hz"],
+                       ["0,00 V", "-120,0 °", "50,00 Hz"],
+                       ["0,00 V", "120,0 °", "50,00 Hz"],
+                       ["0,00 A", "0,0 °", "50,00 Hz"],
+                       ["0,00 A", "-120,0 °", "50,00 Hz"],
+                       ["0,00 A", "120,0 °", "50,00 Hz"]]
         self.ana = {"v": [[0, 0, 0],      #Amplitude
                          [0, -120, 120],  #Phase
                          [50, 50, 50]],   #Frequency
@@ -140,19 +146,16 @@ class CMEngine():
         if dez == 99:
             self.reset_output()
         
-
         #set power:
-        #IOA1           | IOA2       | IOA3            | value
-        # 1             | 0          | 0               | SCS_ON / SCS_OFF
-        #set output:
-        #IOA1-Generator | IOA2-Phase | IOA3-parameter  | value
-        # 1             | 1: UL1     | 1: Amplitude    | R32
-        #               | 2: UL2     | 2: Phase        | R32
-        #               | 3: UL3     | 3: Frequency    | R32
-        #               | 4: IL1     |                 | R32
-        #               | 5: IL2     |                 | R32 
-        #               | 6: IL3     |                 | R32 
-        # 99            | 0          | 0               | reset_output 
+        #IOA1           | IOA2       | IOA3     | value     | description
+        # generator     | tab_row    | tab_col  |
+        # 1             | U/I 1,2,3  | a/p/f    | R32       | 3xU / 3xI
+        # 1             | 10         | 0        | R32       | triple U in %
+        # 1             | 11         | 0        | R32       | triple I in %
+        # 1             | 12         | 0        | R32       | triple U/I in %
+        # 99            | 0          | 1        | SCS_ON/OFF| Power on/off
+        # 99            | 0          | 2        | res_out   | reset triple
+
 
     #----<set command to CMC-Device>-------------------------------------------
     def cmd(self, cmd):

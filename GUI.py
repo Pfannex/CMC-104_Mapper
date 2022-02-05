@@ -1,6 +1,7 @@
 ###############################################################################
 #   IMPORT
 ###############################################################################
+from operator import xor
 from PySide6 import QtCore, QtGui, QtNetwork, QtWidgets
 from Qt_GUI.frm_main import Ui_frm_main
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, \
@@ -9,7 +10,7 @@ import helper as h
 import CMC_Control, SCD
 import IEC60870_5_104
 import time
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QStringConverter
 
 #pyside6-designer
 #cd S:\_Untersuchungen\Datenpunktprüfung\Konfiguration\Mapper\CMC-104_Mapper\Qt_GUI
@@ -24,23 +25,44 @@ class Frm_main(QMainWindow, Ui_frm_main):
         super().__init__()
         self.setupUi(self)
         self.setWindowTitle(version)
+        self.statusbar.showMessage("© by Pf@nne/22")
+        self.server = IEC60870_5_104.Server(self)
         self.cmc = CMC_Control.CMEngine(self)
         self.scd = SCD.SCD(self)
         
+        #Buttons
         self.bu_firstButton.clicked.connect(self.start_services)
         self.bu_scan_devices.clicked.connect(self.cmc.scan_for_new)
         self.bu_lock_device.clicked.connect(self.cmc.lock_device)
         self.bu_lock_device.setEnabled(False)
         self.bu_import_scd.clicked.connect(self.scd.load_file)
-        
-        self.tabw_devices.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self.tabw_devices.setHorizontalHeaderLabels(["ID","Serial","Typ","IP"])
-        self.tabw_devices.setColumnWidth(0,40)
-        self.tabw_devices.setColumnWidth(1,60)
-        self.tabw_devices.setColumnWidth(2,60)
-        self.tabw_devices.setColumnWidth(3,50)
-        self.tabw_devices.itemClicked.connect(self.handle_item_clicked)
-        #self.tabw_devices.item(0,0)
+        #Table CMC-Devices
+        cmc_dev = self.tabw_devices
+        cmc_dev.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        cmc_dev.setHorizontalHeaderLabels(["ID","Serial","Typ","IP"])
+        cmc_dev.setColumnWidth(0,40)
+        cmc_dev.setColumnWidth(1,60)
+        cmc_dev.setColumnWidth(2,60)
+        cmc_dev.setColumnWidth(3,50)
+        cmc_dev.itemClicked.connect(self.handle_item_clicked)
+        #Table Quick CMC
+        q_cmc = self.tabw_quick_cmc
+        q_cmc.setHorizontalHeaderLabels(["Amp.", "Phase", "Freq"])
+        q_cmc.setVerticalHeaderLabels(["UL1-N", "UL2-N", "UL3-N", "IL1", "IL2", "IL3"])
+        q_cmc.setColumnWidth(0,50)
+        q_cmc.setColumnWidth(1,50)
+        q_cmc.setColumnWidth(2,50)
+        values = [["0,00 V", "0,0 °", "50,00 Hz"],
+                  ["0,00 V", "-120,0 °", "50,00 Hz"],
+                  ["0,00 V", "120,0 °", "50,00 Hz"],
+                  ["0,00 A", "0,0 °", "50,00 Hz"],
+                  ["0,00 A", "-120,0 °", "50,00 Hz"],
+                  ["0,00 A", "120,0 °", "50,00 Hz"]]
+        for r in range(6):
+            for c in range(3):
+                x = QtWidgets.QTableWidgetItem(values[r][c])
+                x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
+                q_cmc.setItem(r,c,x)
 
     #handle Checkboxes
     def handle_item_clicked(self, item):
@@ -62,7 +84,6 @@ class Frm_main(QMainWindow, Ui_frm_main):
                         
         
     def start_services(self):
-        self.server = IEC60870_5_104.Server(self)
         self.server.StartServer()   
          
     def print_memo(self, source, line):

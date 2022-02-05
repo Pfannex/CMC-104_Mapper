@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QHeaderView, QLabel, QMainWindow,
-    QMenuBar, QPushButton, QSizePolicy, QStatusBar,
-    QTabWidget, QTableWidget, QTableWidgetItem, QTextBrowser,
-    QTextEdit, QWidget)
+from PySide6.QtWidgets import (QApplication, QFrame, QHeaderView, QLabel,
+    QListView, QMainWindow, QMenuBar, QPushButton,
+    QSizePolicy, QStatusBar, QTabWidget, QTableWidget,
+    QTableWidgetItem, QTextBrowser, QTextEdit, QWidget)
 
 class Ui_frm_main(object):
     def setupUi(self, frm_main):
@@ -39,7 +39,7 @@ class Ui_frm_main(object):
         self.tab_104.setObjectName(u"tab_104")
         self.mf_RxLog = QTextBrowser(self.tab_104)
         self.mf_RxLog.setObjectName(u"mf_RxLog")
-        self.mf_RxLog.setGeometry(QRect(10, 90, 761, 431))
+        self.mf_RxLog.setGeometry(QRect(10, 90, 371, 431))
         font = QFont()
         font.setPointSize(10)
         self.mf_RxLog.setFont(font)
@@ -88,6 +88,9 @@ class Ui_frm_main(object):
         self.bu_firstButton.setObjectName(u"bu_firstButton")
         self.bu_firstButton.setGeometry(QRect(10, 13, 101, 51))
         self.tabWidget.addTab(self.tab_104, "")
+        self.tab_mapper = QWidget()
+        self.tab_mapper.setObjectName(u"tab_mapper")
+        self.tabWidget.addTab(self.tab_mapper, "")
         self.tab_cmc = QWidget()
         self.tab_cmc.setObjectName(u"tab_cmc")
         self.bu_scan_devices = QPushButton(self.tab_cmc)
@@ -116,6 +119,38 @@ class Ui_frm_main(object):
         font1.setPointSize(12)
         self.lbl_locked_to.setFont(font1)
         self.lbl_locked_to.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
+        self.tabw_quick_cmc = QTableWidget(self.tab_cmc)
+        if (self.tabw_quick_cmc.columnCount() < 3):
+            self.tabw_quick_cmc.setColumnCount(3)
+        if (self.tabw_quick_cmc.rowCount() < 6):
+            self.tabw_quick_cmc.setRowCount(6)
+        self.tabw_quick_cmc.setObjectName(u"tabw_quick_cmc")
+        self.tabw_quick_cmc.setGeometry(QRect(320, 60, 201, 201))
+        self.tabw_quick_cmc.setGridStyle(Qt.SolidLine)
+        self.tabw_quick_cmc.setRowCount(6)
+        self.tabw_quick_cmc.setColumnCount(3)
+        self.tabw_quick_cmc.horizontalHeader().setCascadingSectionResizes(True)
+        self.tabw_quick_cmc.horizontalHeader().setMinimumSectionSize(50)
+        self.tabw_quick_cmc.horizontalHeader().setDefaultSectionSize(50)
+        self.tabw_quick_cmc.horizontalHeader().setProperty("showSortIndicator", False)
+        self.tabw_quick_cmc.horizontalHeader().setStretchLastSection(True)
+        self.tabw_quick_cmc.verticalHeader().setVisible(True)
+        self.tabw_quick_cmc.verticalHeader().setMinimumSectionSize(29)
+        self.tabw_quick_cmc.verticalHeader().setDefaultSectionSize(29)
+        self.tabw_quick_cmc.verticalHeader().setStretchLastSection(True)
+        self.bu_cmc_on = QPushButton(self.tab_cmc)
+        self.bu_cmc_on.setObjectName(u"bu_cmc_on")
+        self.bu_cmc_on.setGeometry(QRect(320, 10, 201, 41))
+        self.listView = QListView(self.tab_cmc)
+        self.listView.setObjectName(u"listView")
+        self.listView.setGeometry(QRect(10, 290, 251, 221))
+        self.line = QFrame(self.tab_cmc)
+        self.line.setObjectName(u"line")
+        self.line.setGeometry(QRect(260, 10, 61, 501))
+        self.line.setFrameShadow(QFrame.Raised)
+        self.line.setLineWidth(2)
+        self.line.setMidLineWidth(2)
+        self.line.setFrameShape(QFrame.VLine)
         self.tabWidget.addTab(self.tab_cmc, "")
         self.tab_mqtt = QWidget()
         self.tab_mqtt.setObjectName(u"tab_mqtt")
@@ -141,7 +176,7 @@ class Ui_frm_main(object):
 
         self.retranslateUi(frm_main)
 
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(frm_main)
@@ -183,9 +218,11 @@ class Ui_frm_main(object):
         self.lbl_client_ip.setText(QCoreApplication.translate("frm_main", u"Client IP", None))
         self.bu_firstButton.setText(QCoreApplication.translate("frm_main", u"start Server", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_104), QCoreApplication.translate("frm_main", u"IEC 60870-5-104 Server", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_mapper), QCoreApplication.translate("frm_main", u"<-- Mapper -->", None))
         self.bu_scan_devices.setText(QCoreApplication.translate("frm_main", u"Scan for Devices", None))
         self.bu_lock_device.setText(QCoreApplication.translate("frm_main", u"Lock Device", None))
         self.lbl_locked_to.setText("")
+        self.bu_cmc_on.setText(QCoreApplication.translate("frm_main", u"CMC ON", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_cmc), QCoreApplication.translate("frm_main", u"Omicron CMC-Control", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_mqtt), QCoreApplication.translate("frm_main", u"MQTT", None))
         self.bu_import_scd.setText(QCoreApplication.translate("frm_main", u"Load SCD-File", None))

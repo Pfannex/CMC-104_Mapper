@@ -65,6 +65,7 @@ sys.exit()
 app = QApplication(sys.argv)
 frm_main = GUI.Frm_main(VERSION)
 frm_main.show()
+#frm_main.server.StopServer()
 sys.exit(app.exec())
 
 
