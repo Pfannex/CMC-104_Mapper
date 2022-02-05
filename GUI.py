@@ -52,15 +52,9 @@ class Frm_main(QMainWindow, Ui_frm_main):
         q_cmc.setColumnWidth(0,50)
         q_cmc.setColumnWidth(1,50)
         q_cmc.setColumnWidth(2,50)
-        values = [["0,00 V", "0,0 °", "50,00 Hz"],
-                  ["0,00 V", "-120,0 °", "50,00 Hz"],
-                  ["0,00 V", "120,0 °", "50,00 Hz"],
-                  ["0,00 A", "0,0 °", "50,00 Hz"],
-                  ["0,00 A", "-120,0 °", "50,00 Hz"],
-                  ["0,00 A", "120,0 °", "50,00 Hz"]]
         for r in range(6):
             for c in range(3):
-                x = QtWidgets.QTableWidgetItem(values[r][c])
+                x = QtWidgets.QTableWidgetItem(self.cmc.values[r][c])
                 x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
                 q_cmc.setItem(r,c,x)
 

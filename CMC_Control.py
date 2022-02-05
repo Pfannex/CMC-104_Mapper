@@ -18,7 +18,7 @@ from PySide6.QtWidgets import QMessageBox
 class CMEngine():
     def __init__(self,frm_main):   
         self.frm_main = frm_main
-        self.tab = self.frm_main.tabw_devices
+        self.t_dev = self.frm_main.tabw_devices
         self.typ = ""
         self.device_ip = ""
         self.device_id = 0
@@ -70,37 +70,37 @@ class CMEngine():
             self.frm_main.bu_lock_device.setEnabled(True)
             self.frm_main.lbl_locked_to.setText("Devices found....")
             tab = self.frm_main.tabw_devices
-            tab.setRowCount(0)
+            self.t_dev.setRowCount(0)
             for device in self.device_list:
-                tab.insertRow(tab.rowCount()) 
+                self.t_dev.insertRow(t_dev.rowCount()) 
                 item = QtWidgets.QTableWidgetItem(device[0])
                 item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
                 item.setCheckState(Qt.CheckState.Unchecked)
-                tab.setItem(tab.rowCount()-1, 0, item)
+                self.t_dev.setItem(t_dev.rowCount()-1, 0, item)
                 item = QtWidgets.QTableWidgetItem(device[1])
-                tab.setItem(tab.rowCount()-1, 1, item)
+                self.t_dev.setItem(t_dev.rowCount()-1, 1, item)
                 ##item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
                 item = QtWidgets.QTableWidgetItem("CMC356") 
-                tab.setItem(tab.rowCount()-1, 2, item)
+                self.t_dev.setItem(t_dev.rowCount()-1, 2, item)
                 ##item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
                 item = QtWidgets.QTableWidgetItem("192.168.2.203") 
-                tab.setItem(tab.rowCount()-1, 3, item)
+                self.t_dev.setItem(t_dev.rowCount()-1, 3, item)
             
-            tab.item(0,0).setCheckState(Qt.CheckState.Checked)
+            self.t_dev.item(0,0).setCheckState(Qt.CheckState.Checked)
             for j in range(4):
-                self.tab.item(0,j).setBackground(QtGui.QColor("lightgrey")) 
+                self.t_dev.item(0,j).setBackground(QtGui.QColor("lightgrey")) 
                 
     def lock_device(self):
         #unlock all
         id = 0
-        for i in range(self.tab.rowCount()):
-            id = self.tab.item(i,0).text()
+        for i in range(self.t_dev.rowCount()):
+            id = self.t_dev.item(i,0).text()
             print("unlock device ID: {}".format(id))
             ##self.cm_engine.DevUnlock(id)
             
-        for i in range(self.tab.rowCount()):
-            if self.tab.item(i, 0).checkState() == QtCore.Qt.Checked:
-                self.device_id = int(self.tab.item(i, 0).text())
+        for i in range(self.t_dev.rowCount()):
+            if self.t_dev.item(i, 0).checkState() == QtCore.Qt.Checked:
+                self.device_id = int(self.t_dev.item(i, 0).text())
                 ##self.typ = self.cm_engine.DeviceType(self.device_id)
                 ##self.device_ip = self.cm_engine.IPAddress(self.device_id)
                 self.typ = "CMC356"
