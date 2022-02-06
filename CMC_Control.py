@@ -18,7 +18,11 @@ from PySide6.QtWidgets import QMessageBox
 class CMEngine():
     def __init__(self,frm_main):   
         self.frm_main = frm_main
+        self.log = self.frm_main.li_cmc_exec
         self.t_dev = self.frm_main.tabw_devices
+        self.t_qcmc = self.frm_main.tabw_quick_cmc
+        self.device_locked = False
+        self.is_on = False
         self.typ = ""
         self.device_ip = ""
         self.device_id = 0
@@ -29,6 +33,7 @@ class CMEngine():
                        ["0,00 A", "0,0 °", "50,00 Hz"],
                        ["0,00 A", "-120,0 °", "50,00 Hz"],
                        ["0,00 A", "120,0 °", "50,00 Hz"]]
+        
         self.ana = {"v": [[0, 0, 0],      #Amplitude
                          [0, -120, 120],  #Phase
                          [50, 50, 50]],   #Frequency
@@ -42,8 +47,6 @@ class CMEngine():
 
         #self.frm_main.print_memo("cmc","scan for CMC-Devices")
         self.frm_main.lbl_locked_to.setText("scanning....")
-        self.device_locked = False
-        self.is_on = False
         self.cm_engine.DevScanForNew(False)
         #ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
         ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
@@ -72,19 +75,19 @@ class CMEngine():
             tab = self.frm_main.tabw_devices
             self.t_dev.setRowCount(0)
             for device in self.device_list:
-                self.t_dev.insertRow(t_dev.rowCount()) 
+                self.t_dev.insertRow(self.t_dev.rowCount()) 
                 item = QtWidgets.QTableWidgetItem(device[0])
                 item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
                 item.setCheckState(Qt.CheckState.Unchecked)
-                self.t_dev.setItem(t_dev.rowCount()-1, 0, item)
+                self.t_dev.setItem(self.t_dev.rowCount()-1, 0, item)
                 item = QtWidgets.QTableWidgetItem(device[1])
-                self.t_dev.setItem(t_dev.rowCount()-1, 1, item)
+                self.t_dev.setItem(self.t_dev.rowCount()-1, 1, item)
                 ##item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
                 item = QtWidgets.QTableWidgetItem("CMC356") 
-                self.t_dev.setItem(t_dev.rowCount()-1, 2, item)
+                self.t_dev.setItem(self.t_dev.rowCount()-1, 2, item)
                 ##item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
                 item = QtWidgets.QTableWidgetItem("192.168.2.203") 
-                self.t_dev.setItem(t_dev.rowCount()-1, 3, item)
+                self.t_dev.setItem(self.t_dev.rowCount()-1, 3, item)
             
             self.t_dev.item(0,0).setCheckState(Qt.CheckState.Checked)
             for j in range(4):
@@ -123,39 +126,87 @@ class CMEngine():
             self.device_locked = True
             self.frm_main.lbl_locked_to.setText("Mapper locked to: \n{} - {}".format(self.typ,self.device_ip))
 
-        
+    def cmc_power(self):
+        if self.is_on:
+            self.frm_main.bu_cmc_on.setStyleSheet("background-color: green")
+            self.frm_main.bu_cmc_on.toggle()
+            #self.cmd("out:on")
+            #self.frm_main.print_memo("cmc","CMC --> ON")
+            self.is_on = False
+        else:  
+            self.frm_main.bu_cmc_on.setStyleSheet("background-color: red")
+            self.frm_main.bu_cmc_on.toggle()
+            self.is_on = True
+            #self.cmd("out:off")
+            #self.cmd("out:ana:off(zcross)")
+            #self.frm_main.print_memo("cmc","CMC --> OFF")
+   
+            
     #----<set command from IEC60870-5-104 Frame by IOA>------------------------
-    def set_command(self, info_object):
+    def set_command_from_104(self, info_object):
+        #IOA1           | IOA2       | IOA3     | value     | description
+        #out analog
+        # gen [1..20]   | tab_row    | tab_col  |
+        # 1             | U/I 1,2,3  | a/p/f    | R32       | 3xU / 3xI
+        # 1             | 100        | 0        | R32       | triple U in %
+        # 1             | 101        | 0        | R32       | triple I in %
+        # 1             | 102        | 0        | R32       | triple U/I in %
+
+        #special funktions:
+        # 255           | 0          | 1        | SCS_ON/OFF| Power on/off
+        # 255           | 0          | 2        | res_out   | reset triple
+
         ioa_1 = info_object.address._1
         ioa_2 = info_object.address._2
         ioa_3 = info_object.address._3
         dez = info_object.address.DEZ
         info_detail_typ = info_object.dataObject[0].name  #SCO / R32
-        
-        if info_object.address.DEZ == 1 and info_detail_typ == "SCO":
-            self.power(info_object.dataObject[0].detail[2].state)
-        if ioa_1 == 1 and ioa_2 in range(1,7) and ioa_3 in range (1,4) and info_detail_typ == "R32":
-            value = info_object.dataObject[0].detail[0].value
-            self.prepare_output(ioa_1, ioa_2, ioa_3, value)
-        if dez == 3:
-            value = info_object.dataObject[0].detail[0].value
-            self.triple_out(1, "v", value)
-        if dez == 4:
-            value = info_object.dataObject[0].detail[0].value
-            self.triple_out(1, "i", value)
-        if dez == 99:
-            self.reset_output()
-        
-        #set power:
-        #IOA1           | IOA2       | IOA3     | value     | description
-        # generator     | tab_row    | tab_col  |
-        # 1             | U/I 1,2,3  | a/p/f    | R32       | 3xU / 3xI
-        # 1             | 10         | 0        | R32       | triple U in %
-        # 1             | 11         | 0        | R32       | triple I in %
-        # 1             | 12         | 0        | R32       | triple U/I in %
-        # 99            | 0          | 1        | SCS_ON/OFF| Power on/off
-        # 99            | 0          | 2        | res_out   | reset triple
 
+        if ioa_1 in range(1, 21) and info_detail_typ == "R32":   #out ana
+            self.set_quick_table(info_object)
+            
+    #----<set quickCMC tableView>----------------------------------------------
+    def set_quick_table(self, info_object):
+        value = info_object.dataObject[0].detail[0].value
+        gen = info_object.address._1
+        r = info_object.address._2 -1
+        c = info_object.address._3 -1
+        unit = "V"
+        unit = "°" if c == 1 else "Hz"
+        if c == 0 and r in range(0,3): unit = "V"
+        if c == 0 and r in range(3,6): unit = "A"
+        self.values[r][c] = "{:.2f} {}".format(value, unit)
+        x = QtWidgets.QTableWidgetItem(self.values[r][c])
+        x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
+        self.t_qcmc.setItem(r,c,x)
+        if r in range(0,3):
+            vi = "v"
+            phase = r+1
+        if r in range(3,6):
+            vi = "i"
+            phase = r-3+1
+        if c == 0: kind = "a"
+        elif c == 1: kind = "p" 
+        elif c == 2: kind = "f" 
+        self.set_exec("out:{}({}:{}):{}({:.3f})".format(vi, gen, phase, kind, value))
+         
+    #----<set quickCMC tableView>----------------------------------------------
+    def set_exec(self, cmd):
+        item = QtWidgets.QListWidgetItem("Exec: {}".format(cmd))
+        self.log.addItem(item)
+        self.log.scrollToBottom()
+        if self.device_locked:
+            self.cm_engine.Exec(self.device_id, cmd)
+            if self.is_on:
+                self.cm_engine.Exec(self.device_id, "out:on")
+        else:
+            self.frm_main.print_memo("e","No CMC connected!")
+            
+        #"out:v(1:1):a(10);p(0);f(50)"               
+        
+
+########################################################
+    
 
     #----<set command to CMC-Device>-------------------------------------------
     def cmd(self, cmd):
@@ -270,4 +321,20 @@ def handle():
     h.log (__name__ + "handle")
 
 
+"""        
+if info_object.address.DEZ == 1 and info_detail_typ == "SCO":
+    self.power(info_object.dataObject[0].detail[2].state)
+if ioa_1 == 1 and ioa_2 in range(1,7) and ioa_3 in range (1,4) and info_detail_typ == "R32":
+    value = info_object.dataObject[0].detail[0].value
+    self.prepare_output(ioa_1, ioa_2, ioa_3, value)
+if dez == 3:
+    value = info_object.dataObject[0].detail[0].value
+    self.triple_out(1, "v", value)
+if dez == 4:
+    value = info_object.dataObject[0].detail[0].value
+    self.triple_out(1, "i", value)
+if dez == 99:
+    self.reset_output()
+        
+"""
 

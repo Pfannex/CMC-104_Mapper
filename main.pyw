@@ -38,7 +38,7 @@ def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
 
 def on_IEC60870_5_104_I_Frame_received_callback(APDU):
     if APDU.ASDU.CASDU.DEZ == 356:
-        frm_main.cmc.set_command(APDU.ASDU.InfoObject)
+        frm_main.cmc.set_command_from_104(APDU.ASDU.InfoObject)
         #callback_send(cmc.is_on)
   
 ###############################################################################

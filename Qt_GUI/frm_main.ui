@@ -352,7 +352,7 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>320</x>
         <y>60</y>
-        <width>201</width>
+        <width>231</width>
         <height>201</height>
        </rect>
       </property>
@@ -369,10 +369,10 @@ p, li { white-space: pre-wrap; }
        <bool>true</bool>
       </attribute>
       <attribute name="horizontalHeaderMinimumSectionSize">
-       <number>50</number>
+       <number>60</number>
       </attribute>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>50</number>
+       <number>65</number>
       </attribute>
       <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
        <bool>false</bool>
@@ -407,7 +407,7 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>320</x>
         <y>10</y>
-        <width>201</width>
+        <width>231</width>
         <height>41</height>
        </rect>
       </property>
@@ -445,6 +445,19 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="orientation">
        <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="li_cmc_exec">
+      <property name="geometry">
+       <rect>
+        <x>320</x>
+        <y>290</y>
+        <width>231</width>
+        <height>221</height>
+       </rect>
+      </property>
+      <property name="autoScrollMargin">
+       <number>12</number>
       </property>
      </widget>
     </widget>

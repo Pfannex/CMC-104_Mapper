@@ -35,11 +35,34 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.bu_scan_devices.clicked.connect(self.cmc.scan_for_new)
         self.bu_lock_device.clicked.connect(self.cmc.lock_device)
         self.bu_lock_device.setEnabled(False)
+        self.bu_cmc_on.clicked.connect(self.cmc.cmc_power)
+        self.bu_cmc_on.setStyleSheet("background-color: green")
+        self.bu_cmc_on.setCheckable(True)
+        
         self.bu_import_scd.clicked.connect(self.scd.load_file)
         #Table CMC-Devices
         cmc_dev = self.tabw_devices
+        
+        #cmc_dev.horizontalHeader().setStyleSheet("background-color: yellow")
         cmc_dev.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         cmc_dev.setHorizontalHeaderLabels(["ID","Serial","Typ","IP"])
+        
+        #cmc_dev.setStyleSheet("text-align:center")
+        #brush = QtGui.QBrush(QtGui.QColor(10,100, 10))
+        #brush.setStyle(QtCore.Qt.SolidPattern)   
+        #brush.setColor("red")
+        #item = QtWidgets.QTableWidgetItem("banane")
+        #item.setBackground(QtGui.QBrush("alternative_color"))
+        #item.setBackground(QtGui.QColor("lightgrey"))
+        #item.setBackground(brush)
+        #cmc_dev.setHorizontalHeaderItem(1, item)
+        
+        #c = QtGui.QColor()
+        #c.setRgb(128,255,255,255)
+        #cmc_dev.horizontalHeaderItem(0).setForeground(QtGui.QColor("red"))
+        #x = cmc_dev.horizontalHeaderItem(0).foreground()
+        #print (x.color())
+        
         cmc_dev.setColumnWidth(0,40)
         cmc_dev.setColumnWidth(1,60)
         cmc_dev.setColumnWidth(2,60)
@@ -57,7 +80,10 @@ class Frm_main(QMainWindow, Ui_frm_main):
                 x = QtWidgets.QTableWidgetItem(self.cmc.values[r][c])
                 x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
                 q_cmc.setItem(r,c,x)
-
+        #List exec 
+        #self.li_cmc_exec.setAutoScroll(True)
+        #self.li_cmc_exec.scrollToBottom()
+        
     #handle Checkboxes
     def handle_item_clicked(self, item):
         if item.column() == 0:

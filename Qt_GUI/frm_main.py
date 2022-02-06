@@ -16,9 +16,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHeaderView, QLabel,
-    QListView, QMainWindow, QMenuBar, QPushButton,
-    QSizePolicy, QStatusBar, QTabWidget, QTableWidget,
-    QTableWidgetItem, QTextBrowser, QTextEdit, QWidget)
+    QListView, QListWidget, QListWidgetItem, QMainWindow,
+    QMenuBar, QPushButton, QSizePolicy, QStatusBar,
+    QTabWidget, QTableWidget, QTableWidgetItem, QTextBrowser,
+    QTextEdit, QWidget)
 
 class Ui_frm_main(object):
     def setupUi(self, frm_main):
@@ -125,13 +126,13 @@ class Ui_frm_main(object):
         if (self.tabw_quick_cmc.rowCount() < 6):
             self.tabw_quick_cmc.setRowCount(6)
         self.tabw_quick_cmc.setObjectName(u"tabw_quick_cmc")
-        self.tabw_quick_cmc.setGeometry(QRect(320, 60, 201, 201))
+        self.tabw_quick_cmc.setGeometry(QRect(320, 60, 231, 201))
         self.tabw_quick_cmc.setGridStyle(Qt.SolidLine)
         self.tabw_quick_cmc.setRowCount(6)
         self.tabw_quick_cmc.setColumnCount(3)
         self.tabw_quick_cmc.horizontalHeader().setCascadingSectionResizes(True)
-        self.tabw_quick_cmc.horizontalHeader().setMinimumSectionSize(50)
-        self.tabw_quick_cmc.horizontalHeader().setDefaultSectionSize(50)
+        self.tabw_quick_cmc.horizontalHeader().setMinimumSectionSize(60)
+        self.tabw_quick_cmc.horizontalHeader().setDefaultSectionSize(65)
         self.tabw_quick_cmc.horizontalHeader().setProperty("showSortIndicator", False)
         self.tabw_quick_cmc.horizontalHeader().setStretchLastSection(True)
         self.tabw_quick_cmc.verticalHeader().setVisible(True)
@@ -140,7 +141,7 @@ class Ui_frm_main(object):
         self.tabw_quick_cmc.verticalHeader().setStretchLastSection(True)
         self.bu_cmc_on = QPushButton(self.tab_cmc)
         self.bu_cmc_on.setObjectName(u"bu_cmc_on")
-        self.bu_cmc_on.setGeometry(QRect(320, 10, 201, 41))
+        self.bu_cmc_on.setGeometry(QRect(320, 10, 231, 41))
         self.listView = QListView(self.tab_cmc)
         self.listView.setObjectName(u"listView")
         self.listView.setGeometry(QRect(10, 290, 251, 221))
@@ -151,6 +152,10 @@ class Ui_frm_main(object):
         self.line.setLineWidth(2)
         self.line.setMidLineWidth(2)
         self.line.setFrameShape(QFrame.VLine)
+        self.li_cmc_exec = QListWidget(self.tab_cmc)
+        self.li_cmc_exec.setObjectName(u"li_cmc_exec")
+        self.li_cmc_exec.setGeometry(QRect(320, 290, 231, 221))
+        self.li_cmc_exec.setAutoScrollMargin(12)
         self.tabWidget.addTab(self.tab_cmc, "")
         self.tab_mqtt = QWidget()
         self.tab_mqtt.setObjectName(u"tab_mqtt")
