@@ -46,45 +46,21 @@ class CMEngine():
         
     def scan_for_new(self):
         self.unlock_all_devices()
-        #self.frm_main.bu_lock_device.setEnabled(False)
-
-        #self.frm_main.print_memo("cmc","scan for CMC-Devices")
-        #self.frm_main.lbl_locked_to.setText("scanning....")
-        #self.device_log.addItem(QtWidgets.QListWidgetItem("scanning...."))
-        #self.device_log.scrollToBottom()
         self.devlog("scanning....")
 
         self.cm_engine.DevScanForNew(False)
         ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
         ##ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
-        #ret = ""  #return all associated CMCs
         ret = ret.split(";")
         while '' in ret: ret.remove('')
         self.device_list = []
         for device in ret: self.device_list.append(device.split(","))   
         
         if not len(self.device_list):
-            """            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("No CMC-Device found!")
-            #msg.setInformativeText("No CMC-Device found or selected!")
-            msg.setWindowTitle("CMC-Device Scan for new")
-            msg.setDetailedText("Beim Scan wurde keine CMC-Gerät gedunden, " + \
-                                "oder es wurde keine CMC-Gerät ausgewählt!")
-            msg.setStandardButtons(QMessageBox.Ok)
-            #msg.buttonClicked.connect(msgbtn)
-            retval = msg.exec_()
-            self.frm_main.lbl_locked_to.setText("")
-            """         
-            #self.device_log.addItem(QtWidgets.QListWidgetItem("no devives found!"))
-            #self.device_log.scrollToBottom()
             self.devlog("no devives found!")
             return
         else:
             self.frm_main.bu_lock_device.setEnabled(True)
-            #self.frm_main.lbl_locked_to.setText("Devices found....")
-            #self.device_log.addItem(QtWidgets.QListWidgetItem("devices found: {}".format(self.device_list)))
-            #self.device_log.scrollToBottom()
             self.devlog("devices found: {}".format(self.device_list))
 
             tab = self.frm_main.tabw_devices
@@ -110,18 +86,13 @@ class CMEngine():
                 
     def unlock_all_devices(self):
         self.frm_main.bu_lock_device.setEnabled(False)
-        #self.frm_main.bu_lock_device.setStyleSheet("background-color: lightgrey")
         self.frm_main.bu_lock_device.setText("Lock Device")
         self.frm_main.bu_lock_device.setStyleSheet("font-weight: normal; color: black")
-        self.device_locked = True
+        self.device_locked = False
         id = 0
         for i in range(self.t_dev.rowCount()):
             id = self.t_dev.item(i,0).text()
-            #self.device_log.addItem(QtWidgets.QListWidgetItem("unlock deviceID= {}".format(id)))
-            #self.device_log.scrollToBottom()
             self.devlog("unlock deviceID= {}".format(id))
-            #self.frm_main.lbl_locked_to.setText("unlock deviceID= {}".format(id))
-            #print("unlock device ID: {}".format(id))
             self.cm_engine.DevUnlock(id)
 
     def lock_device(self):
@@ -136,29 +107,13 @@ class CMEngine():
                 ##self.device_ip = "192.168.2.333"
         
         if not self.device_id: 
-            #self.device_log.addItem(QtWidgets.QListWidgetItem("No CMC-Device found or selected!"))
-            #self.device_log.scrollToBottom()
             self.devlog("No CMC-Device found or selected!")
-            """msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("No CMC-Device found or selected!")
-            #msg.setInformativeText("No CMC-Device found or selected!")
-            msg.setWindowTitle("CMC-Device lock")
-            msg.setDetailedText("Beim Scan wurde keine CMC-Gerät gedunden, " + \
-                                "oder es wurde keine CMC-Gerät ausgewählt!")
-            msg.setStandardButtons(QMessageBox.Ok)
-            #msg.buttonClicked.connect(msgbtn)
-            retval = msg.exec_()"""
         else: 
-            #self.cm_engine.DevUnlock(self.device_id)
             self.cm_engine.DevLock(self.device_id)
             self.device_locked = True
             self.frm_main.bu_lock_device.setText("locked to: {} - {}".format(self.serial,self.device_ip))
             self.frm_main.bu_lock_device.setStyleSheet("font-weight: bold; color: red")
-            #self.device_log.addItem(QtWidgets.QListWidgetItem("Mapper locked to: {} - {}".format(self.serial,self.device_ip)))
-            #self.device_log.scrollToBottom()
             self.devlog("Mapper locked to: {} - {}".format(self.serial,self.device_ip))
-            #self.frm_main.lbl_locked_to.setText("Mapper locked to: {} - {}".format(self.typ,self.device_ip))
 
     def cmc_power(self):
         if self.is_on:
@@ -223,18 +178,20 @@ class CMEngine():
         elif c == 1: kind = "p" 
         elif c == 2: kind = "f" 
         self.set_exec("out:{}({}:{}):{}({:.3f})".format(vi, gen, phase, kind, value))
-         
-    #----<set quickCMC tableView>----------------------------------------------
+
+    def on_edit_quick_table(self, item):
+
+        print(item.row())
+
+    #----<set cmEngine exec-command>-------------------------------------------
     def set_exec(self, cmd):
-        item = QtWidgets.QListWidgetItem("Exec: {}".format(cmd))
-        self.log.addItem(item)
-        self.log.scrollToBottom()
         if self.device_locked:
+            self.execlog("Exec: {}".format(cmd))
             self.cm_engine.Exec(self.device_id, cmd)
             if self.is_on:
                 self.cm_engine.Exec(self.device_id, "out:on")
         else:
-            self.frm_main.print_memo("e","No CMC connected!")
+            self.execlog("No CMC-Device locked!")
             
         #"out:v(1:1):a(10);p(0);f(50)"               
         

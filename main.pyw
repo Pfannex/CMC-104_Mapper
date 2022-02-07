@@ -57,7 +57,5 @@ IEC60870_5_104.callback.set_callback(on_IEC60870_5_104_I_Frame_GA_callback,
 app = QApplication(sys.argv)
 frm_main = GUI.Frm_main(VERSION)
 frm_main.show()
-#t1.stop()
-#t2.stop()
 sys.exit(app.exec())
 

@@ -38,31 +38,12 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.bu_cmc_on.clicked.connect(self.cmc.cmc_power)
         self.bu_cmc_on.setStyleSheet("background-color: green")
         self.bu_cmc_on.setCheckable(True)
-        
         self.bu_import_scd.clicked.connect(self.scd.load_file)
-        #Table CMC-Devices
+
+        #Table devices
         cmc_dev = self.tabw_devices
-        
-        #cmc_dev.horizontalHeader().setStyleSheet("background-color: yellow")
         cmc_dev.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         cmc_dev.setHorizontalHeaderLabels(["ID","Serial","Typ","IP"])
-        
-        #cmc_dev.setStyleSheet("text-align:center")
-        #brush = QtGui.QBrush(QtGui.QColor(10,100, 10))
-        #brush.setStyle(QtCore.Qt.SolidPattern)   
-        #brush.setColor("red")
-        #item = QtWidgets.QTableWidgetItem("banane")
-        #item.setBackground(QtGui.QBrush("alternative_color"))
-        #item.setBackground(QtGui.QColor("lightgrey"))
-        #item.setBackground(brush)
-        #cmc_dev.setHorizontalHeaderItem(1, item)
-        
-        #c = QtGui.QColor()
-        #c.setRgb(128,255,255,255)
-        #cmc_dev.horizontalHeaderItem(0).setForeground(QtGui.QColor("red"))
-        #x = cmc_dev.horizontalHeaderItem(0).foreground()
-        #print (x.color())
-        
         cmc_dev.setColumnWidth(0,40)
         cmc_dev.setColumnWidth(1,60)
         cmc_dev.setColumnWidth(2,60)
@@ -80,12 +61,8 @@ class Frm_main(QMainWindow, Ui_frm_main):
                 x = QtWidgets.QTableWidgetItem(self.cmc.values[r][c])
                 x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
                 q_cmc.setItem(r,c,x)
-        #List exec 
-        #self.li_cmc_exec.setAutoScroll(True)
-        #self.li_cmc_exec.scrollToBottom()
-        #self.li_device_log.addItem(QtWidgets.QListWidgetItem("icon, text"))
-        #self.li_device_log.scrollToBottom()
-        
+        self.tabw_quick_cmc.itemChanged.connect(self.cmc.on_edit_quick_table)
+
     #handle Checkboxes
     def handle_item_clicked(self, item):
         if item.column() == 0:
@@ -108,8 +85,6 @@ class Frm_main(QMainWindow, Ui_frm_main):
          
     def print_memo(self, source, line):
         self.mf_RxLog.append(h.ts(source) + line)
-    def print_scd(self, line):
-        self.mf_scd.append(line)
         
 
  
