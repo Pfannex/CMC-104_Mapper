@@ -116,6 +116,9 @@ class CMEngine():
             self.devlog("Mapper locked to: {} - {}".format(self.serial,self.device_ip))
 
     def cmc_power(self):
+        item = QtWidgets.QTableWidgetItem("10.334")
+        self.t_qcmc.setItem(0, 0, item)
+         
         if self.is_on:
             self.frm_main.bu_cmc_on.setStyleSheet("background-color: green")
             self.frm_main.bu_cmc_on.toggle()
@@ -180,6 +183,9 @@ class CMEngine():
         self.set_exec("out:{}({}:{}):{}({:.3f})".format(vi, gen, phase, kind, value))
 
     def on_edit_quick_table(self, item):
+        item.setText("{} V".format(item.text()))
+        item.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
+        #self.t_qcmc.setItem(0, 0, item)
 
         print(item.row())
 
