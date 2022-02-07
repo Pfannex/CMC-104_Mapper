@@ -18,11 +18,13 @@ from PySide6.QtWidgets import QMessageBox
 class CMEngine():
     def __init__(self,frm_main):   
         self.frm_main = frm_main
-        self.log = self.frm_main.li_cmc_exec
         self.t_dev = self.frm_main.tabw_devices
+        self.device_log = self.frm_main.li_device_log
+        self.exec_log = self.frm_main.li_exec_log
         self.t_qcmc = self.frm_main.tabw_quick_cmc
         self.device_locked = False
         self.is_on = False
+        self.serial = ""
         self.typ = ""
         self.device_ip = ""
         self.device_id = 0
@@ -43,13 +45,18 @@ class CMEngine():
                     }    
         
     def scan_for_new(self):
-        self.frm_main.bu_lock_device.setEnabled(False)
+        self.unlock_all_devices()
+        #self.frm_main.bu_lock_device.setEnabled(False)
 
         #self.frm_main.print_memo("cmc","scan for CMC-Devices")
-        self.frm_main.lbl_locked_to.setText("scanning....")
+        #self.frm_main.lbl_locked_to.setText("scanning....")
+        #self.device_log.addItem(QtWidgets.QListWidgetItem("scanning...."))
+        #self.device_log.scrollToBottom()
+        self.devlog("scanning....")
+
         self.cm_engine.DevScanForNew(False)
-        #ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
-        ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
+        ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
+        ##ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
         #ret = ""  #return all associated CMCs
         ret = ret.split(";")
         while '' in ret: ret.remove('')
@@ -57,7 +64,7 @@ class CMEngine():
         for device in ret: self.device_list.append(device.split(","))   
         
         if not len(self.device_list):
-            msg = QMessageBox()
+            """            msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
             msg.setText("No CMC-Device found!")
             #msg.setInformativeText("No CMC-Device found or selected!")
@@ -68,10 +75,18 @@ class CMEngine():
             #msg.buttonClicked.connect(msgbtn)
             retval = msg.exec_()
             self.frm_main.lbl_locked_to.setText("")
+            """         
+            #self.device_log.addItem(QtWidgets.QListWidgetItem("no devives found!"))
+            #self.device_log.scrollToBottom()
+            self.devlog("no devives found!")
             return
         else:
             self.frm_main.bu_lock_device.setEnabled(True)
-            self.frm_main.lbl_locked_to.setText("Devices found....")
+            #self.frm_main.lbl_locked_to.setText("Devices found....")
+            #self.device_log.addItem(QtWidgets.QListWidgetItem("devices found: {}".format(self.device_list)))
+            #self.device_log.scrollToBottom()
+            self.devlog("devices found: {}".format(self.device_list))
+
             tab = self.frm_main.tabw_devices
             self.t_dev.setRowCount(0)
             for device in self.device_list:
@@ -82,35 +97,49 @@ class CMEngine():
                 self.t_dev.setItem(self.t_dev.rowCount()-1, 0, item)
                 item = QtWidgets.QTableWidgetItem(device[1])
                 self.t_dev.setItem(self.t_dev.rowCount()-1, 1, item)
-                ##item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
-                item = QtWidgets.QTableWidgetItem("CMC356") 
+                item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
+                ##item = QtWidgets.QTableWidgetItem("CMC356") 
                 self.t_dev.setItem(self.t_dev.rowCount()-1, 2, item)
-                ##item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
-                item = QtWidgets.QTableWidgetItem("192.168.2.203") 
+                item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
+                ##item = QtWidgets.QTableWidgetItem("192.168.2.203") 
                 self.t_dev.setItem(self.t_dev.rowCount()-1, 3, item)
             
             self.t_dev.item(0,0).setCheckState(Qt.CheckState.Checked)
             for j in range(4):
                 self.t_dev.item(0,j).setBackground(QtGui.QColor("lightgrey")) 
                 
-    def lock_device(self):
-        #unlock all
+    def unlock_all_devices(self):
+        self.frm_main.bu_lock_device.setEnabled(False)
+        #self.frm_main.bu_lock_device.setStyleSheet("background-color: lightgrey")
+        self.frm_main.bu_lock_device.setText("Lock Device")
+        self.frm_main.bu_lock_device.setStyleSheet("font-weight: normal; color: black")
+        self.device_locked = True
         id = 0
         for i in range(self.t_dev.rowCount()):
             id = self.t_dev.item(i,0).text()
-            print("unlock device ID: {}".format(id))
-            ##self.cm_engine.DevUnlock(id)
-            
+            #self.device_log.addItem(QtWidgets.QListWidgetItem("unlock deviceID= {}".format(id)))
+            #self.device_log.scrollToBottom()
+            self.devlog("unlock deviceID= {}".format(id))
+            #self.frm_main.lbl_locked_to.setText("unlock deviceID= {}".format(id))
+            #print("unlock device ID: {}".format(id))
+            self.cm_engine.DevUnlock(id)
+
+    def lock_device(self):
+        self.unlock_all_devices() 
         for i in range(self.t_dev.rowCount()):
             if self.t_dev.item(i, 0).checkState() == QtCore.Qt.Checked:
                 self.device_id = int(self.t_dev.item(i, 0).text())
-                ##self.typ = self.cm_engine.DeviceType(self.device_id)
-                ##self.device_ip = self.cm_engine.IPAddress(self.device_id)
-                self.typ = "CMC356"
-                self.device_ip = "192.168.2.333"
+                self.serial = self.cm_engine.SerialNumber(self.device_id)
+                self.typ = self.cm_engine.DeviceType(self.device_id)
+                self.device_ip = self.cm_engine.IPAddress(self.device_id)
+                ##self.typ = "CMC356"
+                ##self.device_ip = "192.168.2.333"
         
         if not self.device_id: 
-            msg = QMessageBox()
+            #self.device_log.addItem(QtWidgets.QListWidgetItem("No CMC-Device found or selected!"))
+            #self.device_log.scrollToBottom()
+            self.devlog("No CMC-Device found or selected!")
+            """msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
             msg.setText("No CMC-Device found or selected!")
             #msg.setInformativeText("No CMC-Device found or selected!")
@@ -119,12 +148,17 @@ class CMEngine():
                                 "oder es wurde keine CMC-Gerät ausgewählt!")
             msg.setStandardButtons(QMessageBox.Ok)
             #msg.buttonClicked.connect(msgbtn)
-            retval = msg.exec_()
+            retval = msg.exec_()"""
         else: 
             #self.cm_engine.DevUnlock(self.device_id)
-            #self.cm_engine.DevLock(self.device_id)
+            self.cm_engine.DevLock(self.device_id)
             self.device_locked = True
-            self.frm_main.lbl_locked_to.setText("Mapper locked to: \n{} - {}".format(self.typ,self.device_ip))
+            self.frm_main.bu_lock_device.setText("locked to: {} - {}".format(self.serial,self.device_ip))
+            self.frm_main.bu_lock_device.setStyleSheet("font-weight: bold; color: red")
+            #self.device_log.addItem(QtWidgets.QListWidgetItem("Mapper locked to: {} - {}".format(self.serial,self.device_ip)))
+            #self.device_log.scrollToBottom()
+            self.devlog("Mapper locked to: {} - {}".format(self.serial,self.device_ip))
+            #self.frm_main.lbl_locked_to.setText("Mapper locked to: {} - {}".format(self.typ,self.device_ip))
 
     def cmc_power(self):
         if self.is_on:
@@ -204,6 +238,12 @@ class CMEngine():
             
         #"out:v(1:1):a(10);p(0);f(50)"               
         
+    def devlog(self, msg):
+        self.device_log.addItem(QtWidgets.QListWidgetItem(msg))
+        self.device_log.scrollToBottom()
+    def execlog(self,msg):
+        self.exec_log.addItem(QtWidgets.QListWidgetItem(msg))
+        self.exec_log.scrollToBottom()
 
 ########################################################
     
@@ -311,6 +351,8 @@ class CMEngine():
         self.ana[vi][0][2] = value
 
         self.set_output(generator, vi)
+
+
 
 #--- Start up -----------------------------------------------------------------
 def start():

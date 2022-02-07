@@ -28,7 +28,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="documentMode">
      <bool>false</bool>
@@ -45,7 +45,7 @@
        <rect>
         <x>10</x>
         <y>90</y>
-        <width>371</width>
+        <width>461</width>
         <height>431</height>
        </rect>
       </property>
@@ -332,12 +332,12 @@ p, li { white-space: pre-wrap; }
         <x>10</x>
         <y>290</y>
         <width>251</width>
-        <height>41</height>
+        <height>21</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <pointsize>12</pointsize>
+        <pointsize>10</pointsize>
        </font>
       </property>
       <property name="text">
@@ -415,16 +415,6 @@ p, li { white-space: pre-wrap; }
        <string>CMC ON</string>
       </property>
      </widget>
-     <widget class="QListView" name="listView">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>290</y>
-        <width>251</width>
-        <height>221</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="Line" name="line">
       <property name="geometry">
        <rect>
@@ -447,7 +437,7 @@ p, li { white-space: pre-wrap; }
        <enum>Qt::Vertical</enum>
       </property>
      </widget>
-     <widget class="QListWidget" name="li_cmc_exec">
+     <widget class="QListWidget" name="li_exec_log">
       <property name="geometry">
        <rect>
         <x>320</x>
@@ -458,6 +448,16 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="autoScrollMargin">
        <number>12</number>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="li_device_log">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>290</y>
+        <width>251</width>
+        <height>221</height>
+       </rect>
       </property>
      </widget>
     </widget>

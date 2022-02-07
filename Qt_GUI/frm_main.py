@@ -16,10 +16,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHeaderView, QLabel,
-    QListView, QListWidget, QListWidgetItem, QMainWindow,
-    QMenuBar, QPushButton, QSizePolicy, QStatusBar,
-    QTabWidget, QTableWidget, QTableWidgetItem, QTextBrowser,
-    QTextEdit, QWidget)
+    QListWidget, QListWidgetItem, QMainWindow, QMenuBar,
+    QPushButton, QSizePolicy, QStatusBar, QTabWidget,
+    QTableWidget, QTableWidgetItem, QTextBrowser, QTextEdit,
+    QWidget)
 
 class Ui_frm_main(object):
     def setupUi(self, frm_main):
@@ -115,10 +115,8 @@ class Ui_frm_main(object):
         self.bu_lock_device.setGeometry(QRect(10, 240, 251, 41))
         self.lbl_locked_to = QLabel(self.tab_cmc)
         self.lbl_locked_to.setObjectName(u"lbl_locked_to")
-        self.lbl_locked_to.setGeometry(QRect(10, 290, 251, 41))
-        font1 = QFont()
-        font1.setPointSize(12)
-        self.lbl_locked_to.setFont(font1)
+        self.lbl_locked_to.setGeometry(QRect(10, 290, 251, 21))
+        self.lbl_locked_to.setFont(font)
         self.lbl_locked_to.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.tabw_quick_cmc = QTableWidget(self.tab_cmc)
         if (self.tabw_quick_cmc.columnCount() < 3):
@@ -142,9 +140,6 @@ class Ui_frm_main(object):
         self.bu_cmc_on = QPushButton(self.tab_cmc)
         self.bu_cmc_on.setObjectName(u"bu_cmc_on")
         self.bu_cmc_on.setGeometry(QRect(320, 10, 231, 41))
-        self.listView = QListView(self.tab_cmc)
-        self.listView.setObjectName(u"listView")
-        self.listView.setGeometry(QRect(10, 290, 251, 221))
         self.line = QFrame(self.tab_cmc)
         self.line.setObjectName(u"line")
         self.line.setGeometry(QRect(260, 10, 61, 501))
@@ -152,10 +147,13 @@ class Ui_frm_main(object):
         self.line.setLineWidth(2)
         self.line.setMidLineWidth(2)
         self.line.setFrameShape(QFrame.VLine)
-        self.li_cmc_exec = QListWidget(self.tab_cmc)
-        self.li_cmc_exec.setObjectName(u"li_cmc_exec")
-        self.li_cmc_exec.setGeometry(QRect(320, 290, 231, 221))
-        self.li_cmc_exec.setAutoScrollMargin(12)
+        self.li_exec_log = QListWidget(self.tab_cmc)
+        self.li_exec_log.setObjectName(u"li_exec_log")
+        self.li_exec_log.setGeometry(QRect(320, 290, 231, 221))
+        self.li_exec_log.setAutoScrollMargin(12)
+        self.li_device_log = QListWidget(self.tab_cmc)
+        self.li_device_log.setObjectName(u"li_device_log")
+        self.li_device_log.setGeometry(QRect(10, 290, 251, 221))
         self.tabWidget.addTab(self.tab_cmc, "")
         self.tab_mqtt = QWidget()
         self.tab_mqtt.setObjectName(u"tab_mqtt")

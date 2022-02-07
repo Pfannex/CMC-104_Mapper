@@ -83,6 +83,8 @@ class Frm_main(QMainWindow, Ui_frm_main):
         #List exec 
         #self.li_cmc_exec.setAutoScroll(True)
         #self.li_cmc_exec.scrollToBottom()
+        #self.li_device_log.addItem(QtWidgets.QListWidgetItem("icon, text"))
+        #self.li_device_log.scrollToBottom()
         
     #handle Checkboxes
     def handle_item_clicked(self, item):
@@ -100,8 +102,6 @@ class Frm_main(QMainWindow, Ui_frm_main):
                     self.tabw_devices.item(i,0).setCheckState(Qt.CheckState.Unchecked)  
                     for j in range(4):
                         self.tabw_devices.item(i,j).setBackground(QtGui.QColor("white"))
-                        
-                        
         
     def start_services(self):
         self.server.StartServer()   

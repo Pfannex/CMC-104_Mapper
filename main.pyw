@@ -11,7 +11,7 @@
 #   Date:    28.01.2022
 #
 ###############################################################################
-VERSION = "IEC 60870-5-104 to Omicron CMEngine Mapper - V1.20"
+VERSION = "IEC 60870-5-104 to Omicron CMEngine Mapper - V1.30"
 
 ###############################################################################
 #   IMPORT
@@ -44,8 +44,8 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 ###############################################################################
 #   MAIN START
 ###############################################################################
-t1 = h.idleTimer(60, timer1_callback)
-t2 = h.idleTimer(300, timer2_callback)
+#t1 = h.idleTimer(60, timer1_callback)
+#t2 = h.idleTimer(300, timer2_callback)
 
 IEC60870_5_104.callback.set_callback(on_IEC60870_5_104_I_Frame_GA_callback,
                                      on_IEC60870_5_104_I_Frame_received_callback)
@@ -54,20 +54,10 @@ IEC60870_5_104.callback.set_callback(on_IEC60870_5_104_I_Frame_GA_callback,
 #   MAIN LOOP
 ###############################################################################
 
-"""app = QApplication()
-frm_main = GUI.Frm_main(VERSION)
-frm_main.show()
-
-app.exec()
-sys.exit()
-"""
-#def main():
 app = QApplication(sys.argv)
 frm_main = GUI.Frm_main(VERSION)
 frm_main.show()
-#frm_main.server.StopServer()
+#t1.stop()
+#t2.stop()
 sys.exit(app.exec())
 
-
-#if __name__ == '__main__':
-#    main()
