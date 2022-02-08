@@ -3,6 +3,7 @@
 ###############################################################################
 from operator import xor
 from PySide6 import QtCore, QtGui, QtNetwork, QtWidgets
+from PySide6.QtGui import QRegularExpressionValidator
 from Qt_GUI.frm_main import Ui_frm_main
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, \
                               QTableWidgetItem, QCheckBox
@@ -10,7 +11,7 @@ import helper as h
 import CMC_Control, SCD
 import IEC60870_5_104
 import time
-from PySide6.QtCore import Qt, QStringConverter
+from PySide6.QtCore import Qt, QStringConverter, QRegularExpression
 
 #pyside6-designer
 #cd S:\_Untersuchungen\Datenpunktprüfung\Konfiguration\Mapper\CMC-104_Mapper\Qt_GUI
@@ -43,7 +44,7 @@ class Frm_main(QMainWindow, Ui_frm_main):
         #Table devices
         cmc_dev = self.tabw_devices
         cmc_dev.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        cmc_dev.setHorizontalHeaderLabels(["ID","Serial","Typ","IP"])
+        #cmc_dev.setHorizontalHeaderLabels(["ID","Serial","Typ","IP"])
         cmc_dev.setColumnWidth(0,40)
         cmc_dev.setColumnWidth(1,60)
         cmc_dev.setColumnWidth(2,60)
@@ -51,8 +52,8 @@ class Frm_main(QMainWindow, Ui_frm_main):
         cmc_dev.itemClicked.connect(self.handle_item_clicked)
         #Table Quick CMC
         q_cmc = self.tabw_quick_cmc
-        q_cmc.setHorizontalHeaderLabels(["Amp.", "Phase", "Freq"])
-        q_cmc.setVerticalHeaderLabels(["UL1-N", "UL2-N", "UL3-N", "IL1", "IL2", "IL3"])
+        #q_cmc.setHorizontalHeaderLabels(["Amp.", "Phase", "Freq"])
+        #q_cmc.setVerticalHeaderLabels(["UL1-N", "UL2-N", "UL3-N", "IL1", "IL2", "IL3"])
         q_cmc.setColumnWidth(0,50)
         q_cmc.setColumnWidth(1,50)
         q_cmc.setColumnWidth(2,50)
@@ -62,6 +63,17 @@ class Frm_main(QMainWindow, Ui_frm_main):
                 x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
                 q_cmc.setItem(r,c,x)
         self.tabw_quick_cmc.itemChanged.connect(self.cmc.on_edit_quick_table)
+
+        #self.lineEdit.setValidator(QRegularExpressionValidator(QRegularExpression("[0-9]{1,3}[,][0-9]{1,2}")))
+        self.lineEdit.editingFinished.connect(self.go)
+    def go(self):
+        #print("go")
+        txt = self.lineEdit.text().replace(",",".")
+        txt = filter(lambda ch: ch not in "01234567890,.", txt)
+        #for chr in txt:
+        #    if not chr in "01234567890,.":
+        #        txt = txt.replace(chr,"")
+        self.lineEdit.setText("{:.2f} V".format(float(txt)))
 
     #handle Checkboxes
     def handle_item_clicked(self, item):

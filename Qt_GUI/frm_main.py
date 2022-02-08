@@ -16,10 +16,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHeaderView, QLabel,
-    QListWidget, QListWidgetItem, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QStatusBar, QTabWidget,
-    QTableWidget, QTableWidgetItem, QTextBrowser, QTextEdit,
-    QWidget)
+    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
+    QMenuBar, QPushButton, QSizePolicy, QStatusBar,
+    QTabWidget, QTableWidget, QTableWidgetItem, QTextBrowser,
+    QTextEdit, QWidget)
 
 class Ui_frm_main(object):
     def setupUi(self, frm_main):
@@ -40,7 +40,7 @@ class Ui_frm_main(object):
         self.tab_104.setObjectName(u"tab_104")
         self.mf_RxLog = QTextBrowser(self.tab_104)
         self.mf_RxLog.setObjectName(u"mf_RxLog")
-        self.mf_RxLog.setGeometry(QRect(10, 90, 371, 431))
+        self.mf_RxLog.setGeometry(QRect(10, 90, 461, 431))
         font = QFont()
         font.setPointSize(10)
         self.mf_RxLog.setFont(font)
@@ -100,6 +100,14 @@ class Ui_frm_main(object):
         self.tabw_devices = QTableWidget(self.tab_cmc)
         if (self.tabw_devices.columnCount() < 4):
             self.tabw_devices.setColumnCount(4)
+        __qtablewidgetitem = QTableWidgetItem()
+        self.tabw_devices.setHorizontalHeaderItem(0, __qtablewidgetitem)
+        __qtablewidgetitem1 = QTableWidgetItem()
+        self.tabw_devices.setHorizontalHeaderItem(1, __qtablewidgetitem1)
+        __qtablewidgetitem2 = QTableWidgetItem()
+        self.tabw_devices.setHorizontalHeaderItem(2, __qtablewidgetitem2)
+        __qtablewidgetitem3 = QTableWidgetItem()
+        self.tabw_devices.setHorizontalHeaderItem(3, __qtablewidgetitem3)
         self.tabw_devices.setObjectName(u"tabw_devices")
         self.tabw_devices.setGeometry(QRect(10, 60, 251, 171))
         self.tabw_devices.setGridStyle(Qt.SolidLine)
@@ -121,8 +129,40 @@ class Ui_frm_main(object):
         self.tabw_quick_cmc = QTableWidget(self.tab_cmc)
         if (self.tabw_quick_cmc.columnCount() < 3):
             self.tabw_quick_cmc.setColumnCount(3)
+        __qtablewidgetitem4 = QTableWidgetItem()
+        __qtablewidgetitem4.setBackground(QColor(255, 170, 0));
+        self.tabw_quick_cmc.setHorizontalHeaderItem(0, __qtablewidgetitem4)
+        __qtablewidgetitem5 = QTableWidgetItem()
+        __qtablewidgetitem5.setBackground(QColor(255, 170, 0));
+        self.tabw_quick_cmc.setHorizontalHeaderItem(1, __qtablewidgetitem5)
+        __qtablewidgetitem6 = QTableWidgetItem()
+        __qtablewidgetitem6.setBackground(QColor(255, 170, 0));
+        self.tabw_quick_cmc.setHorizontalHeaderItem(2, __qtablewidgetitem6)
         if (self.tabw_quick_cmc.rowCount() < 6):
             self.tabw_quick_cmc.setRowCount(6)
+        __qtablewidgetitem7 = QTableWidgetItem()
+        __qtablewidgetitem7.setBackground(QColor(255, 170, 0));
+        self.tabw_quick_cmc.setVerticalHeaderItem(0, __qtablewidgetitem7)
+        __qtablewidgetitem8 = QTableWidgetItem()
+        __qtablewidgetitem8.setBackground(QColor(255, 170, 0));
+        self.tabw_quick_cmc.setVerticalHeaderItem(1, __qtablewidgetitem8)
+        __qtablewidgetitem9 = QTableWidgetItem()
+        __qtablewidgetitem9.setBackground(QColor(255, 170, 0));
+        self.tabw_quick_cmc.setVerticalHeaderItem(2, __qtablewidgetitem9)
+        __qtablewidgetitem10 = QTableWidgetItem()
+        __qtablewidgetitem10.setBackground(QColor(255, 170, 0));
+        self.tabw_quick_cmc.setVerticalHeaderItem(3, __qtablewidgetitem10)
+        __qtablewidgetitem11 = QTableWidgetItem()
+        __qtablewidgetitem11.setBackground(QColor(255, 170, 0));
+        self.tabw_quick_cmc.setVerticalHeaderItem(4, __qtablewidgetitem11)
+        __qtablewidgetitem12 = QTableWidgetItem()
+        __qtablewidgetitem12.setBackground(QColor(255, 170, 0));
+        self.tabw_quick_cmc.setVerticalHeaderItem(5, __qtablewidgetitem12)
+        brush = QBrush(QColor(0, 0, 0, 255))
+        brush.setStyle(Qt.NoBrush)
+        __qtablewidgetitem13 = QTableWidgetItem()
+        __qtablewidgetitem13.setBackground(brush);
+        self.tabw_quick_cmc.setItem(1, 1, __qtablewidgetitem13)
         self.tabw_quick_cmc.setObjectName(u"tabw_quick_cmc")
         self.tabw_quick_cmc.setGeometry(QRect(320, 60, 231, 201))
         self.tabw_quick_cmc.setGridStyle(Qt.SolidLine)
@@ -154,6 +194,10 @@ class Ui_frm_main(object):
         self.li_device_log = QListWidget(self.tab_cmc)
         self.li_device_log.setObjectName(u"li_device_log")
         self.li_device_log.setGeometry(QRect(10, 290, 251, 221))
+        self.lineEdit = QLineEdit(self.tab_cmc)
+        self.lineEdit.setObjectName(u"lineEdit")
+        self.lineEdit.setGeometry(QRect(590, 100, 113, 22))
+        self.lineEdit.setClearButtonEnabled(True)
         self.tabWidget.addTab(self.tab_cmc, "")
         self.tab_mqtt = QWidget()
         self.tab_mqtt.setObjectName(u"tab_mqtt")
@@ -223,9 +267,41 @@ class Ui_frm_main(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_104), QCoreApplication.translate("frm_main", u"IEC 60870-5-104 Server", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_mapper), QCoreApplication.translate("frm_main", u"<-- Mapper -->", None))
         self.bu_scan_devices.setText(QCoreApplication.translate("frm_main", u"Scan for Devices", None))
+        ___qtablewidgetitem = self.tabw_devices.horizontalHeaderItem(0)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("frm_main", u"ID", None));
+        ___qtablewidgetitem1 = self.tabw_devices.horizontalHeaderItem(1)
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("frm_main", u"Serial", None));
+        ___qtablewidgetitem2 = self.tabw_devices.horizontalHeaderItem(2)
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("frm_main", u"Typ", None));
+        ___qtablewidgetitem3 = self.tabw_devices.horizontalHeaderItem(3)
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("frm_main", u"IP", None));
         self.bu_lock_device.setText(QCoreApplication.translate("frm_main", u"Lock Device", None))
         self.lbl_locked_to.setText("")
+        ___qtablewidgetitem4 = self.tabw_quick_cmc.horizontalHeaderItem(0)
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("frm_main", u"Amp.", None));
+        ___qtablewidgetitem5 = self.tabw_quick_cmc.horizontalHeaderItem(1)
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("frm_main", u"Phase", None));
+        ___qtablewidgetitem6 = self.tabw_quick_cmc.horizontalHeaderItem(2)
+        ___qtablewidgetitem6.setText(QCoreApplication.translate("frm_main", u"Freq.", None));
+        ___qtablewidgetitem7 = self.tabw_quick_cmc.verticalHeaderItem(0)
+        ___qtablewidgetitem7.setText(QCoreApplication.translate("frm_main", u"UL1-N", None));
+        ___qtablewidgetitem8 = self.tabw_quick_cmc.verticalHeaderItem(1)
+        ___qtablewidgetitem8.setText(QCoreApplication.translate("frm_main", u"UL2-N", None));
+        ___qtablewidgetitem9 = self.tabw_quick_cmc.verticalHeaderItem(2)
+        ___qtablewidgetitem9.setText(QCoreApplication.translate("frm_main", u"UL3-N", None));
+        ___qtablewidgetitem10 = self.tabw_quick_cmc.verticalHeaderItem(3)
+        ___qtablewidgetitem10.setText(QCoreApplication.translate("frm_main", u"IL1", None));
+        ___qtablewidgetitem11 = self.tabw_quick_cmc.verticalHeaderItem(4)
+        ___qtablewidgetitem11.setText(QCoreApplication.translate("frm_main", u"IL2", None));
+        ___qtablewidgetitem12 = self.tabw_quick_cmc.verticalHeaderItem(5)
+        ___qtablewidgetitem12.setText(QCoreApplication.translate("frm_main", u"IL3", None));
+
+        __sortingEnabled = self.tabw_quick_cmc.isSortingEnabled()
+        self.tabw_quick_cmc.setSortingEnabled(False)
+        self.tabw_quick_cmc.setSortingEnabled(__sortingEnabled)
+
         self.bu_cmc_on.setText(QCoreApplication.translate("frm_main", u"CMC ON", None))
+        self.lineEdit.setPlaceholderText(QCoreApplication.translate("frm_main", u"edit here", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_cmc), QCoreApplication.translate("frm_main", u"Omicron CMC-Control", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_mqtt), QCoreApplication.translate("frm_main", u"MQTT", None))
         self.bu_import_scd.setText(QCoreApplication.translate("frm_main", u"Load SCD-File", None))
