@@ -598,11 +598,17 @@ p, li { white-space: pre-wrap; }
         <height>22</height>
        </rect>
       </property>
+      <property name="text">
+       <string>-120,0 °</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
       <property name="placeholderText">
-       <string>edit here</string>
+       <string/>
       </property>
       <property name="clearButtonEnabled">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
      </widget>
     </widget>

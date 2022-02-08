@@ -6,7 +6,7 @@ from PySide6 import QtCore, QtGui, QtNetwork, QtWidgets
 from PySide6.QtGui import QRegularExpressionValidator
 from Qt_GUI.frm_main import Ui_frm_main
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, \
-                              QTableWidgetItem, QCheckBox
+                              QTableWidgetItem, QCheckBox, QLineEdit
 import helper as h
 import CMC_Control, SCD
 import IEC60870_5_104
@@ -62,19 +62,28 @@ class Frm_main(QMainWindow, Ui_frm_main):
                 x = QtWidgets.QTableWidgetItem(self.cmc.values[r][c])
                 x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
                 q_cmc.setItem(r,c,x)
-        self.tabw_quick_cmc.itemChanged.connect(self.cmc.on_edit_quick_table)
+                
+        #self.tabw_quick_cmc.itemChanged.connect(self.cmc.on_edit_quick_table)
 
         #self.lineEdit.setValidator(QRegularExpressionValidator(QRegularExpression("[0-9]{1,3}[,][0-9]{1,2}")))
         self.lineEdit.editingFinished.connect(self.go)
+        self.tabw_quick_cmc.setCellWidget(1,1,self.lineEdit)
+        x = quick_line()
+        self.tabw_quick_cmc.setCellWidget(1,2,x)
+    
+    
     def go(self):
         #print("go")
         txt = self.lineEdit.text().replace(",",".")
-        txt = filter(lambda ch: ch not in "01234567890,.", txt)
-        #for chr in txt:
-        #    if not chr in "01234567890,.":
-        #        txt = txt.replace(chr,"")
-        self.lineEdit.setText("{:.2f} V".format(float(txt)))
-
+        #txt = filter(lambda ch: ch not in "01234567890,.", txt)
+        for chr in txt:
+            if not chr in "01234567890,.":
+                txt = txt.replace(chr,"")
+        if not txt:        
+            self.lineEdit.setText("")
+        else:
+            self.lineEdit.setText("{:.2f} V".format(float(txt)))
+ 
     #handle Checkboxes
     def handle_item_clicked(self, item):
         if item.column() == 0:
@@ -98,6 +107,21 @@ class Frm_main(QMainWindow, Ui_frm_main):
     def print_memo(self, source, line):
         self.mf_RxLog.append(h.ts(source) + line)
         
+class quick_line(QLineEdit):
+    def __init__(self, parent=None):
+        super(quick_line, self).__init__(parent)
+
+        pass
+        #self.r = r
+        #self.c = c
+        self.unit = ""
+        #self.unit  = "V" if r in range(0,3) else "A"
+        #f c == 1: self.unit  = "°" 
+        #elif c == 2: self.unit  = "Hz" 
+        
+    def editingFinished(self, event):
+        print('Captured Key Press Event in',self.Id,') ',event.text())
+        QLineEdit.editingFinished(self, event)
 
  
  
