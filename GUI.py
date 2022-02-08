@@ -11,7 +11,7 @@ import helper as h
 import CMC_Control, SCD
 import IEC60870_5_104
 import time
-from PySide6.QtCore import Qt, QStringConverter, QRegularExpression
+from PySide6.QtCore import Qt, QStringConverter, QRegularExpression, Signal
 
 #pyside6-designer
 #cd S:\_Untersuchungen\Datenpunktprüfung\Konfiguration\Mapper\CMC-104_Mapper\Qt_GUI
@@ -66,14 +66,18 @@ class Frm_main(QMainWindow, Ui_frm_main):
         #self.tabw_quick_cmc.itemChanged.connect(self.cmc.on_edit_quick_table)
 
         #self.lineEdit.setValidator(QRegularExpressionValidator(QRegularExpression("[0-9]{1,3}[,][0-9]{1,2}")))
-        self.lineEdit.editingFinished.connect(self.go)
-        self.tabw_quick_cmc.setCellWidget(1,1,self.lineEdit)
-        x = quick_line()
-        self.tabw_quick_cmc.setCellWidget(1,2,x)
+        #self.tabw_quick_cmc.setCellWidget(1,1,self.lineEdit)
+        
+        #x = TheEditor()
+        #x.punched.connect(self.go)
+        self.tabw_quick_cmc.setCellWidget(0,0,TheEditor())
+        self.tabw_quick_cmc.setCellWidget(0,1,TheEditor())
+        self.tabw_quick_cmc.setCellWidget(0,2,TheEditor())
     
     
-    def go(self):
-        #print("go")
+    def go(self, y):
+        print("go")
+        print(y.text())
         txt = self.lineEdit.text().replace(",",".")
         #txt = filter(lambda ch: ch not in "01234567890,.", txt)
         for chr in txt:
@@ -123,5 +127,71 @@ class quick_line(QLineEdit):
         print('Captured Key Press Event in',self.Id,') ',event.text())
         QLineEdit.editingFinished(self, event)
 
+
+class TheEditor(QLineEdit):
+    # a signal to tell the delegate when we have finished editing
+    #editingFinished = Signal()
+    punched = Signal()
+    def __init__(self, parent=None):
+            # Initialize the editor object
+            super(TheEditor, self).__init__(parent)
+            self.editingFinished.connect(self.punch)
+            #self.setAutoFillBackground(True)
+            #self.setValidator(QIntValidator(0,999999999, self))
+
+    def focusOutEvent(self, event):
+            # Once focus is lost, tell the delegate we're done editing
+            #print("_editingFinished")
+            self.punch()
+            ###self.hide()
+            #self.editingFinished.emit()
+            
+    def punch(self):
+        print(self.text())
+
+        #print("go")
+        #print(y.text())
+        txt = self.text().replace(",",".")
+        #txt = filter(lambda ch: ch not in "01234567890,.", txt)
+        for chr in txt:
+            if not chr in "01234567890,.":
+                txt = txt.replace(chr,"")
+        if not txt:        
+            self.setText("")
+        else:
+            self.setText("{:.2f} V".format(float(txt)))
+
+
+
+
+        ''' Punch the bag '''
+        self.punched.emit()
+        #self.editingFinished.emit()
+
+
+
+"""
+class PunchingBag(QLineEdit):
+    ''' Represents a punching bag; when you punch it, it
+        emits a signal that indicates that it was punched. '''
+    punched = Signal()
+
+    def __init__(self, parent=None):
+        super(PunchingBag, self).__init__(parent)
+
  
+    #def __init__(self):
+        # Initialize the PunchingBag as a QObject
+        #QLineEdit.__init__(self)
+        #self._ .editingFinished(self.punch)
+        
+        #self.punch()
  
+    def punch(self):
+        print("nu")
+        ''' Punch the bag '''
+        self.punched.emit()
+        
+    def _editingFinished(self):
+        print("_editingFinished")
+"""
