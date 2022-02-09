@@ -40,7 +40,8 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.bu_cmc_on.setStyleSheet("background-color: green")
         self.bu_cmc_on.setCheckable(True)
         self.bu_import_scd.clicked.connect(self.scd.load_file)
-
+        self.dial.valueChanged.connect(self.cmc.on_dial_voltage)
+       
     #Table devices
         cmc_dev = self.tab_devices
         cmc_dev.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -56,7 +57,7 @@ class Frm_main(QMainWindow, Ui_frm_main):
         q_cmc.setColumnWidth(2,50)
         for r in range(6):
             for c in range(3):
-                edit = CMC_Control.TabEdit(r,c)
+                edit = CMC_Control.TabEdit(r,c, self.li_qCMC_log)
                 edit.exitEdit.connect(self.cmc.on_edit_qCMC_tab)
                 self.tab_qCMC.setCellWidget(r,c, edit)
 

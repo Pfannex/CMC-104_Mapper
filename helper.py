@@ -55,6 +55,8 @@ def ts(source):
         return "{} - {} - ".format(dt_str, "IEC104")
     if source == "cmc":
         return "{} - {} - ".format(dt_str, "CMC   ")
+    if source == "apdu":
+        return "{} - {} - ".format(dt_str, "APDU  ")
 
 def log(msg):
     format = "%(asctime)s - %(levelname)s - %(message)s"

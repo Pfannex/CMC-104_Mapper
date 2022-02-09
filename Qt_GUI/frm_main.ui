@@ -589,6 +589,28 @@ p, li { white-space: pre-wrap; }
        </rect>
       </property>
      </widget>
+     <widget class="QDial" name="dial">
+      <property name="geometry">
+       <rect>
+        <x>570</x>
+        <y>60</y>
+        <width>111</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <property name="maximum">
+       <number>100</number>
+      </property>
+      <property name="tracking">
+       <bool>true</bool>
+      </property>
+      <property name="wrapping">
+       <bool>false</bool>
+      </property>
+      <property name="notchesVisible">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_mqtt">
      <attribute name="title">

@@ -14,7 +14,6 @@ from PySide6.QtWidgets import QMessageBox, QLineEdit
 ###############################################################################
 #   class CMEngine
 ###############################################################################
-
 class CMEngine():
     def __init__(self,frm_main):   
         self.frm_main = frm_main
@@ -38,6 +37,7 @@ class CMEngine():
                          [50, 50, 50]]    #Frequency
                     }    
         
+    #----<scan for new CMC-devices>--------------------------------------------
     def scan_for_new(self):
         self.unlock_all_devices()
         self.devlog("scanning....")
@@ -78,6 +78,7 @@ class CMEngine():
             for j in range(4):
                 self.device_tab.item(0,j).setBackground(QtGui.QColor("lightgrey")) 
                 
+    #----<unlock all CMC-devices in List>--------------------------------------
     def unlock_all_devices(self):
         self.frm_main.bu_lock_device.setEnabled(False)
         self.frm_main.bu_lock_device.setText("Lock Device")
@@ -89,6 +90,7 @@ class CMEngine():
             self.devlog("unlock deviceID= {}".format(id))
             ##self.cm_engine.DevUnlock(id)
 
+    #----<lock selected CMC-device from list>----------------------------------
     def lock_device(self):
         self.unlock_all_devices() 
         for i in range(self.device_tab.rowCount()):
@@ -194,6 +196,13 @@ class CMEngine():
         else:
             self.execlog("Commandstring Mailformed!")
 
+    #----<set Voltage value>---------------------------------------------------
+    def on_dial_voltage(self, value):
+        out = 150.0 * (value/100)
+        self.qCMC_tab.cellWidget(0, 0).setFormatedText(out, 1)        
+        self.qCMC_tab.cellWidget(1, 0).setFormatedText(out, 1)        
+        self.qCMC_tab.cellWidget(2, 0).setFormatedText(out, 1)        
+
     #----<logging>-------------------------------------------------------------
     def devlog(self, msg):
         self.device_log.addItem(QtWidgets.QListWidgetItem(msg))
@@ -202,141 +211,20 @@ class CMEngine():
         self.qCMC_log.addItem(QtWidgets.QListWidgetItem(msg))
         self.qCMC_log.scrollToBottom()
 
-########################################################
-    
-
-    #----<set command to CMC-Device>-------------------------------------------
-    def cmd(self, cmd):
-        #self.frm_main.print_memo("cmc","CMC Command: " + cmd)
-        if self.device_locked:
-            self.cm_engine.Exec(self.device_id, cmd)
-            if self.is_on:
-                self.cm_engine.Exec(self.device_id, "out:on")
-        else:
-            self.frm_main.print_memo("e","No CMC connected!")
-
-    def power(self, command):
-        if command == "SCS_ON":
-            self.cmd("out:on")
-            self.frm_main.print_memo("cmc","CMC --> ON")
-            self.is_on = True
-        else:  
-            self.is_on = False
-            self.cmd("out:off")
-            self.cmd("out:ana:off(zcross)")
-            self.frm_main.print_memo("cmc","CMC --> OFF")
-
-    #----<reset output triples to zero>----------------------------------------
-    def reset_output(self):
-        max_generators = 1
-        
-        for _phase in range(0,3):
-            for _parameter in range(0,3):
-                self.ana["v"][_parameter][_phase] = 0
-                self.ana["i"][_parameter][_phase] = 0
-        self.ana["v"][1][1] = -120
-        self.ana["i"][1][1] = -120
-        self.ana["v"][1][2] = 120
-        self.ana["i"][1][2] = 120
-        for i in range(0,3):
-            self.ana["v"][2][i] = 50
-            self.ana["i"][2][i] = 50
-        for i in range(1,max_generators+1):
-            self.set_output(i, "v")
-            self.set_output(i, "i")
-               
-    #----<prepare output triple list>------------------------------------------
-    def prepare_output(self, generator, phase, parameter, value):
-        u_max = 150
-        i_max = 5
-        f_min = 40.0
-        f_max = 70.0
-        
-        triple = "v" if phase in range(0,4) else "i"
-        ui_phase = phase if triple == "v" else phase - 3
-        
-        max_value = value
-        if triple == "v" and parameter == 1 and value >= u_max:
-            max_value = u_max
-            self.frm_main.print_memo("e","U > Umax! --> set {}V".format(u_max))
-        if triple == "i" and parameter == 1 and value >= i_max:
-            max_value = i_max
-            self.frm_main.print_memo("e","I > Imax! --> set {}A".format(i_max))
-            
-        if parameter == 3 and (value < f_min or value > f_max):
-            max_value = 50
-            self.frm_main.print_memo("e","f <> fmin/max! --> set {}Hz".format(50))
-            
-        
-        self.ana[triple][parameter-1][ui_phase-1] = max_value
-        self.set_output(generator, "v")
-        self.set_output(generator, "i")
-
-    #----<set output triple to CMC-Device>-------------------------------------
-    def set_output(self, generator, vi):
-        for phase in range(0,3):
-            cmd = "out:{}({}:{}):a({:3.3f});p({:3.3f});f({:3.3f})" \
-                                    .format(vi, generator, phase+1, 
-                                            self.ana[vi][0][phase],
-                                            self.ana[vi][1][phase],
-                                            self.ana[vi][2][phase])
-            out = "U" if vi == "v" else "I"
-            unit = "V" if vi == "v" else "A"
-            self.frm_main.print_memo("cmc","{}L{}: {: 6.2f}{} - {: 7.2f}° - {: 6.2f}Hz".format(out,phase+1,self.ana[vi][0][phase],unit,
-                                                                                  self.ana[vi][1][phase],
-                                                                                  self.ana[vi][2][phase]))
-            self.cmd(cmd)
-                
-        #"out:v(1:1):a(10);p(0);f(50)"               
-        """
-        self.ana = {"v": [[0, 0, 0],     #Amplitude
-                         [0, -120, 120], #Phase
-                         [50, 50, 50]],  #Frequency
-                    "i": [[0, 0, 0],     #Amplitude
-                         [0, -120, 120], #Phase
-                         [50, 50, 50]]   #Frequency
-                    }    
-        """ 
-
-    def triple_out(self, generator, vi, percent):
-        if vi == "v":
-            value =  100/math.sqrt(3) * percent
-        else: value = percent
-
-        self.ana[vi][0][0] = value
-        self.ana[vi][0][1] = value
-        self.ana[vi][0][2] = value
-
-        self.set_output(generator, vi)
-
-
-        """
-        unit = "V"
-        unit = "°" if c == 1 else "Hz"
-        if c == 0 and r in range(0,3): unit = "V"
-        if c == 0 and r in range(3,6): unit = "A"
-        self.values[r][c] = "{:.2f} {}".format(value, unit)
-        x = QtWidgets.QTableWidgetItem(self.values[r][c])
-        x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
-        self.qCMC_tab.setItem(r,c,x)
-        if r in range(0,3):
-            vi = "v"
-            phase = r+1
-        if r in range(3,6):
-            vi = "i"
-            phase = r-3+1
-        if c == 0: kind = "a"
-        elif c == 1: kind = "p" 
-        elif c == 2: kind = "f" 
-        self.set_exec("out:{}({}:{}):{}({:.3f})".format(vi, gen, phase, kind, value))
-
-        """
-
+###############################################################################
+#   GUI lineEdit
+###############################################################################
 class TabEdit(QLineEdit):
     exitEdit = Signal(QLineEdit)
-    def __init__(self, r,c, parent=None):
+    def __init__(self, r,c, log, parent=None):
         # Initialize the editor object
             super(TabEdit, self).__init__(parent)
+            self.qCMC_log = log
+            self.u_max = 150.0
+            self.i_max = 5.0
+            self.f_min = 40.0
+            self.f_max = 70.0
+            
             self.r = r
             self.c = c
             self.gen = 0
@@ -349,10 +237,11 @@ class TabEdit(QLineEdit):
             self.value = ""
             self.editingFinished.connect(self._exitEdit)
             self.setAlignment(Qt.AlignVCenter | Qt.AlignRight) 
-            self.setStyleSheet("border-width: 0px;")
+            self.setStyleSheet("border-width: 0px; border-style: solid;")
             self.set_to_default()
             self.build_cmd()
-
+        
+    #----<set cell values to default>------------------------------------------
     def set_to_default(self):
         if self.r in range(0,3):
             self.unit = "V"
@@ -384,11 +273,13 @@ class TabEdit(QLineEdit):
         txt = "{:.2f} {}".format(self.value, self.unit)
         self.setText(txt)
     
+    #----<build cmc-line for cmEngine exec>------------------------------------
     def build_cmd(self):
         self.cmdStr = "out:{}({}:{}):{}({:.3f})".format(self.vi, self.gen, 
                                                         self.phase, self.kind, 
                                                         self.value)
 
+    #----<cleanUp Cell input>--------------------------------------------------
     def setFormatedText(self, txt_call, gen):
         self.gen = gen
         txt = ""
@@ -401,40 +292,28 @@ class TabEdit(QLineEdit):
         if not txt:        
             self.setText("")
         else:
-            self.setText("{:.2f} {}".format(float(txt), self.unit))
             self.value = float(txt)
+            if self.unit == "V" and self.value > self.u_max:
+                self.value = self.u_max
+                self.execlog("U > Umax! U set to: {} V".format(self.u_max))
+            if self.unit == "I" and self.value > self.i_max:
+                self.value = self.i_max
+                self.execlog("I > Umax! I set to: {} A".format(self.i_max))
+            if self.unit == "Hz" and self.value > self.f_max:
+                self.value = self.f_max
+                self.execlog("f > fmax! f set to: {} Hz".format(self.f_max))
+            if self.unit == "Hz" and self.value < self.f_min:
+                self.value = self.f_min
+                self.execlog("f < fmin! f set to: {} Hz".format(self.f_min))
+            
+            self.setText("{:.2f} {}".format(self.value, self.unit))
             self.build_cmd()
         self.exitEdit.emit(self)
 
-            
+    #----<even trigered by editFinished>---------------------------------------
     def _exitEdit(self):
         self.setFormatedText("","1")
-
-"""
-def get_unit(r,c):
-    unit = ""
-    if r in range(0,3) and c == 0: unit = "V" 
-    if r in range(3,6) and c == 0: unit = "A" 
-    if c == 1: unit = "°"
-    if c == 2: unit = "Hz"
-    return unit
-
-def get_start_value(r,c):
-    value = ""
-    if c == 0: value = "0,00 {}".format(get_unit(r,c))
-    if c == 1:
-        if r == 0 or r == 3: value = "0,00 °"
-        if r == 1 or r == 4: value = "-120,00 °"
-        if r == 2 or r == 5: value = "120,00 °"
-    if c == 2: value = "50,00 Hz"
-"""
-
-
-
-#--- Start up -----------------------------------------------------------------
-def start():
-    h.log (__name__+ " start")
-
-#--- update  ------------------------------------------------------------------
-def handle():
-    h.log (__name__ + "handle")
+        
+    def execlog(self,msg):
+        self.qCMC_log.addItem(QtWidgets.QListWidgetItem(msg))
+        self.qCMC_log.scrollToBottom()

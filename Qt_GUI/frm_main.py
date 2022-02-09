@@ -15,11 +15,11 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QHeaderView, QLabel,
-    QListWidget, QListWidgetItem, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QStatusBar, QTabWidget,
-    QTableWidget, QTableWidgetItem, QTextBrowser, QTextEdit,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QDial, QFrame, QHeaderView,
+    QLabel, QListWidget, QListWidgetItem, QMainWindow,
+    QMenuBar, QPushButton, QSizePolicy, QStatusBar,
+    QTabWidget, QTableWidget, QTableWidgetItem, QTextBrowser,
+    QTextEdit, QWidget)
 
 class Ui_frm_main(object):
     def setupUi(self, frm_main):
@@ -194,6 +194,13 @@ class Ui_frm_main(object):
         self.li_device_log = QListWidget(self.tab_cmc)
         self.li_device_log.setObjectName(u"li_device_log")
         self.li_device_log.setGeometry(QRect(10, 290, 251, 221))
+        self.dial = QDial(self.tab_cmc)
+        self.dial.setObjectName(u"dial")
+        self.dial.setGeometry(QRect(570, 60, 111, 121))
+        self.dial.setMaximum(100)
+        self.dial.setTracking(True)
+        self.dial.setWrapping(False)
+        self.dial.setNotchesVisible(True)
         self.tabWidget.addTab(self.tab_cmc, "")
         self.tab_mqtt = QWidget()
         self.tab_mqtt.setObjectName(u"tab_mqtt")
