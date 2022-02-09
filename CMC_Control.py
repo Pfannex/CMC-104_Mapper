@@ -8,8 +8,8 @@ import helper as h
 import win32com.client
 import math
 from PySide6 import QtWidgets, QtCore, QtGui
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QMessageBox, QLineEdit
 
 ###############################################################################
 #   class CMEngine
@@ -18,10 +18,10 @@ from PySide6.QtWidgets import QMessageBox
 class CMEngine():
     def __init__(self,frm_main):   
         self.frm_main = frm_main
-        self.t_dev = self.frm_main.tabw_devices
+        self.device_tab = self.frm_main.tab_devices
         self.device_log = self.frm_main.li_device_log
-        self.exec_log = self.frm_main.li_exec_log
-        self.t_qcmc = self.frm_main.tabw_quick_cmc
+        self.qCMC_tab = self.frm_main.tab_qCMC
+        self.qCMC_log = self.frm_main.li_qCMC_log
         self.device_locked = False
         self.is_on = False
         self.serial = ""
@@ -29,13 +29,13 @@ class CMEngine():
         self.device_ip = ""
         self.device_id = 0
         self.cm_engine = win32com.client.Dispatch("OMICRON.CMEngAL")
-        self.values = [["0,00 V", "0,0 °", "50,00 Hz"],
-                       ["0,00 V", "-120,0 °", "50,00 Hz"],
-                       ["0,00 V", "120,0 °", "50,00 Hz"],
-                       ["0,00 A", "0,0 °", "50,00 Hz"],
-                       ["0,00 A", "-120,0 °", "50,00 Hz"],
-                       ["0,00 A", "120,0 °", "50,00 Hz"]]
-        
+        #self.values = [["0,00 V", "0,0 °", "50,00 Hz"],
+        #               ["0,00 V", "-120,0 °", "50,00 Hz"],
+        #               ["0,00 V", "120,0 °", "50,00 Hz"],
+        #               ["0,00 A", "0,0 °", "50,00 Hz"],
+        #               ["0,00 A", "-120,0 °", "50,00 Hz"],
+        #               ["0,00 A", "120,0 °", "50,00 Hz"]]
+       
         self.ana = {"v": [[0, 0, 0],      #Amplitude
                          [0, -120, 120],  #Phase
                          [50, 50, 50]],   #Frequency
@@ -63,26 +63,26 @@ class CMEngine():
             self.frm_main.bu_lock_device.setEnabled(True)
             self.devlog("devices found: {}".format(self.device_list))
 
-            tab = self.frm_main.tabw_devices
-            self.t_dev.setRowCount(0)
+            tab = self.frm_main.tab_devices
+            self.device_tab.setRowCount(0)
             for device in self.device_list:
-                self.t_dev.insertRow(self.t_dev.rowCount()) 
+                self.device_tab.insertRow(self.device_tab.rowCount()) 
                 item = QtWidgets.QTableWidgetItem(device[0])
                 item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
                 item.setCheckState(Qt.CheckState.Unchecked)
-                self.t_dev.setItem(self.t_dev.rowCount()-1, 0, item)
+                self.device_tab.setItem(self.device_tab.rowCount()-1, 0, item)
                 item = QtWidgets.QTableWidgetItem(device[1])
-                self.t_dev.setItem(self.t_dev.rowCount()-1, 1, item)
+                self.device_tab.setItem(self.device_tab.rowCount()-1, 1, item)
                 item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
                 ##item = QtWidgets.QTableWidgetItem("CMC356") 
-                self.t_dev.setItem(self.t_dev.rowCount()-1, 2, item)
+                self.device_tab.setItem(self.device_tab.rowCount()-1, 2, item)
                 item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
                 ##item = QtWidgets.QTableWidgetItem("192.168.2.203") 
-                self.t_dev.setItem(self.t_dev.rowCount()-1, 3, item)
+                self.device_tab.setItem(self.device_tab.rowCount()-1, 3, item)
             
-            self.t_dev.item(0,0).setCheckState(Qt.CheckState.Checked)
+            self.device_tab.item(0,0).setCheckState(Qt.CheckState.Checked)
             for j in range(4):
-                self.t_dev.item(0,j).setBackground(QtGui.QColor("lightgrey")) 
+                self.device_tab.item(0,j).setBackground(QtGui.QColor("lightgrey")) 
                 
     def unlock_all_devices(self):
         self.frm_main.bu_lock_device.setEnabled(False)
@@ -90,16 +90,16 @@ class CMEngine():
         self.frm_main.bu_lock_device.setStyleSheet("font-weight: normal; color: black")
         self.device_locked = False
         id = 0
-        for i in range(self.t_dev.rowCount()):
-            id = self.t_dev.item(i,0).text()
+        for i in range(self.device_tab.rowCount()):
+            id = self.device_tab.item(i,0).text()
             self.devlog("unlock deviceID= {}".format(id))
             self.cm_engine.DevUnlock(id)
 
     def lock_device(self):
         self.unlock_all_devices() 
-        for i in range(self.t_dev.rowCount()):
-            if self.t_dev.item(i, 0).checkState() == QtCore.Qt.Checked:
-                self.device_id = int(self.t_dev.item(i, 0).text())
+        for i in range(self.device_tab.rowCount()):
+            if self.device_tab.item(i, 0).checkState() == QtCore.Qt.Checked:
+                self.device_id = int(self.device_tab.item(i, 0).text())
                 self.serial = self.cm_engine.SerialNumber(self.device_id)
                 self.typ = self.cm_engine.DeviceType(self.device_id)
                 self.device_ip = self.cm_engine.IPAddress(self.device_id)
@@ -117,7 +117,7 @@ class CMEngine():
 
     def cmc_power(self):
         item = QtWidgets.QTableWidgetItem("10.334")
-        self.t_qcmc.setItem(0, 0, item)
+        self.qCMC_tab.setItem(0, 0, item)
          
         if self.is_on:
             self.frm_main.bu_cmc_on.setStyleSheet("background-color: green")
@@ -156,13 +156,17 @@ class CMEngine():
 
         if ioa_1 in range(1, 21) and info_detail_typ == "R32":   #out ana
             self.set_quick_table(info_object)
-            
+
     #----<set quickCMC tableView>----------------------------------------------
     def set_quick_table(self, info_object):
         value = info_object.dataObject[0].detail[0].value
         gen = info_object.address._1
         r = info_object.address._2 -1
         c = info_object.address._3 -1
+        self.qCMC_tab.cellWidget(r, c).setFormatedText(value, gen)
+
+
+        """
         unit = "V"
         unit = "°" if c == 1 else "Hz"
         if c == 0 and r in range(0,3): unit = "V"
@@ -170,7 +174,7 @@ class CMEngine():
         self.values[r][c] = "{:.2f} {}".format(value, unit)
         x = QtWidgets.QTableWidgetItem(self.values[r][c])
         x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
-        self.t_qcmc.setItem(r,c,x)
+        self.qCMC_tab.setItem(r,c,x)
         if r in range(0,3):
             vi = "v"
             phase = r+1
@@ -182,12 +186,19 @@ class CMEngine():
         elif c == 2: kind = "f" 
         self.set_exec("out:{}({}:{}):{}({:.3f})".format(vi, gen, phase, kind, value))
 
-    def on_edit_quick_table(self, item):
-        item.setText("{} V".format(item.text()))
-        item.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
-        #self.t_qcmc.setItem(0, 0, item)
+        """
+    def on_edit_qCMC_tab(self, item):
+        if item.cmdStr != "":
+           self.set_exec(item.cmdStr)
+        else:
+            self.execlog("Commandstring Mailformed!")
+            
+        #item.setText("{} V".format(item.text()))
+        #item.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
+        #self.qCMC_tab.setItem(0, 0, item)
 
-        print(item.row())
+        #print(item.text())
+        #print(item.r)
 
     #----<set cmEngine exec-command>-------------------------------------------
     def set_exec(self, cmd):
@@ -205,8 +216,8 @@ class CMEngine():
         self.device_log.addItem(QtWidgets.QListWidgetItem(msg))
         self.device_log.scrollToBottom()
     def execlog(self,msg):
-        self.exec_log.addItem(QtWidgets.QListWidgetItem(msg))
-        self.exec_log.scrollToBottom()
+        self.qCMC_log.addItem(QtWidgets.QListWidgetItem(msg))
+        self.qCMC_log.scrollToBottom()
 
 ########################################################
     
@@ -314,6 +325,109 @@ class CMEngine():
         self.ana[vi][0][2] = value
 
         self.set_output(generator, vi)
+
+
+        """
+        unit = "V"
+        unit = "°" if c == 1 else "Hz"
+        if c == 0 and r in range(0,3): unit = "V"
+        if c == 0 and r in range(3,6): unit = "A"
+        self.values[r][c] = "{:.2f} {}".format(value, unit)
+        x = QtWidgets.QTableWidgetItem(self.values[r][c])
+        x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
+        self.qCMC_tab.setItem(r,c,x)
+        if r in range(0,3):
+            vi = "v"
+            phase = r+1
+        if r in range(3,6):
+            vi = "i"
+            phase = r-3+1
+        if c == 0: kind = "a"
+        elif c == 1: kind = "p" 
+        elif c == 2: kind = "f" 
+        self.set_exec("out:{}({}:{}):{}({:.3f})".format(vi, gen, phase, kind, value))
+
+        """
+
+class TabEdit(QLineEdit):
+    exitEdit = Signal(QLineEdit)
+    def __init__(self, r,c, parent=None):
+        # Initialize the editor object
+            super(TabEdit, self).__init__(parent)
+            self.r = r
+            self.c = c
+            self.gen = 0
+            self.vi = ""
+            self.phase = ""
+            self.kind = ""
+            self.value = 0.0
+            self.editingFinished.connect(self._exitEdit)
+            self.setAlignment(Qt.AlignVCenter | Qt.AlignRight) 
+            self.build_cmd()
+    
+    def build_cmd(self):
+        if self.r in range(0,3):
+            self.vi = "v"
+            self.phase = self.r+1
+        if self.r in range(3,6):
+            self.vi = "i"
+            self.phase = self.r-3+1
+        if self.c == 0: self.kind = "a"
+        elif self.c == 1: self.kind = "p" 
+        elif self.c == 2: self.kind = "f" 
+        if self.vi != "" and self.gen != "" and self.phase != "" \
+                            and self.kind != "":
+            self.cmdStr = "out:{}({}:{}):{}({:.3f})".format(self.vi, self.gen, 
+                                                            self.phase, self.kind, self.value)
+        else: self.cmdStr = ""    
+
+
+    def setFormatedText(self, txt_call, gen):
+        self.gen = gen
+        txt = ""
+        print("setFormatedText")
+        #print("txt_call = " + str(txt_call))
+        #print("self.text() = " + self.text())
+
+        txt = self.text() if str(txt_call) == "" else str(txt_call)
+
+        txt = txt.replace(",",".")
+        for chr in txt:
+            if not chr in "01234567890,.":
+                txt = txt.replace(chr,"")
+        if not txt:        
+            self.setText("")
+        else:
+            self.setText("{:.2f} {}".format(float(txt), get_unit(self.r, self.c)))
+            self.value = float(txt)
+            self.build_cmd()
+        #print("txt= " + txt )
+        #self.setText(txt) 
+        print("exitEdit")
+        self.exitEdit.emit(self)
+
+            
+    def _exitEdit(self):
+        self.setFormatedText("","1")
+        #self.exitEdit.emit()
+
+def get_unit(r,c):
+    unit = ""
+    if r in range(0,3) and c == 0: unit = "V" 
+    if r in range(3,6) and c == 0: unit = "A" 
+    if c == 1: unit = "°"
+    if c == 2: unit = "Hz"
+    return unit
+
+def get_start_value(r,c):
+    value = ""
+    if c == 0: value = "0,00 {}".format(get_value(r,c))
+    if c == 1:
+        if r == 0 or r == 3: value = "0,00 °"
+        if r == 1 or r == 4: value = "-120,00 °"
+        if r == 2 or r == 5: value = "120,00 °"
+    if c == 2: value = "50,00 Hz"
+
 
 
 
