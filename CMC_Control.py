@@ -194,6 +194,7 @@ class CMEngine():
         else:
             self.execlog("Commandstring Mailformed!")
 
+    #----<logging>-------------------------------------------------------------
     def devlog(self, msg):
         self.device_log.addItem(QtWidgets.QListWidgetItem(msg))
         self.device_log.scrollToBottom()
@@ -339,60 +340,77 @@ class TabEdit(QLineEdit):
             self.r = r
             self.c = c
             self.gen = 0
+            
+            self.unit = ""
+            self.phase = ""
             self.vi = ""
             self.phase = ""
             self.kind = ""
-            self.value = 0.0
+            self.value = ""
             self.editingFinished.connect(self._exitEdit)
             self.setAlignment(Qt.AlignVCenter | Qt.AlignRight) 
+            self.setStyleSheet("border-width: 0px;")
+            self.set_to_default()
             self.build_cmd()
-    
-    def build_cmd(self):
+
+    def set_to_default(self):
         if self.r in range(0,3):
+            self.unit = "V"
             self.vi = "v"
             self.phase = self.r+1
+            self.value = 0.0
+            self.kind = "a"
         if self.r in range(3,6):
+            self.unit = "A"
             self.vi = "i"
             self.phase = self.r-3+1
-        if self.c == 0: self.kind = "a"
-        elif self.c == 1: self.kind = "p" 
-        elif self.c == 2: self.kind = "f" 
-        if self.vi != "" and self.gen != "" and self.phase != "" \
-                            and self.kind != "":
-            self.cmdStr = "out:{}({}:{}):{}({:.3f})".format(self.vi, self.gen, 
-                                                            self.phase, self.kind, self.value)
-        else: self.cmdStr = ""    
-
+            self.value = 0.0
+            self.kind = "a"
+            
+        if self.c == 1: 
+            self.unit = "°"
+            self.kind = "p"
+            if self.r == 0 or self.r == 3:
+                self.value = 0.0 
+            elif self.r == 1 or self.r == 4:
+                self.value = -120.0 
+            elif self.r == 2 or self.r == 5:
+                self.value = 120.0 
+        elif self.c == 2:
+            self.unit = "Hz"
+            self.kind = "f"
+            self.value = 50.0 
+        
+        txt = "{:.2f} {}".format(self.value, self.unit)
+        self.setText(txt)
+    
+    def build_cmd(self):
+        self.cmdStr = "out:{}({}:{}):{}({:.3f})".format(self.vi, self.gen, 
+                                                        self.phase, self.kind, 
+                                                        self.value)
 
     def setFormatedText(self, txt_call, gen):
         self.gen = gen
         txt = ""
-        print("setFormatedText")
-        #print("txt_call = " + str(txt_call))
-        #print("self.text() = " + self.text())
-
         txt = self.text() if str(txt_call) == "" else str(txt_call)
 
         txt = txt.replace(",",".")
         for chr in txt:
-            if not chr in "01234567890,.":
+            if not chr in "-01234567890,.":
                 txt = txt.replace(chr,"")
         if not txt:        
             self.setText("")
         else:
-            self.setText("{:.2f} {}".format(float(txt), get_unit(self.r, self.c)))
+            self.setText("{:.2f} {}".format(float(txt), self.unit))
             self.value = float(txt)
             self.build_cmd()
-        #print("txt= " + txt )
-        #self.setText(txt) 
-        print("exitEdit")
         self.exitEdit.emit(self)
 
             
     def _exitEdit(self):
         self.setFormatedText("","1")
-        #self.exitEdit.emit()
 
+"""
 def get_unit(r,c):
     unit = ""
     if r in range(0,3) and c == 0: unit = "V" 
@@ -403,13 +421,13 @@ def get_unit(r,c):
 
 def get_start_value(r,c):
     value = ""
-    if c == 0: value = "0,00 {}".format(get_value(r,c))
+    if c == 0: value = "0,00 {}".format(get_unit(r,c))
     if c == 1:
         if r == 0 or r == 3: value = "0,00 °"
         if r == 1 or r == 4: value = "-120,00 °"
         if r == 2 or r == 5: value = "120,00 °"
     if c == 2: value = "50,00 Hz"
-
+"""
 
 
 
@@ -420,22 +438,3 @@ def start():
 #--- update  ------------------------------------------------------------------
 def handle():
     h.log (__name__ + "handle")
-
-
-"""        
-if info_object.address.DEZ == 1 and info_detail_typ == "SCO":
-    self.power(info_object.dataObject[0].detail[2].state)
-if ioa_1 == 1 and ioa_2 in range(1,7) and ioa_3 in range (1,4) and info_detail_typ == "R32":
-    value = info_object.dataObject[0].detail[0].value
-    self.prepare_output(ioa_1, ioa_2, ioa_3, value)
-if dez == 3:
-    value = info_object.dataObject[0].detail[0].value
-    self.triple_out(1, "v", value)
-if dez == 4:
-    value = info_object.dataObject[0].detail[0].value
-    self.triple_out(1, "i", value)
-if dez == 99:
-    self.reset_output()
-        
-"""
-
