@@ -59,34 +59,18 @@ class Frm_main(QMainWindow, Ui_frm_main):
         q_cmc.setColumnWidth(2,50)
         for r in range(6):
             for c in range(3):
-                x = QtWidgets.QTableWidgetItem(self.cmc.values[r][c])
-                x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
-                q_cmc.setItem(r,c,x)
-                
-        #self.tabw_quick_cmc.itemChanged.connect(self.cmc.on_edit_quick_table)
+                self.tabw_quick_cmc.setCellWidget(r,c,TabEdit())
 
-        #self.lineEdit.setValidator(QRegularExpressionValidator(QRegularExpression("[0-9]{1,3}[,][0-9]{1,2}")))
-        #self.tabw_quick_cmc.setCellWidget(1,1,self.lineEdit)
-        
-        #x = TheEditor()
-        #x.punched.connect(self.go)
-        self.tabw_quick_cmc.setCellWidget(0,0,TheEditor())
-        self.tabw_quick_cmc.setCellWidget(0,1,TheEditor())
-        self.tabw_quick_cmc.setCellWidget(0,2,TheEditor())
+                #x = QtWidgets.QTableWidgetItem(self.cmc.values[r][c])
+                #x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
+                #q_cmc.setItem(r,c,x)
+                
+        #self.tabw_quick_cmc.setCellWidget(0,0,TheEditor())
+        #self.tabw_quick_cmc.setCellWidget(0,1,TheEditor())
+        #self.tabw_quick_cmc.setCellWidget(0,2,TheEditor())
+        #self.tabw_quick_cmc.cellWidget(0,2).setText("banane")
     
     
-    def go(self, y):
-        print("go")
-        print(y.text())
-        txt = self.lineEdit.text().replace(",",".")
-        #txt = filter(lambda ch: ch not in "01234567890,.", txt)
-        for chr in txt:
-            if not chr in "01234567890,.":
-                txt = txt.replace(chr,"")
-        if not txt:        
-            self.lineEdit.setText("")
-        else:
-            self.lineEdit.setText("{:.2f} V".format(float(txt)))
  
     #handle Checkboxes
     def handle_item_clicked(self, item):
@@ -128,21 +112,23 @@ class quick_line(QLineEdit):
         QLineEdit.editingFinished(self, event)
 
 
-class TheEditor(QLineEdit):
+class TabEdit(QLineEdit):
     # a signal to tell the delegate when we have finished editing
     #editingFinished = Signal()
     punched = Signal()
     def __init__(self, parent=None):
             # Initialize the editor object
-            super(TheEditor, self).__init__(parent)
+            super(TabEdit, self).__init__(parent)
             self.editingFinished.connect(self.punch)
+            self.setAlignment(Qt.AlignVCenter | Qt.AlignRight) 
+
             #self.setAutoFillBackground(True)
             #self.setValidator(QIntValidator(0,999999999, self))
 
-    def focusOutEvent(self, event):
+    #def focusOutEvent(self, event):
             # Once focus is lost, tell the delegate we're done editing
             #print("_editingFinished")
-            self.punch()
+            #self.punch()
             ###self.hide()
             #self.editingFinished.emit()
             
