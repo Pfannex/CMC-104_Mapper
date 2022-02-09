@@ -541,7 +541,7 @@ p, li { white-space: pre-wrap; }
        </rect>
       </property>
       <property name="text">
-       <string>CMC ON</string>
+       <string>CMC Power</string>
       </property>
      </widget>
      <widget class="Line" name="line">

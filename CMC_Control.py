@@ -29,13 +29,7 @@ class CMEngine():
         self.device_ip = ""
         self.device_id = 0
         self.cm_engine = win32com.client.Dispatch("OMICRON.CMEngAL")
-        #self.values = [["0,00 V", "0,0 °", "50,00 Hz"],
-        #               ["0,00 V", "-120,0 °", "50,00 Hz"],
-        #               ["0,00 V", "120,0 °", "50,00 Hz"],
-        #               ["0,00 A", "0,0 °", "50,00 Hz"],
-        #               ["0,00 A", "-120,0 °", "50,00 Hz"],
-        #               ["0,00 A", "120,0 °", "50,00 Hz"]]
-       
+
         self.ana = {"v": [[0, 0, 0],      #Amplitude
                          [0, -120, 120],  #Phase
                          [50, 50, 50]],   #Frequency
@@ -49,8 +43,8 @@ class CMEngine():
         self.devlog("scanning....")
 
         self.cm_engine.DevScanForNew(False)
-        ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
-        ##ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
+        ##ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
+        ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
         ret = ret.split(";")
         while '' in ret: ret.remove('')
         self.device_list = []
@@ -73,11 +67,11 @@ class CMEngine():
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 0, item)
                 item = QtWidgets.QTableWidgetItem(device[1])
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 1, item)
-                item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
-                ##item = QtWidgets.QTableWidgetItem("CMC356") 
+                ##item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
+                item = QtWidgets.QTableWidgetItem("CMC356") 
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 2, item)
-                item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
-                ##item = QtWidgets.QTableWidgetItem("192.168.2.203") 
+                ###item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
+                item = QtWidgets.QTableWidgetItem("192.168.2.203") 
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 3, item)
             
             self.device_tab.item(0,0).setCheckState(Qt.CheckState.Checked)
@@ -93,45 +87,67 @@ class CMEngine():
         for i in range(self.device_tab.rowCount()):
             id = self.device_tab.item(i,0).text()
             self.devlog("unlock deviceID= {}".format(id))
-            self.cm_engine.DevUnlock(id)
+            ##self.cm_engine.DevUnlock(id)
 
     def lock_device(self):
         self.unlock_all_devices() 
         for i in range(self.device_tab.rowCount()):
             if self.device_tab.item(i, 0).checkState() == QtCore.Qt.Checked:
-                self.device_id = int(self.device_tab.item(i, 0).text())
-                self.serial = self.cm_engine.SerialNumber(self.device_id)
-                self.typ = self.cm_engine.DeviceType(self.device_id)
-                self.device_ip = self.cm_engine.IPAddress(self.device_id)
-                ##self.typ = "CMC356"
-                ##self.device_ip = "192.168.2.333"
+                ##self.device_id = int(self.device_tab.item(i, 0).text())
+                ##self.serial = self.cm_engine.SerialNumber(self.device_id)
+                ##self.typ = self.cm_engine.DeviceType(self.device_id)
+                ##self.device_ip = self.cm_engine.IPAddress(self.device_id)
+                self.device_id = "1"
+                self.serial = "PBY123"
+                self.typ = "CMC356"
+                self.device_ip = "192.168.2.333"
         
         if not self.device_id: 
             self.devlog("No CMC-Device found or selected!")
         else: 
-            self.cm_engine.DevLock(self.device_id)
+            ##self.cm_engine.DevLock(self.device_id)
             self.device_locked = True
             self.frm_main.bu_lock_device.setText("locked to: {} - {}".format(self.serial,self.device_ip))
             self.frm_main.bu_lock_device.setStyleSheet("font-weight: bold; color: red")
             self.devlog("Mapper locked to: {} - {}".format(self.serial,self.device_ip))
 
-    def cmc_power(self):
-        item = QtWidgets.QTableWidgetItem("10.334")
-        self.qCMC_tab.setItem(0, 0, item)
-         
-        if self.is_on:
-            self.frm_main.bu_cmc_on.setStyleSheet("background-color: green")
-            self.frm_main.bu_cmc_on.toggle()
-            #self.cmd("out:on")
-            #self.frm_main.print_memo("cmc","CMC --> ON")
-            self.is_on = False
+    #----<set cmEngine exec-command>-------------------------------------------
+    def set_exec(self, cmd):
+        ##if self.device_locked:
+        if not self.device_locked:
+            self.execlog("Exec: {}".format(cmd))
+            ##self.cm_engine.Exec(self.device_id, cmd)
+            return True
+            if self.is_on:
+                pass
+                ##elf.cm_engine.Exec(self.device_id, "out:on")
+        else:
+            self.execlog("No CMC-Device locked!")
+            return False
+            
+        #"out:v(1:1):a(10);p(0);f(50)"               
+        
+    #----<CMC-Device Power contol>---------------------------------------------
+    def cmc_power(self, power):
+        #HINT: if cmc_power is called by PushButton event "power" represents 
+        #      PushButton State!
+
+        button = self.frm_main.bu_cmc_on
+        if power:
+            if self.set_exec("out:on"):
+                self.is_on = True
+                self.execlog("CMC Power --> ON")
+                button.setStyleSheet("background-color: red")
+                button.setChecked(True)
+            else: self.execlog("CMC Power ON failed!")
         else:  
-            self.frm_main.bu_cmc_on.setStyleSheet("background-color: red")
-            self.frm_main.bu_cmc_on.toggle()
-            self.is_on = True
-            #self.cmd("out:off")
-            #self.cmd("out:ana:off(zcross)")
-            #self.frm_main.print_memo("cmc","CMC --> OFF")
+            if self.set_exec("out:off"):
+                self.set_exec("out:ana:off(zcross)")
+                self.execlog("CMC Power --> OFF")
+                self.is_on = False
+                button.setStyleSheet("background-color: green")
+                button.setChecked(False)
+            else: self.execlog("CMC Power OFF failed!")
    
             
     #----<set command from IEC60870-5-104 Frame by IOA>------------------------
@@ -145,7 +161,7 @@ class CMEngine():
         # 1             | 102        | 0        | R32       | triple U/I in %
 
         #special funktions:
-        # 255           | 0          | 1        | SCS_ON/OFF| Power on/off
+        # 255           | 0          | 1        | SCS_ON/OFF| 255Power on/off
         # 255           | 0          | 2        | res_out   | reset triple
 
         ioa_1 = info_object.address._1
@@ -156,8 +172,14 @@ class CMEngine():
 
         if ioa_1 in range(1, 21) and info_detail_typ == "R32":   #out ana
             self.set_quick_table(info_object)
+        if ioa_1 == 255 and ioa_2 == 0:
+            if ioa_3 == 1:
+                if info_detail_typ == "SCO":
+                    status = info_object.dataObject[0].detail[2].state
+                    if status == "SCS_ON": self.cmc_power(True)
+                    else: self.cmc_power(False)
 
-    #----<set quickCMC tableView>----------------------------------------------
+    #----<set quickCMC tableView from 104>-------------------------------------
     def set_quick_table(self, info_object):
         value = info_object.dataObject[0].detail[0].value
         gen = info_object.address._1
@@ -165,53 +187,13 @@ class CMEngine():
         c = info_object.address._3 -1
         self.qCMC_tab.cellWidget(r, c).setFormatedText(value, gen)
 
-
-        """
-        unit = "V"
-        unit = "°" if c == 1 else "Hz"
-        if c == 0 and r in range(0,3): unit = "V"
-        if c == 0 and r in range(3,6): unit = "A"
-        self.values[r][c] = "{:.2f} {}".format(value, unit)
-        x = QtWidgets.QTableWidgetItem(self.values[r][c])
-        x.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
-        self.qCMC_tab.setItem(r,c,x)
-        if r in range(0,3):
-            vi = "v"
-            phase = r+1
-        if r in range(3,6):
-            vi = "i"
-            phase = r-3+1
-        if c == 0: kind = "a"
-        elif c == 1: kind = "p" 
-        elif c == 2: kind = "f" 
-        self.set_exec("out:{}({}:{}):{}({:.3f})".format(vi, gen, phase, kind, value))
-
-        """
+    #----<set quickCMC tableView by edeting>-----------------------------------
     def on_edit_qCMC_tab(self, item):
         if item.cmdStr != "":
            self.set_exec(item.cmdStr)
         else:
             self.execlog("Commandstring Mailformed!")
-            
-        #item.setText("{} V".format(item.text()))
-        #item.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
-        #self.qCMC_tab.setItem(0, 0, item)
 
-        #print(item.text())
-        #print(item.r)
-
-    #----<set cmEngine exec-command>-------------------------------------------
-    def set_exec(self, cmd):
-        if self.device_locked:
-            self.execlog("Exec: {}".format(cmd))
-            self.cm_engine.Exec(self.device_id, cmd)
-            if self.is_on:
-                self.cm_engine.Exec(self.device_id, "out:on")
-        else:
-            self.execlog("No CMC-Device locked!")
-            
-        #"out:v(1:1):a(10);p(0);f(50)"               
-        
     def devlog(self, msg):
         self.device_log.addItem(QtWidgets.QListWidgetItem(msg))
         self.device_log.scrollToBottom()

@@ -296,7 +296,7 @@ class Ui_frm_main(object):
         self.tab_qCMC.setSortingEnabled(False)
         self.tab_qCMC.setSortingEnabled(__sortingEnabled)
 
-        self.bu_cmc_on.setText(QCoreApplication.translate("frm_main", u"CMC ON", None))
+        self.bu_cmc_on.setText(QCoreApplication.translate("frm_main", u"CMC Power", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_cmc), QCoreApplication.translate("frm_main", u"Omicron CMC-Control", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_mqtt), QCoreApplication.translate("frm_main", u"MQTT", None))
         self.bu_import_scd.setText(QCoreApplication.translate("frm_main", u"Load SCD-File", None))
