@@ -239,7 +239,7 @@ p, li { white-space: pre-wrap; }
        <string>Client IP</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="bu_firstButton">
+     <widget class="QPushButton" name="bu_start_server">
       <property name="geometry">
        <rect>
         <x>10</x>

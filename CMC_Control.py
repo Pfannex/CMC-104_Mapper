@@ -69,6 +69,9 @@ class CMEngine():
             self.device_tab.item(0,0).setCheckState(Qt.CheckState.Checked)
             for j in range(4):
                 self.device_tab.item(0,j).setBackground(QtGui.QColor("lightgrey")) 
+            
+            if self.frm_main.cfg.autoLockDevices: 
+                self.lock_device()
                 
     #----<unlock all CMC-devices in List>--------------------------------------
     def unlock_all_devices(self):
@@ -101,7 +104,7 @@ class CMEngine():
         else: 
             ##self.cm_engine.DevLock(self.device_id)
             self.device_locked = True
-            self.frm_main.bu_lock_device.setText("locked to: {} - {}".format(self.serial,self.device_ip))
+            self.frm_main.bu_lock_device.setText("locked to: {}".format(self.serial))
             self.frm_main.bu_lock_device.setStyleSheet("font-weight: bold; color: red")
             self.devlog("Mapper locked to: {} - {}".format(self.serial,self.device_ip))
             self.cmc_set_to_default()

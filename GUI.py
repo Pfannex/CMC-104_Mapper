@@ -33,7 +33,7 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.scd = SCD.SCD(self)
         
     #Buttons
-        self.bu_firstButton.clicked.connect(self.start_services)
+        self.bu_start_server.clicked.connect(self.server.StartServer)
         self.bu_scan_devices.clicked.connect(self.cmc.scan_for_new)
         self.bu_lock_device.clicked.connect(self.cmc.lock_device)
         self.bu_lock_device.setEnabled(False)
@@ -49,7 +49,10 @@ class Frm_main(QMainWindow, Ui_frm_main):
     #CheckBoxes
         self.cb_autostartServer.setChecked(self.cfg.autostartServer)
         self.cb_autoScan.setChecked(self.cfg.autoScanDevices)
-        self.cb_autoLock.setChecked(self.cfg.autoconnectToFirstDevice)
+        self.cb_autoLock.setChecked(self.cfg.autoLockDevices)
+        
+        self.cb_autoScan.stateChanged.connect(self.handle_checkboxes_autostart)
+        self.cb_autoLock.stateChanged.connect(self.handle_checkboxes_autostart)
        
     #Table devices
         cmc_dev = self.tab_devices
@@ -70,7 +73,17 @@ class Frm_main(QMainWindow, Ui_frm_main):
                 edit.exitEdit.connect(self.cmc.on_edit_qCMC_tab)
                 self.tab_qCMC.setCellWidget(r,c, edit)
 
-    #handle Checkboxes
+    #autostart services
+        self.start_services()
+ 
+    #handle checkboxes autostart
+    def handle_checkboxes_autostart(self, cb):
+        print(cb)
+        if not self.cb_autoScan.isChecked(): self.cb_autoLock.setChecked(False)
+        if self.cb_autoLock.isChecked() and not self.cb_autoScan.isChecked():
+            self.cb_autoLock.setChecked(False)
+        
+    #handle Checkboxes in device list
     def handle_item_clicked(self, item):
         if item.column() == 0:
             for i in range(self.tab_devices.rowCount()):
@@ -88,15 +101,18 @@ class Frm_main(QMainWindow, Ui_frm_main):
                         self.tab_devices.item(i,j).setBackground(QtGui.QColor("white"))
         
     def start_services(self):
-        self.server.StartServer()   
+        if self.cfg.autostartServer: 
+            self.server.StartServer()
+        if self.cfg.autoScanDevices: 
+            self.cmc.scan_for_new()
 
-    def save_config(self):
-        self.cfg.autostartServer = self.cb_autostartServer.checkState()
-        self.cfg.autoScanDevices = self.cb_autoScan.checkState()
-        self.cfg.autoconnectToFirstDevice = self.cb_autoLock.checkState()
-        self.cfg.write_config()
-         
     def print_memo(self, source, line):
         self.mf_RxLog.append(h.ts(source) + line)
+
+    def closeEvent(self,event):
+        self.cfg.autostartServer = self.cb_autostartServer.isChecked()
+        self.cfg.autoScanDevices = self.cb_autoScan.isChecked()
+        self.cfg.autoLockDevices = self.cb_autoLock.isChecked()
+        self.cfg.write_config()
         
 

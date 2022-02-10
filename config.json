@@ -1,7 +1,5 @@
 {
-    "autostartServer" : 0,
-    "autoScanDevice" : 0,
-    "autoconnectToFirstDevice" : 0
-    
+      "autostartServer": true,
+      "autoScanDevice": true,
+      "autoLockDevices": true
 }
-
