@@ -8,7 +8,7 @@ from Qt_GUI.frm_main import Ui_frm_main
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, \
                               QTableWidgetItem, QCheckBox, QLineEdit
 import helper as h
-import CMC_Control, SCD
+import CMC_Control, SCD, Config
 import IEC60870_5_104
 import time
 from PySide6.QtCore import Qt, QStringConverter, QRegularExpression, Signal
@@ -29,6 +29,7 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.statusbar.showMessage("© by Pf@nne/22")
         self.server = IEC60870_5_104.Server(self)
         self.cmc = CMC_Control.CMEngine(self)
+        self.cfg = Config.CFG()
         self.scd = SCD.SCD(self)
         
     #Buttons
@@ -45,6 +46,10 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.dial_up.valueChanged.connect(self.cmc.set_triple_voltage_phase)
         self.dial_ia.valueChanged.connect(self.cmc.set_triple_current_amp)
         self.dial_ip.valueChanged.connect(self.cmc.set_triple_current_phase)
+    #CheckBoxes
+        self.cb_autostartServer.setChecked(self.cfg.autostartServer)
+        self.cb_autoScan.setChecked(self.cfg.autoScanDevices)
+        self.cb_autoLock.setChecked(self.cfg.autoconnectToFirstDevice)
        
     #Table devices
         cmc_dev = self.tab_devices
@@ -84,6 +89,12 @@ class Frm_main(QMainWindow, Ui_frm_main):
         
     def start_services(self):
         self.server.StartServer()   
+
+    def save_config(self):
+        self.cfg.autostartServer = self.cb_autostartServer.checkState()
+        self.cfg.autoScanDevices = self.cb_autoScan.checkState()
+        self.cfg.autoconnectToFirstDevice = self.cb_autoLock.checkState()
+        self.cfg.write_config()
          
     def print_memo(self, source, line):
         self.mf_RxLog.append(h.ts(source) + line)

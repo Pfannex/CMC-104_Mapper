@@ -44,9 +44,9 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>90</y>
-        <width>761</width>
-        <height>431</height>
+        <y>100</y>
+        <width>731</width>
+        <height>531</height>
        </rect>
       </property>
       <property name="font">
@@ -66,7 +66,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>70</y>
+        <y>80</y>
         <width>121</width>
         <height>16</height>
        </rect>
@@ -78,8 +78,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="lbl_client_port">
       <property name="geometry">
        <rect>
-        <x>300</x>
-        <y>40</y>
+        <x>450</x>
+        <y>47</y>
         <width>71</width>
         <height>16</height>
        </rect>
@@ -91,8 +91,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QTextEdit" name="tb_server_port">
       <property name="geometry">
        <rect>
-        <x>190</x>
-        <y>40</y>
+        <x>340</x>
+        <y>47</y>
         <width>101</width>
         <height>25</height>
        </rect>
@@ -120,8 +120,8 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="geometry">
        <rect>
-        <x>370</x>
-        <y>40</y>
+        <x>520</x>
+        <y>47</y>
         <width>101</width>
         <height>25</height>
        </rect>
@@ -147,8 +147,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="lbl_server_port">
       <property name="geometry">
        <rect>
-        <x>120</x>
-        <y>40</y>
+        <x>270</x>
+        <y>47</y>
         <width>71</width>
         <height>16</height>
        </rect>
@@ -160,8 +160,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="lbl_server_ip">
       <property name="geometry">
        <rect>
-        <x>120</x>
-        <y>15</y>
+        <x>270</x>
+        <y>22</y>
         <width>49</width>
         <height>16</height>
        </rect>
@@ -176,8 +176,8 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="geometry">
        <rect>
-        <x>370</x>
-        <y>13</y>
+        <x>520</x>
+        <y>20</y>
         <width>101</width>
         <height>25</height>
        </rect>
@@ -203,8 +203,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QTextEdit" name="tb_server_ip">
       <property name="geometry">
        <rect>
-        <x>190</x>
-        <y>13</y>
+        <x>340</x>
+        <y>20</y>
         <width>101</width>
         <height>25</height>
        </rect>
@@ -229,8 +229,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="lbl_client_ip">
       <property name="geometry">
        <rect>
-        <x>300</x>
-        <y>15</y>
+        <x>450</x>
+        <y>22</y>
         <width>49</width>
         <height>16</height>
        </rect>
@@ -252,6 +252,19 @@ p, li { white-space: pre-wrap; }
        <string>start Server</string>
       </property>
      </widget>
+     <widget class="QCheckBox" name="cb_autostartServer">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>30</y>
+        <width>121</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>autostart Server</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_mapper">
      <attribute name="title">
@@ -267,7 +280,7 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>251</width>
+        <width>141</width>
         <height>41</height>
        </rect>
       </property>
@@ -334,7 +347,7 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>10</x>
         <y>270</y>
-        <width>251</width>
+        <width>151</width>
         <height>41</height>
        </rect>
       </property>
@@ -748,6 +761,32 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="text">
        <string>reset to default</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="cb_autoScan">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>20</y>
+        <width>101</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>autoscan</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="cb_autoLock">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>280</y>
+        <width>101</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>autolock</string>
       </property>
      </widget>
     </widget>

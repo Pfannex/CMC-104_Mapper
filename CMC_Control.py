@@ -142,7 +142,6 @@ class CMEngine():
     def set_exec(self, cmd):
         #print("exec cmd: {}".format(cmd))
         if self.device_locked:
-        ##if not self.device_locked:
             self.execlog("Exec: {}".format(cmd))
             ##self.cm_engine.Exec(self.device_id, cmd)
             if self.is_on:
