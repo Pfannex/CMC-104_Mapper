@@ -13,13 +13,13 @@ import IEC60870_5_104_dict as d
 ###############################################################################
 #<APDU>------------------------------------
 class APDU():
-    def __init__(self, frame, pMemo):
-        self.pMemo = pMemo
+    def __init__(self, frame):
+        self.asString = ""
         self.APCI =  APCI(frame)
         self.ASDU =  ASDU(frame)
     def pO(self):
-        self.pMemo("","")
-        self.pMemo("apdu","=<APDU>================================================================================")
+        print("")
+        print("=<APDU>================================================================================")
         self.APCI.pO()
         self.ASDU.pO()
         

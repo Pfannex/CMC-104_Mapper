@@ -35,8 +35,8 @@ class CMEngine():
         self.devlog("scanning....")
 
         self.cm_engine.DevScanForNew(False)
-        ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
-        ##ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
+        ##ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
+        ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
         ret = ret.split(";")
         while '' in ret: ret.remove('')
         self.device_list = []
@@ -59,11 +59,11 @@ class CMEngine():
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 0, item)
                 item = QtWidgets.QTableWidgetItem(device[1])
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 1, item)
-                item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
-                ##item = QtWidgets.QTableWidgetItem("CMC356") 
+                ##item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
+                item = QtWidgets.QTableWidgetItem("CMC356") 
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 2, item)
-                item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
-                ##item = QtWidgets.QTableWidgetItem("192.168.2.203") 
+                ##item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
+                item = QtWidgets.QTableWidgetItem("192.168.2.203") 
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 3, item)
             
             self.device_tab.item(0,0).setCheckState(Qt.CheckState.Checked)
@@ -80,26 +80,26 @@ class CMEngine():
         for i in range(self.device_tab.rowCount()):
             id = self.device_tab.item(i,0).text()
             self.devlog("unlock deviceID= {}".format(id))
-            self.cm_engine.DevUnlock(id)
+            ##self.cm_engine.DevUnlock(id)
 
     #----<lock selected CMC-device from list>----------------------------------
     def lock_device(self):
         self.unlock_all_devices() 
         for i in range(self.device_tab.rowCount()):
             if self.device_tab.item(i, 0).checkState() == QtCore.Qt.Checked:
-                self.device_id = int(self.device_tab.item(i, 0).text())
-                self.serial = self.cm_engine.SerialNumber(self.device_id)
-                self.typ = self.cm_engine.DeviceType(self.device_id)
-                self.device_ip = self.cm_engine.IPAddress(self.device_id)
-                ##self.device_id = "1"
-                ##self.serial = "PBY123"
-                ##self.typ = "CMC356"
-                ##self.device_ip = "192.168.2.333"
+                ##self.device_id = int(self.device_tab.item(i, 0).text())
+                ##self.serial = self.cm_engine.SerialNumber(self.device_id)
+                ##self.typ = self.cm_engine.DeviceType(self.device_id)
+                ##self.device_ip = self.cm_engine.IPAddress(self.device_id)
+                self.device_id = "1"
+                self.serial = "PBY123"
+                self.typ = "CMC356"
+                self.device_ip = "192.168.2.333"
         
         if not self.device_id: 
             self.devlog("No CMC-Device found or selected!")
         else: 
-            self.cm_engine.DevLock(self.device_id)
+            ##self.cm_engine.DevLock(self.device_id)
             self.device_locked = True
             self.frm_main.bu_lock_device.setText("locked to: {} - {}".format(self.serial,self.device_ip))
             self.frm_main.bu_lock_device.setStyleSheet("font-weight: bold; color: red")
@@ -109,40 +109,6 @@ class CMEngine():
 ###############################################################################
 #   CMC output contol
 ###############################################################################
-    def cmc_set_to_default(self):
-        cmd = "out:v(1:1):a(0);p(0);f(50)"      
-        self.set_exec(cmd)         
-        cmd = "out:v(1:2):a(0);p(-120);f(50)"      
-        self.set_exec(cmd)         
-        cmd = "out:v(1:3):a(0);p(120);f(50)"      
-        self.set_exec(cmd)         
-        cmd = "out:i(1:1):a(0);p(0);f(50)"      
-        self.set_exec(cmd)         
-        cmd = "out:i(1:2):a(0);p(-120);f(50)"      
-        self.set_exec(cmd)         
-        cmd = "out:i(1:3):a(0);p(120);f(50)"      
-        self.set_exec(cmd)         
-    #loop r
-    #  loop c
-    #    lineEdit.set_default
-
-    #----<set cmEngine exec-command>-------------------------------------------
-    def set_exec(self, cmd):
-        print("exec cmd: {}".format(cmd))
-        if self.device_locked:
-        ##if not self.device_locked:
-            self.execlog("Exec: {}".format(cmd))
-            self.cm_engine.Exec(self.device_id, cmd)
-            if self.is_on:
-                ##pass
-                self.cm_engine.Exec(self.device_id, "out:on")
-            return True
-        else:
-            self.execlog("No CMC-Device locked!")
-            return False
-            
-        #"out:v(1:1):a(10);p(0);f(50)"               
-        
     #----<CMC-Device Power contol>---------------------------------------------
     def cmc_power(self, power):
         #HINT: if cmc_power is called by PushButton event "power" represents 
@@ -171,8 +137,36 @@ class CMEngine():
                 self.execlog("CMC Power OFF failed!")
                 button.setChecked(False)
                 self.is_on = False
-   
+
+    #----<set cmEngine exec-command>-------------------------------------------
+    def set_exec(self, cmd):
+        #print("exec cmd: {}".format(cmd))
+        if self.device_locked:
+        ##if not self.device_locked:
+            self.execlog("Exec: {}".format(cmd))
+            ##self.cm_engine.Exec(self.device_id, cmd)
+            if self.is_on:
+                pass
+                ##self.cm_engine.Exec(self.device_id, "out:on")
+            return True
+        else:
+            self.execlog("No CMC-Device locked!")
+            return False
             
+        #"out:v(1:1):a(10);p(0);f(50)"               
+        
+    #----<set all values do default>-------------------------------------------
+    def cmc_set_to_default(self):
+        for r in range(6):
+            for c in range(3):
+                self.qCMC_tab.cellWidget(r, c).set_to_default(1)
+                cmd = self.qCMC_tab.cellWidget(r, c).build_cmd()
+                self.set_exec(cmd)
+            
+    #----<set value by name>---------------------------------------------------
+    def set_value(self, r,c, value):
+        self.qCMC_tab.cellWidget(r, c).setFormatedText(value,1)
+
     #----<set command from IEC60870-5-104 Frame by IOA>------------------------
     def set_command_from_104(self, info_object):
         #IOA1           | IOA2       | IOA3     | value     | description
@@ -193,14 +187,36 @@ class CMEngine():
         dez = info_object.address.DEZ
         info_detail_typ = info_object.dataObject[0].name  #SCO / R32
 
-        if ioa_1 in range(1, 21) and info_detail_typ == "R32":   #out ana
-            self.set_quick_table(info_object)
-        if ioa_1 == 255 and ioa_2 == 0:
+        #out ana
+        if ioa_1 in range(1, 21) and info_detail_typ == "R32":   
+            if ioa_2 < 100:
+                self.set_quick_table(info_object)
+            else:
+                if ioa_2 in range(100,103):
+                    value = info_object.dataObject[0].detail[0].value
+                    self.set_triple(ioa_2, value)
+        
+        #special
+        if ioa_1 == 255 and ioa_2 == 0:                          
             if ioa_3 == 1:
                 if info_detail_typ == "SCO":
                     status = info_object.dataObject[0].detail[2].state
                     if status == "SCS_ON": self.cmc_power(True)
                     else: self.cmc_power(False)
+            if ioa_3 == 2:
+                self.cmc_set_to_default()
+
+    #----<set triple in percent>-----------------------------------------------
+    def set_triple(self, ioa_2, value):
+        val_u = value * 100 / math.sqrt(3)
+        val_i = value * 100 
+        if ioa_2 == 100:
+            self.set_triple_voltage_amp(val_u)
+        if ioa_2 == 101:
+            self.set_triple_current_amp(val_i)
+        if ioa_2 == 102:
+            self.set_triple_voltage_amp(val_u)
+            self.set_triple_current_amp(val_i)
 
     #----<set quickCMC tableView from 104>-------------------------------------
     def set_quick_table(self, info_object):
@@ -217,12 +233,27 @@ class CMEngine():
         else:
             self.execlog("Commandstring Mailformed!")
 
-    #----<set Voltage value>---------------------------------------------------
-    def on_dial_voltage(self, value):
-        out = 150.0 * (value/100)
+    #----<set dial value>---------------------------------------------------
+    def set_triple_voltage_amp(self, value):
+        out = 100.0 * (value/100)
         self.qCMC_tab.cellWidget(0, 0).setFormatedText(out, 1)        
         self.qCMC_tab.cellWidget(1, 0).setFormatedText(out, 1)        
         self.qCMC_tab.cellWidget(2, 0).setFormatedText(out, 1)        
+    def set_triple_voltage_phase(self, value):
+        out = 360.0 * (value/100)
+        self.qCMC_tab.cellWidget(0, 1).setFormatedText(out, 1)        
+        self.qCMC_tab.cellWidget(1, 1).setFormatedText(out-120, 1)        
+        self.qCMC_tab.cellWidget(2, 1).setFormatedText(out+120, 1)        
+    def set_triple_current_amp(self, value):
+        out = 1.0 * (value/100)
+        self.qCMC_tab.cellWidget(3, 0).setFormatedText(out, 1)        
+        self.qCMC_tab.cellWidget(4, 0).setFormatedText(out, 1)        
+        self.qCMC_tab.cellWidget(5, 0).setFormatedText(out, 1)        
+    def set_triple_current_phase(self, value):
+        out = 360.0 * (value/100)
+        self.qCMC_tab.cellWidget(3, 1).setFormatedText(out, 1)        
+        self.qCMC_tab.cellWidget(4, 1).setFormatedText(out-120, 1)        
+        self.qCMC_tab.cellWidget(5, 1).setFormatedText(out+120, 1)        
 
     #----<logging>-------------------------------------------------------------
     def devlog(self, msg):
@@ -256,14 +287,16 @@ class TabEdit(QLineEdit):
             self.phase = ""
             self.kind = ""
             self.value = ""
+            self.cmdStr = "out:off"
             self.editingFinished.connect(self._exitEdit)
             self.setAlignment(Qt.AlignVCenter | Qt.AlignRight) 
             self.setStyleSheet("border-width: 0px; border-style: solid;")
-            self.set_to_default()
+            self.set_to_default(1)
             self.build_cmd()
         
     #----<set cell values to default>------------------------------------------
-    def set_to_default(self):
+    def set_to_default(self, gen):
+        self.gen = gen
         if self.r in range(0,3):
             self.unit = "V"
             self.vi = "v"
@@ -299,6 +332,7 @@ class TabEdit(QLineEdit):
         self.cmdStr = "out:{}({}:{}):{}({:.3f})".format(self.vi, self.gen, 
                                                         self.phase, self.kind, 
                                                         self.value)
+        return self.cmdStr
 
     #----<cleanUp Cell input>--------------------------------------------------
     def setFormatedText(self, txt_call, gen):

@@ -37,10 +37,14 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.bu_lock_device.clicked.connect(self.cmc.lock_device)
         self.bu_lock_device.setEnabled(False)
         self.bu_cmc_on.clicked.connect(self.cmc.cmc_power)
+        self.bu_cmd_reset_to_default.clicked.connect(self.cmc.cmc_set_to_default)
         self.bu_cmc_on.setStyleSheet("background-color: green")
         self.bu_cmc_on.setCheckable(True)
         self.bu_import_scd.clicked.connect(self.scd.load_file)
-        self.dial.valueChanged.connect(self.cmc.on_dial_voltage)
+        self.dial_ua.valueChanged.connect(self.cmc.set_triple_voltage_amp)
+        self.dial_up.valueChanged.connect(self.cmc.set_triple_voltage_phase)
+        self.dial_ia.valueChanged.connect(self.cmc.set_triple_current_amp)
+        self.dial_ip.valueChanged.connect(self.cmc.set_triple_current_phase)
        
     #Table devices
         cmc_dev = self.tab_devices

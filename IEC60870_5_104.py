@@ -106,13 +106,13 @@ class Client(QtCore.QObject):
 
     #--- I-Frame handle  ------------------------------------------------------
     def handle_iFrame(self, frame):
-        APDU = T104.APDU(frame, self.frm_main.print_memo)
+        APDU = T104.APDU(frame)
         self.frm_main.print_memo("104","<- I - IOA[{}-{}-{}] - TI[{}]".format(APDU.ASDU.InfoObject.address._1,
                                                  APDU.ASDU.InfoObject.address._2,
                                                  APDU.ASDU.InfoObject.address._3,
                                                 APDU.ASDU.TI.Typ))
         self.frm_main.print_memo("",APDU.ASDU.InfoObject.info_object_data_String())
-        #APDU.pO()
+        APDU.pO()
             
         #confirm activation frame
         if APDU.ASDU.COT.short == "act":

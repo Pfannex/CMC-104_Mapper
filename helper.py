@@ -82,6 +82,6 @@ def logEx(ex, inClass):
     #log_error("trace:   %s" %stack_trace)            
     
 #--- format printLine  --------------------------------------------------------
-#def fPL(value):
-#    line = "{0:04b} {1:04b} - 0x{2:02X} - {2:4}".format(value>>4, value&0b00001111, value)
-#    return line
+def fPL(value):
+    line = "{0:04b} {1:04b} - 0x{2:02X} - {2:4}".format(value>>4, value&0b00001111, value)
+    return line
