@@ -5,6 +5,7 @@
 #   IMPORT
 ###############################################################################
 import helper as h
+import Config
 import win32com.client
 import math
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -237,25 +238,72 @@ class CMEngine():
 
     #----<set dial value>---------------------------------------------------
     def set_triple_voltage_amp(self, value):
-        out = 100.0 * (value/100)
+        if self.frm_main.cb_scale_to.isChecked():
+            scale = 100*float(self.frm_main.tb_vt_range.text())
+        else: scale = 100.0
+        out = scale * (value/100)
         self.qCMC_tab.cellWidget(0, 0).setFormatedText(out, 1)        
         self.qCMC_tab.cellWidget(1, 0).setFormatedText(out, 1)        
-        self.qCMC_tab.cellWidget(2, 0).setFormatedText(out, 1)        
+        self.qCMC_tab.cellWidget(2, 0).setFormatedText(out, 1)  
+        #scalet outputinfo
+        max = 0x7FFF
+        scaled = max * value/100 
+        self.frm_main.tb_vt_scale_hex.setText("{:02X}".format(int(scaled)))      
+        self.frm_main.tb_vt_scale_int.setText("{:.0f}".format(scaled)) 
+        self.frm_main.lbl_u_dial.setText("{:.0f}%".format(value)) 
+            
     def set_triple_voltage_phase(self, value):
         out = 360.0 * (value/100)
         self.qCMC_tab.cellWidget(0, 1).setFormatedText(out, 1)        
         self.qCMC_tab.cellWidget(1, 1).setFormatedText(out-120, 1)        
-        self.qCMC_tab.cellWidget(2, 1).setFormatedText(out+120, 1)        
+        self.qCMC_tab.cellWidget(2, 1).setFormatedText(out+120, 1)   
+             
     def set_triple_current_amp(self, value):
-        out = 1.0 * (value/100)
+        if self.frm_main.cb_scale_to.isChecked():
+            scale = 1.0*float(self.frm_main.tb_ct_range.text())
+        else: scale = 1
+        out = scale * (value/100)
         self.qCMC_tab.cellWidget(3, 0).setFormatedText(out, 1)        
         self.qCMC_tab.cellWidget(4, 0).setFormatedText(out, 1)        
         self.qCMC_tab.cellWidget(5, 0).setFormatedText(out, 1)        
+        #scalet outputinfo
+        max = 0x7FFF
+        scaled = max * value/100 
+        self.frm_main.tb_ct_scale_hex.setText("{:02X}".format(int(scaled)))      
+        self.frm_main.tb_ct_scale_int.setText("{:.0f}".format(scaled))  
+        self.frm_main.lbl_i_dial.setText("{:.0f}%".format(value)) 
+        
     def set_triple_current_phase(self, value):
         out = 360.0 * (value/100)
         self.qCMC_tab.cellWidget(3, 1).setFormatedText(out, 1)        
         self.qCMC_tab.cellWidget(4, 1).setFormatedText(out-120, 1)        
         self.qCMC_tab.cellWidget(5, 1).setFormatedText(out+120, 1)        
+
+    #----<format input>--------------------------------------------------------
+    def format_ct_pri(self):
+        self.format_input(self.frm_main.tb_ct_pri)
+    def format_ct_sec(self):
+        self.format_input(self.frm_main.tb_ct_sec)
+    def format_vt_pri(self):
+        self.format_input(self.frm_main.tb_vt_pri)
+    def format_vt_sec(self):
+        self.format_input(self.frm_main.tb_vt_sec)
+    def format_ct_range(self):
+        self.format_input(self.frm_main.tb_ct_range)
+    def format_vt_range(self):
+        self.format_input(self.frm_main.tb_vt_range)
+        
+    def format_input(self, tb):
+        txt = tb.text()
+        txt = txt.replace(",",".")
+        for chr in txt:
+            if not chr in "-01234567890,.":
+                txt = txt.replace(chr,"")
+        if not txt:        
+            self.setText("")
+        else:
+            tb.setText(txt)
+
 
     #----<logging>-------------------------------------------------------------
     def devlog(self, msg):

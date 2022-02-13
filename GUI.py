@@ -53,6 +53,7 @@ class Frm_main(QMainWindow, Ui_frm_main):
         
         self.cb_autoScan.stateChanged.connect(self.handle_checkboxes_autostart)
         self.cb_autoLock.stateChanged.connect(self.handle_checkboxes_autostart)
+        #self.cb_scale_to.stateChanged.connect(xxx)
        
     #Table devices
         cmc_dev = self.tab_devices
@@ -73,12 +74,27 @@ class Frm_main(QMainWindow, Ui_frm_main):
                 edit.exitEdit.connect(self.cmc.on_edit_qCMC_tab)
                 self.tab_qCMC.setCellWidget(r,c, edit)
 
+    #scale
+        self.cb_scale_to.setChecked(self.cfg.scaleTo)
+        self.tb_ct_pri.setText(self.cfg.ct_pri)
+        self.tb_ct_pri.editingFinished.connect(self.cmc.format_ct_pri)
+        self.tb_ct_sec.setText(self.cfg.ct_sec)
+        self.tb_ct_sec.editingFinished.connect(self.cmc.format_ct_sec)
+        self.tb_vt_pri.setText(self.cfg.vt_pri)
+        self.tb_vt_pri.editingFinished.connect(self.cmc.format_vt_pri)
+        self.tb_vt_sec.setText(self.cfg.vt_sec)
+        self.tb_vt_sec.editingFinished.connect(self.cmc.format_vt_sec)
+        self.tb_ct_range.setText(self.cfg.ct_range)
+        self.tb_ct_range.editingFinished.connect(self.cmc.format_ct_range)
+        self.tb_vt_range.setText(self.cfg.vt_range)
+        self.tb_vt_range.editingFinished.connect(self.cmc.format_vt_range)
+    
+    
     #autostart services
         self.start_services()
  
     #handle checkboxes autostart
     def handle_checkboxes_autostart(self, cb):
-        print(cb)
         if not self.cb_autoScan.isChecked(): self.cb_autoLock.setChecked(False)
         if self.cb_autoLock.isChecked() and not self.cb_autoScan.isChecked():
             self.cb_autoLock.setChecked(False)
@@ -113,6 +129,16 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.cfg.autostartServer = self.cb_autostartServer.isChecked()
         self.cfg.autoScanDevices = self.cb_autoScan.isChecked()
         self.cfg.autoLockDevices = self.cb_autoLock.isChecked()
+        
+        self.cfg.scaleTo = self.cb_scale_to.isChecked()
+        self.cfg.ct_pri = self.tb_ct_pri.text()
+        self.cfg.ct_sec = self.tb_ct_sec.text()
+        self.cfg.vt_pri = self.tb_vt_pri.text()
+        self.cfg.vt_sec = self.tb_vt_sec.text()
+        self.cfg.ct_range = self.tb_ct_range.text()
+        self.cfg.vt_range = self.tb_vt_range.text()
+        
+        
         self.cfg.write_config()
         
 

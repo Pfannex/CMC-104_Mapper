@@ -85,3 +85,18 @@ def logEx(ex, inClass):
 def fPL(value):
     line = "{0:04b} {1:04b} - 0x{2:02X} - {2:4}".format(value>>4, value&0b00001111, value)
     return line
+
+"""
+import struct
+
+x = [0b11111111, 0b11010100]
+
+y = int.from_bytes(x, byteorder='big', signed=True)
+#z = y.to_bytes(2, 'big')
+#z = y.to_bytes((y.bit_length() + 7) // 8, 'big')
+
+z = y.to_bytes(length=(8 + (y + (y < 0)).bit_length()) // 8, byteorder='big', signed=True)
+
+print(y)
+print(z)
+"""

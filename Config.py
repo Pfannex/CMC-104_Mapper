@@ -24,12 +24,29 @@ class CFG():
         self.autostartServer = self.file["autostartServer"]
         self.autoScanDevices = self.file["autoScanDevice"]
         self.autoLockDevices = self.file["autoLockDevices"]
+
+        self.ct_pri = self.file["ct_pri"]
+        self.ct_sec = self.file["ct_sec"]
+        self.vt_pri = self.file["vt_pri"]
+        self.vt_sec = self.file["vt_sec"]
+        self.scaleTo = self.file["scaleTo"]
+        self.ct_range = self.file["ct_range"]
+        self.vt_range = self.file["vt_range"]
         f.close()
 
     def write_config(self):
         self.file["autostartServer"] = self.autostartServer
         self.file["autoScanDevice"] = self.autoScanDevices
         self.file["autoLockDevices"] = self.autoLockDevices
+
+        self.file["ct_pri"] = self.ct_pri
+        self.file["ct_sec"] = self.ct_sec 
+        self.file["vt_pri"] = self.vt_pri 
+        self.file["vt_sec"] = self.vt_sec 
+        self.file["scaleTo"] = self.scaleTo 
+        self.file["ct_range"] = self.ct_range 
+        self.file["vt_range"] = self.vt_range  
+
         #print(self.file)
         out_file = open("CMC-104_Mapper/config.json", "w")        
         #out_file = open("config.json", "w")        
