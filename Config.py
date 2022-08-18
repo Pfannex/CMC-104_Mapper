@@ -16,7 +16,7 @@ class CFG():
         
 
     def read_config(self): 
-        f = open("CMC-104_Mapper/config.json")
+        f = open("config.json")
         #f = open("config.json")
         self.file = json.load(f)
         #print(self.file)
@@ -48,7 +48,7 @@ class CFG():
         self.file["vt_range"] = self.vt_range  
 
         #print(self.file)
-        out_file = open("CMC-104_Mapper/config.json", "w")        
+        out_file = open("config.json", "w")        
         #out_file = open("config.json", "w")        
         json.dump(self.file, out_file, indent = 6)
         out_file.close()

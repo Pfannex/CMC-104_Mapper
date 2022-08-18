@@ -36,8 +36,8 @@ class CMEngine():
         self.devlog("scanning....")
 
         self.cm_engine.DevScanForNew(False)
-        ##ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
-        ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
+        ret = self.cm_engine.DevGetList(0)  #return all associated CMCs
+        ###ret = "2,DE349J,1,3;1,JA254S,0,0;"  #return all associated CMCs
         ret = ret.split(";")
         while '' in ret: ret.remove('')
         self.device_list = []
@@ -48,7 +48,9 @@ class CMEngine():
             return
         else:
             self.frm_main.bu_lock_device.setEnabled(True)
-            self.devlog("devices found: {}".format(self.device_list))
+            self.devlog("devices found:")
+            for device in self.device_list:
+                self.devlog("  {}".format(device))  
 
             tab = self.frm_main.tab_devices
             self.device_tab.setRowCount(0)
@@ -60,11 +62,11 @@ class CMEngine():
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 0, item)
                 item = QtWidgets.QTableWidgetItem(device[1])
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 1, item)
-                ##item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
-                item = QtWidgets.QTableWidgetItem("CMC356") 
+                item = QtWidgets.QTableWidgetItem(self.cm_engine.DeviceType(device[0])) 
+                ###item = QtWidgets.QTableWidgetItem("CMC356") 
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 2, item)
-                ##item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
-                item = QtWidgets.QTableWidgetItem("192.168.2.203") 
+                item = QtWidgets.QTableWidgetItem(self.cm_engine.IPAddress(device[0])) 
+                ###item = QtWidgets.QTableWidgetItem("192.168.2.203") 
                 self.device_tab.setItem(self.device_tab.rowCount()-1, 3, item)
             
             self.device_tab.item(0,0).setCheckState(Qt.CheckState.Checked)
@@ -84,26 +86,26 @@ class CMEngine():
         for i in range(self.device_tab.rowCount()):
             id = self.device_tab.item(i,0).text()
             self.devlog("unlock deviceID= {}".format(id))
-            ##self.cm_engine.DevUnlock(id)
+            self.cm_engine.DevUnlock(id)
 
     #----<lock selected CMC-device from list>----------------------------------
     def lock_device(self):
         self.unlock_all_devices() 
         for i in range(self.device_tab.rowCount()):
             if self.device_tab.item(i, 0).checkState() == QtCore.Qt.Checked:
-                ##self.device_id = int(self.device_tab.item(i, 0).text())
-                ##self.serial = self.cm_engine.SerialNumber(self.device_id)
-                ##self.typ = self.cm_engine.DeviceType(self.device_id)
-                ##self.device_ip = self.cm_engine.IPAddress(self.device_id)
-                self.device_id = "1"
-                self.serial = "PBY123"
-                self.typ = "CMC356"
-                self.device_ip = "192.168.2.333"
+                self.device_id = int(self.device_tab.item(i, 0).text())
+                self.serial = self.cm_engine.SerialNumber(self.device_id)
+                self.typ = self.cm_engine.DeviceType(self.device_id)
+                self.device_ip = self.cm_engine.IPAddress(self.device_id)
+                ###self.device_id = "1"
+                ###self.serial = "PBY123"
+                ###self.typ = "CMC356"
+                ###self.device_ip = "192.168.2.333"
         
         if not self.device_id: 
             self.devlog("No CMC-Device found or selected!")
         else: 
-            ##self.cm_engine.DevLock(self.device_id)
+            self.cm_engine.DevLock(self.device_id)
             self.device_locked = True
             self.frm_main.bu_lock_device.setText("locked to: {}".format(self.serial))
             self.frm_main.bu_lock_device.setStyleSheet("font-weight: bold; color: red")
@@ -147,10 +149,10 @@ class CMEngine():
         #print("exec cmd: {}".format(cmd))
         if self.device_locked:
             self.execlog("Exec: {}".format(cmd))
-            ##self.cm_engine.Exec(self.device_id, cmd)
+            self.cm_engine.Exec(self.device_id, cmd)
             if self.is_on:
                 pass
-                ##self.cm_engine.Exec(self.device_id, "out:on")
+                self.cm_engine.Exec(self.device_id, "out:on")
             return True
         else:
             self.execlog("No CMC-Device locked!")
