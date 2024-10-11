@@ -1,5 +1,5 @@
 {
-      "autostartServer": true,
+      "autostartServer": false,
       "autoScanDevice": false,
       "autoLockDevices": false,
       "ct_pri": "1000",
