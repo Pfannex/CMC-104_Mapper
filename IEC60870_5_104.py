@@ -156,8 +156,13 @@ class Client_Connection(QtCore.QObject):
                 0x00, 
                 0x64, 0x01, 
                 ioa[2], ioa[1], ioa[0]]
-        value = [b for b in struct.pack('f', info_object_data_value)]
-        frame += value + [0x00]
+        
+        if ti == 1:
+            frame.append(info_object_data_value & 0x01)
+        else:
+            value = [b for b in struct.pack('f', info_object_data_value)]
+            frame += value + [0x00]
+
         data = bytearray(frame)
         data[2] = (self.tx_counter & 0b0000000001111111) << 1
         data[3] = (self.tx_counter & 0b0111111110000000) >> 7

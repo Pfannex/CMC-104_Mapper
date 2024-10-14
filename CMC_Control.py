@@ -150,7 +150,6 @@ class CMEngine():
             self.execlog("Exec: {}".format(cmd))
             self.cm_engine.Exec(self.device_id, cmd)
             if self.is_on:
-                pass
                 self.cm_engine.Exec(self.device_id, "out:on")
             return True
         else:

@@ -176,6 +176,10 @@ class Frm_main(QMainWindow, Ui_frm_main):
                     item = self.tab_qCMC.cellWidget(r, c)
                     ioa = [item.c + 1, item.r + 1, 0]
                     self.server.client_connection.send_iFrame(18, 13, 20, ioa, item.value)
+        
+        # CMC Status
+        ioa = [2, 0, 255]
+        self.server.client_connection.send_iFrame(14, 1, 20, ioa, self.cmc.is_on)
 
     #----<set command from IEC60870-5-104 Frame by IOA>------------------------
     def set_command_from_104(self, APDU):
@@ -215,9 +219,14 @@ class Frm_main(QMainWindow, Ui_frm_main):
             if ioa_3 == 1:
                 if info_detail_typ == "SCO":
                     status = info_object.dataObject[0].detail[2].state
-                    if status == "SCS_ON": self.cmc.cmc_power(True)
-                    else: self.cmc.cmc_power(False)
-            if ioa_3 == 2:
+                    if status == "SCS_ON": 
+                        self.cmc.cmc_power(True)
+                    else: 
+                        self.cmc.cmc_power(False)
+                    ioa = [2, 0, 255]
+                    self.server.client_connection.send_iFrame(14, 1, 3, ioa, self.cmc.is_on)
+                    
+            elif ioa_3 == 2:
                 self.cmc.cmc_set_to_default()
 
 
