@@ -146,7 +146,6 @@ class CMEngine():
 
     #----<set cmEngine exec-command>-------------------------------------------
     def set_exec(self, cmd):
-        #print("exec cmd: {}".format(cmd))
         if self.device_locked:
             self.execlog("Exec: {}".format(cmd))
             self.cm_engine.Exec(self.device_id, cmd)
@@ -156,6 +155,7 @@ class CMEngine():
             return True
         else:
             self.execlog("No CMC-Device locked!")
+            self.execlog("Tried to Exec: {}".format(cmd))
             return False
             
         #"out:v(1:1):a(10);p(0);f(50)"               
@@ -165,8 +165,6 @@ class CMEngine():
         for r in range(6):
             for c in range(3):
                 self.qCMC_tab.cellWidget(r, c).set_to_default(1)
-                cmd = self.qCMC_tab.cellWidget(r, c).build_cmd()
-                self.set_exec(cmd)
             
     #----<set value by name>---------------------------------------------------
     def set_value(self, r,c, value):
@@ -331,6 +329,7 @@ class TabEdit(QLineEdit):
         
         txt = "{:.2f} {}".format(self.value, self.unit)
         self.setText(txt)
+        self.exitEdit.emit(self)
     
     #----<build cmc-line for cmEngine exec>------------------------------------
     def build_cmd(self):
