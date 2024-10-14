@@ -172,49 +172,6 @@ class CMEngine():
     def set_value(self, r,c, value):
         self.qCMC_tab.cellWidget(r, c).setFormatedText(value,1)
 
-    #----<set command from IEC60870-5-104 Frame by IOA>------------------------
-    def set_command_from_104(self, APDU):
-        #IOA1           | IOA2       | IOA3     | value     | description
-        #out analog
-        # gen [1..20]   | tab_row    | tab_col  |
-        # 1             | U/I 1,2,3  | a/p/f    | R32       | 3xU / 3xI
-        # 1             | 100        | 0        | R32       | triple U in %
-        # 1             | 101        | 0        | R32       | triple I in %
-        # 1             | 102        | 0        | R32       | triple U/I in %
-
-        #special funktions:
-        # 255           | 0          | 1        | SCS_ON/OFF| 255Power on/off
-        # 255           | 0          | 2        | res_out   | reset triple
-
-        if APDU.ASDU.CASDU.DEZ != 356:
-            return
-        
-        info_object = APDU.ASDU.InfoObject
-        ioa_1 = info_object.address._1
-        ioa_2 = info_object.address._2
-        ioa_3 = info_object.address._3
-        dez = info_object.address.DEZ
-        info_detail_typ = info_object.dataObject[0].name  #SCO / R32
-
-        #out ana
-        if ioa_1 in range(1, 21) and info_detail_typ == "R32":   
-            if ioa_2 < 100:
-                self.set_quick_table(info_object)
-            else:
-                if ioa_2 in range(100,103):
-                    value = info_object.dataObject[0].detail[0].value
-                    self.set_triple(ioa_2, value)
-        
-        #special
-        if ioa_1 == 255 and ioa_2 == 0:                          
-            if ioa_3 == 1:
-                if info_detail_typ == "SCO":
-                    status = info_object.dataObject[0].detail[2].state
-                    if status == "SCS_ON": self.cmc_power(True)
-                    else: self.cmc_power(False)
-            if ioa_3 == 2:
-                self.cmc_set_to_default()
-
     #----<set triple in percent>-----------------------------------------------
     def set_triple(self, ioa_2, value):
         val_u = value * 100 / math.sqrt(3)
@@ -226,14 +183,6 @@ class CMEngine():
         if ioa_2 == 102:
             self.set_triple_voltage_amp(val_u)
             self.set_triple_current_amp(val_i)
-
-    #----<set quickCMC tableView from 104>-------------------------------------
-    def set_quick_table(self, info_object):
-        value = info_object.dataObject[0].detail[0].value
-        gen = info_object.address._1
-        r = info_object.address._2 -1
-        c = info_object.address._3 -1
-        self.qCMC_tab.cellWidget(r, c).setFormatedText(value, gen)
 
     #----<set quickCMC tableView by edeting>-----------------------------------
     def on_edit_qCMC_tab(self, item):
