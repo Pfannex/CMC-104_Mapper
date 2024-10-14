@@ -12,6 +12,7 @@ import IEC60870_5_104_dict as d
 from PySide6 import QtCore, QtGui, QtNetwork
 from Qt_GUI.frm_main import Ui_frm_main
 from PySide6.QtWidgets import QApplication, QMainWindow
+import struct
 
 class counter():
     def __init_(self):
@@ -21,20 +22,24 @@ class counter():
 ###############################################################################
 #   callback to main
 ###############################################################################
-class SetCallback():
-    def set_callback(self, ga_callback, iFrame_callback):
-        self.ga_callback = ga_callback
-        self.iFrame_callback = iFrame_callback
-    def DoCallback(self, destination, APDU):
-        if destination == "GA":
-            self.ga_callback(APDU)
-        else: self.iFrame_callback(APDU)
-callback = SetCallback()
+# class SetCallback():
+#     def set_callback(self, ga_callback, iFrame_callback):
+#         self.ga_callback = ga_callback
+#         self.iFrame_callback = iFrame_callback
+#     def DoCallback(self, destination, APDU):
+#         if destination == "GA":
+#             self.ga_callback(APDU)
+#         else: self.iFrame_callback(APDU)
+# callback = SetCallback()
 
 ###############################################################################
 #   IEC 60870-5-104 server
 ###############################################################################
-class Client(QtCore.QObject):
+class Client_Connection(QtCore.QObject):
+    def __init__(self, iframe_callback):
+        super().__init__()
+        self.iframe_callback = iframe_callback
+
     def SetSocket(self, socket, frm_main):
         self.frm_main = frm_main
         self.rx_counter = 0
@@ -133,51 +138,60 @@ class Client(QtCore.QObject):
             
         #callback to main
         if APDU.ASDU.TI.Typ == 100:     #C_IC_NA_1 - (General-) Interrogation command 
+            pass
             #self.ga_callback(APDU)
-            callback.DoCallback("GA", APDU)
+            # callback.DoCallback("GA", APDU)
         else:
-            callback.DoCallback("I", APDU)
+            self.iframe_callback(APDU)
             #self.iFrame_callback(APDU, self.callback_send)  #other I-Frame
 
     #--- send I-Frame  --------------------------------------------------------
-    def send_iFrame(self, length, ti, info_object_data):
-        list = [0x68, length, 0x02, 0x00, 0x02, 0x00,
-                ti, 0x01, 0x05, 0x00, 0x64, 0x01, 
-                0x02, 0x00, 0x00, info_object_data]       
-        data = bytearray(list)
+    def send_iFrame(self, length, ti, cot, ioa, info_object_data_value):
+        frame = [0x68, length, 0x00, 0x00, 0x00, 0x00,
+                ti, 
+                0x01, 
+                cot, 
+                0x00, 
+                0x64, 0x01, 
+                ioa[2], ioa[1], ioa[0]]
+        value = [b for b in struct.pack('f', info_object_data_value)]
+        frame += value + [0x00]
+        data = bytearray(frame)
         data[2] = (self.tx_counter & 0b0000000001111111) << 1
         data[3] = (self.tx_counter & 0b0111111110000000) >> 7
         data[4] = (self.rx_counter & 0b0000000001111111) << 1
         data[5] = (self.rx_counter & 0b0111111110000000) >> 7
             
         APDU = T104.APDU(data)
-        #APDU.pO()
+        APDU.pO()
         self.frm_main.print_memo("104","-> I - IOA[{}-{}-{}] - TI[{}]".format(self.tx_counter, self.rx_counter,
                                                            APDU.ASDU.InfoObject.address._1,
                                                            APDU.ASDU.InfoObject.address._2,
                                                            APDU.ASDU.InfoObject.address._3,
                                                            APDU.ASDU.TI.Typ))
-        self.request.sendall(data)
+        self.socket.write(data)
         self.tx_counter += 1  
     
     #--- send callback from main  ---------------------------------------------
-    def callback_send(self, cmc_is_on):
-        if cmc_is_on: 
-            value = 0b00000001
-        else: value = 0b00000000
-        self.send_iFrame(14,1,value)
+    # def callback_send(self, cmc_is_on):
+    #     if cmc_is_on: 
+    #         value = 0b00000001
+    #     else: value = 0b00000000
+    #     self.send_iFrame(14,1,value)
 
 class Server(QtCore.QObject):
-    def __init__(self, frm_main, parent=None):
+    def __init__(self, frm_main, iframe_callback):
         QtCore.QObject.__init__(self)
         self.frm_main = frm_main
+        self.iframe_callback  = iframe_callback
         self.running_server = None
+        self.client_connection = None
 
     def on_newConnection(self):
         while self.running_server.hasPendingConnections():
             self.frm_main.print_memo("s","Incoming Connection...")
-            self.client = Client(self)
-            self.client.SetSocket(self.running_server.nextPendingConnection(), self.frm_main)
+            self.client_connection = Client_Connection(self.iframe_callback)
+            self.client_connection.SetSocket(self.running_server.nextPendingConnection(), self.frm_main)
 
     def StartServer(self):
         self.TCP_LISTEN_TO_PORT = int(self.frm_main.tb_server_port.toPlainText())

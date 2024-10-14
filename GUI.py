@@ -27,8 +27,8 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.setupUi(self)
         self.setWindowTitle(version)
         self.statusbar.showMessage("© by Pf@nne/22")
-        self.server = IEC60870_5_104.Server(self)
         self.cmc = CMC_Control.CMEngine(self)
+        self.server = IEC60870_5_104.Server(self, self.cmc.set_command_from_104)
         self.cfg = Config.CFG()
         self.scd = SCD.SCD(self)
         
@@ -71,7 +71,7 @@ class Frm_main(QMainWindow, Ui_frm_main):
         for r in range(6):
             for c in range(3):
                 edit = CMC_Control.TabEdit(r,c, self.li_qCMC_log)
-                edit.exitEdit.connect(self.cmc.on_edit_qCMC_tab)
+                edit.exitEdit.connect(self.on_edit_qCMC)
                 self.tab_qCMC.setCellWidget(r,c, edit)
 
     #scale
@@ -92,6 +92,13 @@ class Frm_main(QMainWindow, Ui_frm_main):
     
     #autostart services
         self.start_services()
+
+    def on_edit_qCMC(self, item):
+        ioa = [item.c + 1, item.r + 1, 0]
+        if self.server.client_connection:
+            self.server.client_connection.send_iFrame(18, 13, 3, ioa, item.value)
+        self.cmc.on_edit_qCMC_tab(item)
+
 
     def handle_start_server(self):
         if self.server.running_server:

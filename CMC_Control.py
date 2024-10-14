@@ -173,7 +173,7 @@ class CMEngine():
         self.qCMC_tab.cellWidget(r, c).setFormatedText(value,1)
 
     #----<set command from IEC60870-5-104 Frame by IOA>------------------------
-    def set_command_from_104(self, info_object):
+    def set_command_from_104(self, APDU):
         #IOA1           | IOA2       | IOA3     | value     | description
         #out analog
         # gen [1..20]   | tab_row    | tab_col  |
@@ -186,6 +186,10 @@ class CMEngine():
         # 255           | 0          | 1        | SCS_ON/OFF| 255Power on/off
         # 255           | 0          | 2        | res_out   | reset triple
 
+        if APDU.ASDU.CASDU.DEZ != 356:
+            return
+        
+        info_object = APDU.ASDU.InfoObject
         ioa_1 = info_object.address._1
         ioa_2 = info_object.address._2
         ioa_3 = info_object.address._3
