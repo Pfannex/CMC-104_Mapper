@@ -28,7 +28,8 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.setWindowTitle(version)
         self.statusbar.showMessage("© by Pf@nne/22")
         self.cmc = CMC_Control.CMEngine(self)
-        self.server = IEC60870_5_104.Server(self, self.cmc.set_command_from_104)
+        self.server = IEC60870_5_104.Server(self, self.set_general_interrogation_command_from_104, 
+                                            self.set_command_from_104)
         self.cfg = Config.CFG()
         self.scd = SCD.SCD(self)
         
@@ -89,7 +90,6 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.tb_vt_range.setText(self.cfg.vt_range)
         self.tb_vt_range.editingFinished.connect(self.cmc.format_vt_range)
     
-    
     #autostart services
         self.start_services()
 
@@ -99,6 +99,13 @@ class Frm_main(QMainWindow, Ui_frm_main):
             self.server.client_connection.send_iFrame(18, 13, 3, ioa, item.value)
         self.cmc.on_edit_qCMC_tab(item)
 
+    #----<set quickCMC tableView from 104>-------------------------------------
+    def set_quick_table(self, info_object):
+        value = info_object.dataObject[0].detail[0].value
+        gen = info_object.address._1
+        r = info_object.address._2 -1
+        c = info_object.address._3 -1
+        self.tab_qCMC.cellWidget(r, c).setFormatedText(value, gen)
 
     def handle_start_server(self):
         if self.server.running_server:
@@ -161,5 +168,56 @@ class Frm_main(QMainWindow, Ui_frm_main):
         
         
         self.cfg.write_config()
+
+    #----<GI command from IEC60870-5-104 Frame>------------------------
+    def set_general_interrogation_command_from_104(self):
+        for r in range(6):
+                for c in range(3):
+                    item = self.tab_qCMC.cellWidget(r, c)
+                    ioa = [item.c + 1, item.r + 1, 0]
+                    self.server.client_connection.send_iFrame(18, 13, 20, ioa, item.value)
+
+    #----<set command from IEC60870-5-104 Frame by IOA>------------------------
+    def set_command_from_104(self, APDU):
+        #IOA1           | IOA2       | IOA3     | value     | description
+        #out analog
+        # gen [1..20]   | tab_row    | tab_col  |
+        # 1             | U/I 1,2,3  | a/p/f    | R32       | 3xU / 3xI
+        # 1             | 100        | 0        | R32       | triple U in %
+        # 1             | 101        | 0        | R32       | triple I in %
+        # 1             | 102        | 0        | R32       | triple U/I in %
+
+        #special funktions:
+        # 255           | 0          | 1        | SCS_ON/OFF| 255Power on/off
+        # 255           | 0          | 2        | res_out   | reset triple
+
+        if APDU.ASDU.CASDU.DEZ != 356:
+            return
         
+        info_object = APDU.ASDU.InfoObject
+        ioa_1 = info_object.address._1
+        ioa_2 = info_object.address._2
+        ioa_3 = info_object.address._3
+        dez = info_object.address.DEZ
+        info_detail_typ = info_object.dataObject[0].name  #SCO / R32
+
+        #out ana
+        if ioa_1 in range(1, 21) and info_detail_typ == "R32":   
+            if ioa_2 < 100:
+                self.set_quick_table(info_object)
+            else:
+                if ioa_2 in range(100,103):
+                    value = info_object.dataObject[0].detail[0].value
+                    self.cmc.set_triple(ioa_2, value)
+        
+        #special
+        if ioa_1 == 255 and ioa_2 == 0:                          
+            if ioa_3 == 1:
+                if info_detail_typ == "SCO":
+                    status = info_object.dataObject[0].detail[2].state
+                    if status == "SCS_ON": self.cmc.cmc_power(True)
+                    else: self.cmc.cmc_power(False)
+            if ioa_3 == 2:
+                self.cmc.cmc_set_to_default()
+
 
