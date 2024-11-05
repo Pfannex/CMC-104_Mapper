@@ -32,6 +32,8 @@ class CFG():
         self.scaleTo = self.file["scaleTo"]
         self.ct_range = self.file["ct_range"]
         self.vt_range = self.file["vt_range"]
+        self.ip = self.file["ip"]
+        self.port = self.file["port"]
         f.close()
 
     def write_config(self):
@@ -46,6 +48,8 @@ class CFG():
         self.file["scaleTo"] = self.scaleTo 
         self.file["ct_range"] = self.ct_range 
         self.file["vt_range"] = self.vt_range  
+        self.file["ip"] = self.ip
+        self.file["port"] = self.port
 
         #print(self.file)
         out_file = open("config.json", "w")        

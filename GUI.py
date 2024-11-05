@@ -55,6 +55,12 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.cb_autoScan.stateChanged.connect(self.handle_checkboxes_autostart)
         self.cb_autoLock.stateChanged.connect(self.handle_checkboxes_autostart)
         #self.cb_scale_to.stateChanged.connect(xxx)
+
+    #TextField
+        self.tb_server_ip.setText(self.cfg.ip)
+        self.tb_server_port.setText(self.cfg.port)
+        self.tb_server_ip.textChanged.connect(self.handle_ip_port_changed)
+        self.tb_server_port.textChanged.connect(self.handle_ip_port_changed)
        
     #Table devices
         cmc_dev = self.tab_devices
@@ -126,7 +132,11 @@ class Frm_main(QMainWindow, Ui_frm_main):
         if not self.cb_autoScan.isChecked(): self.cb_autoLock.setChecked(False)
         if self.cb_autoLock.isChecked() and not self.cb_autoScan.isChecked():
             self.cb_autoLock.setChecked(False)
-        
+    
+    def handle_ip_port_changed(self):
+        self.cfg.ip = self.tb_server_ip.toPlainText()
+        self.cfg.port = self.tb_server_port.toPlainText()
+
     #handle Checkboxes in device list
     def handle_item_clicked(self, item):
         if item.column() == 0:
@@ -146,7 +156,7 @@ class Frm_main(QMainWindow, Ui_frm_main):
         
     def start_services(self):
         if self.cfg.autostartServer: 
-            self.server.StartServer()
+            self.handle_start_server()
         if self.cfg.autoScanDevices: 
             self.cmc.scan_for_new()
 
