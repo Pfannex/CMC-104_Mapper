@@ -33,7 +33,7 @@ class Frm_main(QMainWindow, Ui_frm_main):
         self.scd = SCD.SCD(self)
         
     #Buttons
-        self.bu_start_server.clicked.connect(self.server.StartServer)
+        self.bu_start_server.clicked.connect(self.handle_start_server)
         self.bu_scan_devices.clicked.connect(self.cmc.scan_for_new)
         self.bu_lock_device.clicked.connect(self.cmc.lock_device)
         self.bu_lock_device.setEnabled(False)
@@ -92,6 +92,20 @@ class Frm_main(QMainWindow, Ui_frm_main):
     
     #autostart services
         self.start_services()
+
+    def handle_start_server(self):
+        if self.server.running_server:
+            self.server.StopServer()
+            self.bu_start_server.setText("start Server")
+            self.tb_server_ip.setEnabled(True)
+            self.tb_server_port.setEnabled(True)
+        else:
+            self.server.StartServer()
+            if self.server.running_server:
+                self.bu_start_server.setText("stop Server")
+                self.tb_server_ip.setEnabled(False)
+                self.tb_server_port.setEnabled(False)
+        
  
     #handle checkboxes autostart
     def handle_checkboxes_autostart(self, cb):

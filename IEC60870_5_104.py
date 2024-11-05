@@ -47,7 +47,11 @@ class Client(QtCore.QObject):
                                                                           self.socket.peerPort()))
         self.frm_main.tb_client_ip.setPlainText(self.socket.peerAddress().toString())
         self.frm_main.tb_client_port.setPlainText(str(self.socket.peerPort()))
-        
+
+    def disconnect_connection(self):
+        if hasattr(self, "socket"):
+            self.socket.disconnectFromHost()
+
     def on_connected(self):
         self.frm_main.print_memo("s","Client Connected Event")
 
@@ -167,29 +171,32 @@ class Server(QtCore.QObject):
     def __init__(self, frm_main, parent=None):
         QtCore.QObject.__init__(self)
         self.frm_main = frm_main
-        self.TCP_LISTEN_TO_PORT = int(self.frm_main.tb_server_port.toPlainText())
-        self.server = QtNetwork.QTcpServer()
-        self.server.newConnection.connect(self.on_newConnection)
-        self.server.serverPort = self.TCP_LISTEN_TO_PORT
-        self.ip = QtNetwork.QHostAddress()
-        self.ip.setAddress(self.frm_main.tb_server_ip.toPlainText())
+        self.running_server = None
 
     def on_newConnection(self):
-        while self.server.hasPendingConnections():
+        while self.running_server.hasPendingConnections():
             self.frm_main.print_memo("s","Incoming Connection...")
             self.client = Client(self)
-            self.client.SetSocket(self.server.nextPendingConnection(), self.frm_main)
+            self.client.SetSocket(self.running_server.nextPendingConnection(), self.frm_main)
 
     def StartServer(self):
-        if self.server.listen(self.ip, self.TCP_LISTEN_TO_PORT):   #QtNetwork.QHostAddress.Any
+        self.TCP_LISTEN_TO_PORT = int(self.frm_main.tb_server_port.toPlainText())
+        self.running_server = QtNetwork.QTcpServer()
+        self.running_server.newConnection.connect(self.on_newConnection)
+        self.running_server.serverPort = self.TCP_LISTEN_TO_PORT
+        self.ip = QtNetwork.QHostAddress()
+        self.ip.setAddress(self.frm_main.tb_server_ip.toPlainText())
+        if self.running_server.listen(self.ip, self.TCP_LISTEN_TO_PORT):   #QtNetwork.QHostAddress.Any
             self.frm_main.print_memo("s",
                 "Server is listening on {}:{}".format(self.ip.toString(),
                                                       self.TCP_LISTEN_TO_PORT))
         else:
             self.frm_main.print_memo("e","Server couldn't wake up")
+            self.running_server = None
             
     def StopServer(self):
         self.frm_main.print_memo("s","Closing Server")
-        self.server.close()
+        self.running_server.close()
+        self.running_server = None
     
   
