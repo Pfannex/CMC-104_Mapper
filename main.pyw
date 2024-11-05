@@ -24,22 +24,24 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 ###############################################################################
 #   CALLBACKS
 ###############################################################################
-def timer1_callback():
-    pass
-    #h.log("here we go every 60 seconds")
+# def timer1_callback():
+#     pass
+#     #h.log("here we go every 60 seconds")
     
-def timer2_callback():
-    pass
-    #h.log("here we go every 300 seconds")
+# def timer2_callback():
+#     pass
+#     #h.log("here we go every 300 seconds")
 
-def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
-    #print("Hello World!")
-    pass
+# def on_IEC60870_5_104_I_Frame_GA_callback(APDU):
+#     print("run into GA callback")
+#     #print("Hello World!")
+#     pass
 
-def on_IEC60870_5_104_I_Frame_received_callback(APDU):
-    if APDU.ASDU.CASDU.DEZ == 356:
-        frm_main.cmc.set_command_from_104(APDU.ASDU.InfoObject)
-        #callback_send(cmc.is_on)
+# def on_IEC60870_5_104_I_Frame_received_callback(APDU):
+#     print("run into I frame callback")
+#     if APDU.ASDU.CASDU.DEZ == 356:
+#         frm_main.cmc.set_command_from_104(APDU.ASDU.InfoObject)
+#         #callback_send(cmc.is_on)
   
 ###############################################################################
 #   MAIN START
@@ -47,8 +49,8 @@ def on_IEC60870_5_104_I_Frame_received_callback(APDU):
 #t1 = h.idleTimer(60, timer1_callback)
 #t2 = h.idleTimer(300, timer2_callback)
 
-IEC60870_5_104.callback.set_callback(on_IEC60870_5_104_I_Frame_GA_callback,
-                                     on_IEC60870_5_104_I_Frame_received_callback)
+# IEC60870_5_104.callback.set_callback(on_IEC60870_5_104_I_Frame_GA_callback,
+#                                      on_IEC60870_5_104_I_Frame_received_callback)
 
 ###############################################################################
 #   MAIN LOOP

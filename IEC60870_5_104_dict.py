@@ -309,6 +309,7 @@ qos = [["QOS", "Qualifier of set-point command", {"usedBytes":1}],
 ###############################################################################   
 infoObjects = {
      1: [siq], 
+    13: [r32],
      2: [siq, cp56Time2a], 
     30: [siq, cp56Time2a], 
   
