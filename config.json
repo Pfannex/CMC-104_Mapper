@@ -1,5 +1,5 @@
 {
-      "autostartServer": true,
+      "autostartServer": false,
       "autoScanDevice": false,
       "autoLockDevices": false,
       "ct_pri": "1000",
@@ -8,5 +8,7 @@
       "vt_sec": "100",
       "scaleTo": false,
       "ct_range": "2.4",
-      "vt_range": "1.2"
+      "vt_range": "1.2",
+      "ip": "127.0.0.1",
+      "port": "2404"
 }
